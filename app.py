@@ -1,9 +1,20 @@
 from flask import Flask
-from routes import main
+from analyzer.routes.main import main
 
-app = Flask(__name__)
 
-app.register_blueprint(main)
+def create_app():
+    app = Flask(__name__)
+
+    # Required for flash messages and sessions
+    app.secret_key = "codesentinel-secret-key"
+
+    # Register main blueprint
+    app.register_blueprint(main)
+
+    return app
+
+
+app = create_app()
 
 
 if __name__ == "__main__":
