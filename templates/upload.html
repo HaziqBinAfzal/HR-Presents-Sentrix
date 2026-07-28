@@ -1,11 +1,333 @@
 {% extends "base.html" %}
 
-{% block title %}Upload{% endblock %}
+{% block title %}Upload Project | CodeSentinel AI{% endblock %}
 
 {% block content %}
 
-<h2>Upload</h2>
+<section class="py-5">
 
-<p>This page will allow users to upload source code for AI scanning.</p>
+    <div class="container">
+
+        <div class="row justify-content-center">
+
+            <div class="col-lg-10">
+
+                <div class="text-center mb-5">
+
+                    <i class="fa-solid fa-cloud-arrow-up fa-4x text-primary mb-3"></i>
+
+                    <h2 class="fw-bold">
+                        Upload Your Python Project
+                    </h2>
+
+                    <p class="text-muted">
+                        Upload a Python file or ZIP project for AI-powered code analysis, formatting, security scanning, and report generation.
+                    </p>
+
+                </div>
+
+                <div class="card shadow-lg border-0 rounded-4">
+
+                    <div class="card-body p-5">
+
+                        <form method="POST" enctype="multipart/form-data">
+
+                            <div class="mb-5">
+
+                                <label class="form-label fw-bold">
+
+                                    Choose File
+
+                                </label>
+
+                                <div class="border border-2 border-primary rounded-4 p-5 text-center">
+
+                                    <i class="fa-solid fa-file-arrow-up fa-4x text-primary mb-3"></i>
+
+                                    <h4>
+
+                                        Drag & Drop Your Project
+
+                                    </h4>
+
+                                    <p class="text-muted">
+
+                                        or click below to browse files
+
+                                    </p>
+
+                                    <input
+                                        class="form-control mt-3"
+                                        type="file"
+                                        name="project_file"
+                                        accept=".py,.zip"
+                                        required>
+
+                                    <small class="text-muted d-block mt-3">
+
+                                        Supported Formats:
+                                        .py and .zip
+
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                            <div class="mb-5">
+
+                                <h4 class="mb-4">
+
+                                    Select Analysis Options
+
+                                </h4>
+
+                                <div class="row">
+
+                                    <div class="col-md-6 mb-3">
+
+                                        <div class="form-check">
+
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                id="formatter"
+                                                checked>
+
+                                            <label
+                                                class="form-check-label"
+                                                for="formatter">
+
+                                                Code Formatting (Black)
+
+                                            </label>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+
+                                        <div class="form-check">
+
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                id="security"
+                                                checked>
+
+                                            <label
+                                                class="form-check-label"
+                                                for="security">
+
+                                                Security Scan (Bandit)
+
+                                            </label>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+
+                                        <div class="form-check">
+
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                id="quality"
+                                                checked>
+
+                                            <label
+                                                class="form-check-label"
+                                                for="quality">
+
+                                                Code Quality (Pylint)
+
+                                            </label>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+
+                                        <div class="form-check">
+
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                id="flake8"
+                                                checked>
+
+                                            <label
+                                                class="form-check-label"
+                                                for="flake8">
+
+                                                Style Check (Flake8)
+
+                                            </label>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+
+                                        <div class="form-check">
+
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                id="imports"
+                                                checked>
+
+                                            <label
+                                                class="form-check-label"
+                                                for="imports">
+
+                                                Import Sorting (isort)
+
+                                            </label>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+
+                                        <div class="form-check">
+
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                id="complexity"
+                                                checked>
+
+                                            <label
+                                                class="form-check-label"
+                                                for="complexity">
+
+                                                Complexity Analysis (Radon)
+
+                                            </label>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-12">
+
+                                        <div class="form-check">
+
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                id="ai"
+                                                checked>
+
+                                            <label
+                                                class="form-check-label"
+                                                for="ai">
+
+                                                AI Explanation & Suggestions
+
+                                            </label>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="text-center">
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary btn-lg px-5">
+
+                                    <i class="fa-solid fa-magnifying-glass-chart me-2"></i>
+
+                                    Analyze Project
+
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+                <div class="card shadow-sm border-0 mt-5">
+
+                    <div class="card-body">
+
+                        <h4 class="mb-4">
+
+                            Analysis Features
+
+                        </h4>
+
+                        <div class="row">
+
+                            <div class="col-md-4 mb-4">
+
+                                <i class="fa-solid fa-robot fa-2x text-primary mb-3"></i>
+
+                                <h5>AI Analysis</h5>
+
+                                <p class="text-muted">
+
+                                    Receive AI-generated explanations, improvements, and optimization suggestions.
+
+                                </p>
+
+                            </div>
+
+                            <div class="col-md-4 mb-4">
+
+                                <i class="fa-solid fa-shield-halved fa-2x text-danger mb-3"></i>
+
+                                <h5>Security Scan</h5>
+
+                                <p class="text-muted">
+
+                                    Detect security vulnerabilities using Bandit and provide recommendations.
+
+                                </p>
+
+                            </div>
+
+                            <div class="col-md-4 mb-4">
+
+                                <i class="fa-solid fa-file-lines fa-2x text-success mb-3"></i>
+
+                                <h5>Detailed Reports</h5>
+
+                                <p class="text-muted">
+
+                                    Download comprehensive reports containing analysis results and fixes.
+
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
 
 {% endblock %}
