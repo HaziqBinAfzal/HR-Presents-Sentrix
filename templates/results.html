@@ -1,1 +1,327 @@
-<!-- Results Page -->
+{% extends "base.html" %}
+
+{% block title %}Analysis Results | CodeSentinel AI{% endblock %}
+
+{% block content %}
+
+<section class="py-5">
+
+    <div class="container">
+
+        <div class="text-center mb-5">
+
+            <i class="fa-solid fa-chart-column fa-4x text-primary mb-3"></i>
+
+            <h2 class="fw-bold">
+
+                Analysis Results
+
+            </h2>
+
+            <p class="text-muted">
+
+                Review the AI-generated insights, security findings, code quality, and recommendations for your uploaded project.
+
+            </p>
+
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-lg-3">
+
+                <div class="card shadow-sm border-0 text-center h-100">
+
+                    <div class="card-body">
+
+                        <i class="fa-solid fa-code fa-2x text-primary mb-3"></i>
+
+                        <h3>95%</h3>
+
+                        <p class="mb-0 text-muted">
+
+                            Code Quality
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <div class="card shadow-sm border-0 text-center h-100">
+
+                    <div class="card-body">
+
+                        <i class="fa-solid fa-shield-halved fa-2x text-danger mb-3"></i>
+
+                        <h3>2</h3>
+
+                        <p class="mb-0 text-muted">
+
+                            Security Issues
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <div class="card shadow-sm border-0 text-center h-100">
+
+                    <div class="card-body">
+
+                        <i class="fa-solid fa-file-circle-check fa-2x text-success mb-3"></i>
+
+                        <h3>Passed</h3>
+
+                        <p class="mb-0 text-muted">
+
+                            Formatting
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <div class="card shadow-sm border-0 text-center h-100">
+
+                    <div class="card-body">
+
+                        <i class="fa-solid fa-brain fa-2x text-warning mb-3"></i>
+
+                        <h3>A+</h3>
+
+                        <p class="mb-0 text-muted">
+
+                            AI Rating
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="card shadow-lg border-0 rounded-4 mt-5">
+
+            <div class="card-header bg-white">
+
+                <h4 class="mb-0">
+
+                    AI Summary
+
+                </h4>
+
+            </div>
+
+            <div class="card-body">
+
+                <p>
+
+                    The uploaded Python project follows good coding practices and has a clean structure. Minor security improvements and code optimization opportunities were detected.
+
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="card shadow-lg border-0 rounded-4 mt-4">
+
+            <div class="card-header bg-white">
+
+                <h4 class="mb-0">
+
+                    Security Scan (Bandit)
+
+                </h4>
+
+            </div>
+
+            <div class="card-body">
+
+                <ul>
+
+                    <li>Hardcoded credentials detected.</li>
+
+                    <li>Use parameterized SQL queries.</li>
+
+                    <li>Input validation recommended.</li>
+
+                </ul>
+
+            </div>
+
+        </div>
+
+        <div class="card shadow-lg border-0 rounded-4 mt-4">
+
+            <div class="card-header bg-white">
+
+                <h4 class="mb-0">
+
+                    Code Quality (Pylint)
+
+                </h4>
+
+            </div>
+
+            <div class="card-body">
+
+                <ul>
+
+                    <li>Unused variables found.</li>
+
+                    <li>Missing function documentation.</li>
+
+                    <li>Variable names can be improved.</li>
+
+                </ul>
+
+            </div>
+
+        </div>
+
+        <div class="card shadow-lg border-0 rounded-4 mt-4">
+
+            <div class="card-header bg-white">
+
+                <h4 class="mb-0">
+
+                    Complexity Analysis (Radon)
+
+                </h4>
+
+            </div>
+
+            <div class="card-body">
+
+                <table class="table table-bordered">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Function</th>
+
+                            <th>Complexity</th>
+
+                            <th>Grade</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+
+                            <td>login()</td>
+
+                            <td>6</td>
+
+                            <td>A</td>
+
+                        </tr>
+
+                        <tr>
+
+                            <td>process_file()</td>
+
+                            <td>12</td>
+
+                            <td>B</td>
+
+                        </tr>
+
+                        <tr>
+
+                            <td>generate_report()</td>
+
+                            <td>8</td>
+
+                            <td>A</td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <div class="card shadow-lg border-0 rounded-4 mt-4">
+
+            <div class="card-header bg-white">
+
+                <h4 class="mb-0">
+
+                    AI Recommendations
+
+                </h4>
+
+            </div>
+
+            <div class="card-body">
+
+                <ol>
+
+                    <li>Remove hardcoded sensitive information.</li>
+
+                    <li>Add exception handling where necessary.</li>
+
+                    <li>Improve code documentation.</li>
+
+                    <li>Reduce function complexity.</li>
+
+                    <li>Follow PEP 8 naming conventions.</li>
+
+                </ol>
+
+            </div>
+
+        </div>
+
+        <div class="text-center mt-5">
+
+            <a href="#" class="btn btn-success btn-lg me-3">
+
+                <i class="fa-solid fa-download me-2"></i>
+
+                Download Report
+
+            </a>
+
+            <a href="#" class="btn btn-primary btn-lg">
+
+                <i class="fa-solid fa-upload me-2"></i>
+
+                Analyze Another Project
+
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}
