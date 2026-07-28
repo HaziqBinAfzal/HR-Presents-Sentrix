@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}404 - Page Not Found | CodeSentinel AI{% endblock %}
+
+{% block content %}
+
+<section class="py-5">
+
+    <div class="container">
+
+        <div class="row justify-content-center">
+
+            <div class="col-lg-8 text-center">
+
+                <div class="card shadow-lg border-0 rounded-4 p-5">
+
+                    <i class="fa-solid fa-triangle-exclamation fa-5x text-warning mb-4"></i>
+
+                    <h1 class="display-1 fw-bold text-primary">
+
+                        404
+
+                    </h1>
+
+                    <h2 class="mb-3">
+
+                        Oops! Page Not Found
+
+                    </h2>
+
+                    <p class="lead text-muted mb-4">
+
+                        The page you are looking for doesn't exist, may have been moved, or the URL is incorrect.
+
+                    </p>
+
+                    <div class="row g-3 justify-content-center">
+
+                        <div class="col-md-4">
+
+                            <a href="{{ url_for('main.home') }}" class="btn btn-primary w-100">
+
+                                <i class="fa-solid fa-house me-2"></i>
+
+                                Home
+
+                            </a>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <a href="{{ url_for('main.dashboard') }}" class="btn btn-success w-100">
+
+                                <i class="fa-solid fa-chart-line me-2"></i>
+
+                                Dashboard
+
+                            </a>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <a href="{{ url_for('main.upload') }}" class="btn btn-warning w-100">
+
+                                <i class="fa-solid fa-upload me-2"></i>
+
+                                Upload Project
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                    <hr class="my-5">
+
+                    <h5 class="mb-3">
+
+                        You may want to visit
+
+                    </h5>
+
+                    <div class="d-flex flex-wrap justify-content-center gap-3">
+
+                        <a href="{{ url_for('main.home') }}" class="btn btn-outline-primary">
+
+                            Home
+
+                        </a>
+
+                        <a href="{{ url_for('main.history') }}" class="btn btn-outline-secondary">
+
+                            History
+
+                        </a>
+
+                        <a href="{{ url_for('main.profile') }}" class="btn btn-outline-dark">
+
+                            Profile
+
+                        </a>
+
+                        <a href="{{ url_for('main.login') }}" class="btn btn-outline-success">
+
+                            Login
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}
