@@ -1,23 +1,128 @@
-/* Root Variables */
+/* ==========================================
+   Root Variables
+========================================== */
 
-/* Global Styles */
+:root {
+    --primary-color: #2563eb;
+    --secondary-color: #1e293b;
+    --success-color: #22c55e;
+    --danger-color: #ef4444;
+    --warning-color: #f59e0b;
 
-/* Navbar */
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+    --white: #ffffff;
 
-/* Sidebar */
+    --body-bg: #f5f7fa;
 
-/* Dashboard */
+    --font-heading: 'Poppins', sans-serif;
+    --font-body: 'Inter', sans-serif;
+}
 
-/* Cards */
+/* ==========================================
+   Typography
+========================================== */
 
-/* Buttons */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-heading);
+}
 
-/* Forms */
+body,
+p,
+input,
+button,
+textarea {
+    font-family: var(--font-body);
+}
 
-/* Tables */
+/* ==========================================
+   Body
+========================================== */
 
-/* Footer */
+body {
+    background: var(--body-bg);
+    margin: 0;
+    padding: 0;
+}
 
-/* Utilities */
+/* ==========================================
+   Navbar
+========================================== */
 
-/* Responsive */
+.navbar {
+    padding: 15px 25px;
+}
+
+/* ==========================================
+   Sidebar
+========================================== */
+
+aside {
+    min-height: calc(100vh - 120px);
+}
+
+/* ==========================================
+   Cards
+========================================== */
+
+.card {
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+/* ==========================================
+   Buttons
+========================================== */
+
+.btn {
+    border-radius: 8px;
+}
+
+/* ==========================================
+   Forms
+========================================== */
+
+.form-control {
+    border-radius: 8px;
+}
+
+/* ==========================================
+   Tables
+========================================== */
+
+table {
+    width: 100%;
+}
+
+/* ==========================================
+   Footer
+========================================== */
+
+footer {
+    margin-top: 30px;
+}
+
+/* ==========================================
+   Utilities
+========================================== */
+
+.text-center {
+    text-align: center;
+}
+
+/* ==========================================
+   Responsive
+========================================== */
+
+@media (max-width: 768px) {
+
+    aside {
+        min-height: auto;
+    }
+
+}
