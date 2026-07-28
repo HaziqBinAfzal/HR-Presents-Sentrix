@@ -1,11 +1,257 @@
 {% extends "base.html" %}
 
-{% block title %}Profile{% endblock %}
+{% block title %}My Profile | CodeSentinel AI{% endblock %}
 
 {% block content %}
 
-<h2>User Profile</h2>
+<section class="py-5">
 
-<p>User profile information will be displayed here.</p>
+    <div class="container">
+
+        <div class="row">
+
+            <div class="col-lg-4">
+
+                <div class="card shadow-lg border-0 rounded-4">
+
+                    <div class="card-body text-center">
+
+                        <img
+                            src="https://via.placeholder.com/150"
+                            class="rounded-circle img-fluid mb-3"
+                            width="150"
+                            alt="Profile Picture">
+
+                        <h3>John Doe</h3>
+
+                        <p class="text-muted">
+
+                            john@example.com
+
+                        </p>
+
+                        <hr>
+
+                        <div class="row text-center">
+
+                            <div class="col-4">
+
+                                <h5>15</h5>
+
+                                <small class="text-muted">
+
+                                    Projects
+
+                                </small>
+
+                            </div>
+
+                            <div class="col-4">
+
+                                <h5>42</h5>
+
+                                <small class="text-muted">
+
+                                    Reports
+
+                                </small>
+
+                            </div>
+
+                            <div class="col-4">
+
+                                <h5>98%</h5>
+
+                                <small class="text-muted">
+
+                                    Avg Score
+
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-8">
+
+                <div class="card shadow-lg border-0 rounded-4">
+
+                    <div class="card-header bg-white">
+
+                        <h4>
+
+                            Edit Profile
+
+                        </h4>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <form>
+
+                            <div class="row">
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+
+                                        Full Name
+
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        value="John Doe">
+
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+
+                                        Username
+
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        value="johndoe">
+
+                                </div>
+
+                            </div>
+
+                            <div class="mb-3">
+
+                                <label class="form-label">
+
+                                    Email Address
+
+                                </label>
+
+                                <input
+                                    type="email"
+                                    class="form-control"
+                                    value="john@example.com">
+
+                            </div>
+
+                            <div class="mb-3">
+
+                                <label class="form-label">
+
+                                    Bio
+
+                                </label>
+
+                                <textarea
+                                    class="form-control"
+                                    rows="4"
+                                    placeholder="Tell us about yourself..."></textarea>
+
+                            </div>
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary">
+
+                                Save Changes
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+                <div class="card shadow-lg border-0 rounded-4 mt-4">
+
+                    <div class="card-header bg-white">
+
+                        <h4>
+
+                            Change Password
+
+                        </h4>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <form>
+
+                            <div class="mb-3">
+
+                                <label class="form-label">
+
+                                    Current Password
+
+                                </label>
+
+                                <input
+                                    type="password"
+                                    class="form-control">
+
+                            </div>
+
+                            <div class="mb-3">
+
+                                <label class="form-label">
+
+                                    New Password
+
+                                </label>
+
+                                <input
+                                    type="password"
+                                    class="form-control">
+
+                            </div>
+
+                            <div class="mb-3">
+
+                                <label class="form-label">
+
+                                    Confirm Password
+
+                                </label>
+
+                                <input
+                                    type="password"
+                                    class="form-control">
+
+                            </div>
+
+                            <button
+                                type="submit"
+                                class="btn btn-warning">
+
+                                Update Password
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
 
 {% endblock %}
