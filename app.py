@@ -1,7 +1,7 @@
 from flask import Flask
+
 from config import Config
 from database import db
-
 
 app = Flask(__name__)
 
@@ -9,12 +9,14 @@ app.config.from_object(Config)
 
 db.init_app(app)
 
+import models
+
 
 @app.route("/")
 def home():
     return """
-    <h1>Welcome to CodeSentinel AI</h1>
-    <h3>Backend is Working Successfully</h3>
+    <h1>CodeSentinel AI</h1>
+    <h3>Database Connected Successfully</h3>
     """
 
 
