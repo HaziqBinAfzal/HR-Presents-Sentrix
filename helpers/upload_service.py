@@ -6,17 +6,19 @@ from werkzeug.utils import secure_filename
 
 ALLOWED_EXTENSIONS = {"py", "zip"}
 
-MAX_FILE_SIZE = 16 * 1024 * 1024  # 16 MB
+MAX_UPLOAD_SIZE = 100 * 1024 * 1024 #100 MB
 
 
 def allowed_file(filename):
     """
     Check whether the uploaded file has an allowed extension.
     """
+
     return (
         bool(filename)
         and "." in filename
-        and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+        and filename.rsplit(".", 1)[1].lower()
+        in ALLOWED_EXTENSIONS
     )
 
 
@@ -24,6 +26,7 @@ def get_extension(filename):
     """
     Return the file extension without the dot.
     """
+
     if not filename or "." not in filename:
         return ""
 
@@ -34,6 +37,7 @@ def get_project_name(filename):
     """
     Return the filename without its extension.
     """
+
     if not filename:
         return ""
 
@@ -44,6 +48,7 @@ def get_file_size(file):
     """
     Return uploaded file size in bytes.
     """
+
     current_position = file.tell()
 
     file.seek(0, os.SEEK_END)
@@ -58,23 +63,20 @@ def secure_upload_name(filename):
     """
     Make the uploaded filename safe for filesystem storage.
     """
+
     return secure_filename(filename)
 
 
 def generate_unique_filename(filename):
     """
     Generate a unique safe filename.
-
-    Example:
-        project.zip
-
-    becomes:
-        project_8f4a21c9.zip
     """
 
     safe_filename = secure_upload_name(filename)
 
-    name, extension = os.path.splitext(safe_filename)
+    name, extension = os.path.splitext(
+        safe_filename
+    )
 
     unique_id = uuid.uuid4().hex[:8]
 
@@ -84,10 +86,6 @@ def generate_unique_filename(filename):
 def validate_upload(file):
     """
     Validate uploaded file.
-
-    Returns:
-        (True, "Valid") on success
-        (False, "Error message") on failure
     """
 
     if file is None:
@@ -103,17 +101,30 @@ def validate_upload(file):
         )
 
     try:
+
         size = get_file_size(file)
+
     except Exception:
-        return False, "Unable to determine file size."
+
+        return (
+            False,
+            "Unable to determine file size."
+        )
 
     if size > MAX_FILE_SIZE:
-        return False, "File exceeds the maximum allowed size of 16 MB."
+
+        return (
+            False,
+            "File exceeds the maximum allowed size of 50 MB."
+        )
 
     return True, "Valid"
 
 
-def build_metadata(file, stored_filename=None):
+def build_metadata(
+    file,
+    stored_filename=None
+):
     """
     Build metadata for an uploaded file.
     """
@@ -127,7 +138,10 @@ def build_metadata(file, stored_filename=None):
     return {
         "filename": safe_original_filename,
         "original_filename": original_filename,
-        "stored_filename": stored_filename or safe_original_filename,
+        "stored_filename": (
+            stored_filename
+            or safe_original_filename
+        ),
         "project_name": get_project_name(
             safe_original_filename
         ),
@@ -142,12 +156,16 @@ def generate_project_id():
     """
     Generate a unique project ID.
     """
+
     return uuid.uuid4().hex
 
 
-def create_project_workspace(base_folder, project_id):
+def create_project_workspace(
+    base_folder,
+    project_id
+):
     """
-    Create the directory structure for a project.
+    Create project workspace directories.
     """
 
     project_folder = os.path.join(
@@ -156,6 +174,7 @@ def create_project_workspace(base_folder, project_id):
     )
 
     folders = {
+
         "root": project_folder,
 
         "source": os.path.join(
@@ -180,6 +199,7 @@ def create_project_workspace(base_folder, project_id):
     }
 
     for folder in folders.values():
+
         os.makedirs(
             folder,
             exist_ok=True

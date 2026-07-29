@@ -274,159 +274,157 @@ def upload():
 
     form = UploadForm()
 
-    if form.validate_on_submit():
-
-        uploaded_file = form.file.data
-
-        # --------------------------------------------------
-        # Validate upload
-        # --------------------------------------------------
-
-        is_valid, message = validate_upload(
-            uploaded_file
+    if not form.validate_on_submit():
+        return render_template(
+            "upload.html",
+            form=form
         )
 
-        if not is_valid:
+    uploaded_file = form.file.data
 
-            flash(
-                message,
-                "error"
-            )
+    current_app.logger.info(
+        f"Upload requested by user {current_user.id}: "
+        f"{uploaded_file.filename}"
+    )
 
-            return render_template(
-                "upload.html",
-                form=form
-            )
+    # --------------------------------------------------
+    # Validate uploaded file
+    # --------------------------------------------------
 
-        # --------------------------------------------------
-        # Generate project ID
-        # --------------------------------------------------
+    is_valid, message = validate_upload(
+        uploaded_file
+    )
 
-        project_id = generate_project_id()
+    if not is_valid:
 
-        # --------------------------------------------------
-        # Create project workspace
-        # --------------------------------------------------
-
-        projects_folder = current_app.config[
-            "PROJECT_FOLDER"
-        ]
-
-        workspace = create_project_workspace(
-            projects_folder,
-            project_id
+        flash(
+            message,
+            "danger"
         )
 
-        # --------------------------------------------------
-        # Generate unique stored filename
-        # --------------------------------------------------
-
-        original_filename = uploaded_file.filename
-
-        stored_filename = generate_unique_filename(
-            original_filename
+        current_app.logger.warning(
+            f"Upload rejected: {message}"
         )
 
-        # --------------------------------------------------
-        # Source file path
-        # --------------------------------------------------
-
-        source_path = os.path.join(
-            workspace["source"],
-            stored_filename
+        return render_template(
+            "upload.html",
+            form=form
         )
 
-        # --------------------------------------------------
-        # Save uploaded file
-        # --------------------------------------------------
+    # --------------------------------------------------
+    # Generate Project ID
+    # --------------------------------------------------
+
+    project_id = generate_project_id()
+
+    # --------------------------------------------------
+    # Create project workspace
+    # --------------------------------------------------
+
+    projects_folder = current_app.config[
+        "PROJECT_FOLDER"
+    ]
+
+    workspace = create_project_workspace(
+        projects_folder,
+        project_id
+    )
+
+    # --------------------------------------------------
+    # Generate unique filename
+    # --------------------------------------------------
+
+    original_filename = uploaded_file.filename
+
+    stored_filename = generate_unique_filename(
+        original_filename
+    )
+
+    # --------------------------------------------------
+    # Save uploaded file
+    # --------------------------------------------------
+
+    source_path = os.path.join(
+        workspace["source"],
+        stored_filename
+    )
+
+    try:
 
         uploaded_file.save(
             source_path
         )
 
-        # --------------------------------------------------
-        # Build metadata
-        # --------------------------------------------------
+    except Exception as error:
 
-        metadata = build_metadata(
-            uploaded_file,
-            stored_filename=stored_filename
+        current_app.logger.exception(
+            "Failed to save uploaded file."
         )
 
-        # --------------------------------------------------
-        # Create database project
-        # --------------------------------------------------
-
-        project = Project(
-
-            project_id=project_id,
-
-            project_name=metadata[
-                "project_name"
-            ],
-
-            original_filename=metadata[
-                "original_filename"
-            ],
-
-            stored_filename=stored_filename,
-
-            file_type=metadata[
-                "extension"
-            ],
-
-            file_size=metadata[
-                "size"
-            ],
-
-            project_path=workspace[
-                "root"
-            ],
-
-            user_id=current_user.id
+        flash(
+            "Unable to save the uploaded file.",
+            "danger"
         )
 
-        db.session.add(project)
+        return render_template(
+            "upload.html",
+            form=form
+        )
+
+    # --------------------------------------------------
+    # Build metadata
+    # --------------------------------------------------
+
+    metadata = build_metadata(
+        uploaded_file,
+        stored_filename=stored_filename
+    )
+
+    # --------------------------------------------------
+    # Create database record
+    # --------------------------------------------------
+
+    project = Project(
+
+        project_id=project_id,
+
+        project_name=metadata[
+            "project_name"
+        ],
+
+        original_filename=metadata[
+            "original_filename"
+        ],
+
+        stored_filename=stored_filename,
+
+        file_type=metadata[
+            "extension"
+        ],
+
+        file_size=metadata[
+            "size"
+        ],
+
+        project_path=workspace[
+            "root"
+        ],
+
+        user_id=current_user.id
+    )
+
+    db.session.add(project)
+
+try:
 
         db.session.commit()
 
-        # --------------------------------------------------
-        # Debug information
-        # --------------------------------------------------
-
-        print("=== PROJECT CREATED ===")
-
-        print(
-            "Project ID:",
-            project_id
+        current_app.logger.info(
+            f"Project {project.project_id} uploaded successfully."
         )
-
-        print(
-            "Project Name:",
-            metadata["project_name"]
-        )
-
-        print(
-            "Original File:",
-            metadata["original_filename"]
-        )
-
-        print(
-            "Stored File:",
-            stored_filename
-        )
-
-        print(
-            "Project Path:",
-            workspace["root"]
-        )
-
-        # --------------------------------------------------
-        # Success
-        # --------------------------------------------------
 
         flash(
-            "Project uploaded successfully!",
+            "Project uploaded successfully. Analysis is starting...",
             "success"
         )
 
@@ -437,92 +435,23 @@ def upload():
             )
         )
 
-    return render_template(
-        "upload.html",
-        form=form
-    )
+    except Exception:
 
-    form = UploadForm()
+        db.session.rollback()
 
-    if form.validate_on_submit():
-
-        uploaded_file = form.file.data
-
-
-        # --------------------------------------------------
-        # Generate unique filename
-        # --------------------------------------------------
-
-        original_filename = uploaded_file.filename
-
-        filename = generate_unique_filename(
-            original_filename
+        current_app.logger.exception(
+            "Database error while creating project."
         )
-
-        # --------------------------------------------------
-        # Upload directory
-        # --------------------------------------------------
-
-        upload_folder = current_app.config[
-            "UPLOAD_FOLDER"
-        ]
-
-        os.makedirs(
-            upload_folder,
-            exist_ok=True
-        )
-
-        # --------------------------------------------------
-        # File path
-        # --------------------------------------------------
-
-        filepath = os.path.join(
-            upload_folder,
-            filename
-        )
-
-        # --------------------------------------------------
-        # Save file
-        # --------------------------------------------------
-
-        uploaded_file.save(
-            filepath
-        )
-
-        # --------------------------------------------------
-        # Build metadata
-        # --------------------------------------------------
-
-        metadata = build_metadata(
-            uploaded_file,
-            stored_filename=filename
-        )
-
-        print("=== UPLOAD METADATA ===")
-        print(metadata)
-
-        # --------------------------------------------------
-        # Success
-        # --------------------------------------------------
 
         flash(
-            "File uploaded successfully!",
-            "success"
+            "An unexpected error occurred while saving the project.",
+            "danger"
         )
 
-        return redirect(
-            url_for(
-                "main.results",
-                filename=filename
-            )
+        return render_template(
+            "upload.html",
+            form=form
         )
-
-    return render_template(
-        "upload.html",
-        form=form
-    )
-
-
 
 # ============================================================
 # RESULTS

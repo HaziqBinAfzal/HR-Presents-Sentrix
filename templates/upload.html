@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
-{% block title %}Community Reviews | CodeSentinel AI{% endblock %}
+{% block title %}Upload Project | CodeSentinel AI{% endblock %}
 
 {% block content %}
 
-<section class="py-5">
+<section class="py-5 upload-page">
 
     <div class="container">
 
@@ -12,271 +12,28 @@
         <!-- HERO -->
         <!-- ===================================== -->
 
-        <div class="text-center mb-5">
+        <div class="row mb-5">
 
-            <span class="badge bg-primary px-3 py-2 mb-3">
-                Community Feedback
-            </span>
+            <div class="col-lg-10 mx-auto text-center">
 
-            <h1 class="fw-bold display-5">
+                <span class="badge bg-primary px-3 py-2 mb-3">
 
-                What Developers Say About
-                <span class="text-primary">
-                    CodeSentinel AI
+                    AI Powered Static Code Analysis
+
                 </span>
 
-            </h1>
+                <h1 class="display-4 fw-bold mb-3">
 
-            <p class="lead text-muted mt-3">
+                    Upload Your Python Project
 
-                Real reviews from developers using
-                CodeSentinel AI to analyze Python
-                projects for quality, security,
-                complexity and best practices.
+                </h1>
 
-            </p>
+                <p class="lead text-muted">
 
-        </div>
-
-        <!-- ===================================== -->
-        <!-- REVIEW STATISTICS -->
-        <!-- ===================================== -->
-
-        <div class="row g-4 mb-5">
-
-            <div class="col-lg-3 col-md-6">
-
-                <div class="card shadow-sm border-0 h-100">
-
-                    <div class="card-body text-center">
-
-                        <i class="fa-solid fa-star text-warning fa-2x mb-3"></i>
-
-                        <h2 class="fw-bold">
-
-                            {{ review_stats.average_rating }}
-
-                        </h2>
-
-                        <p class="text-muted mb-0">
-
-                            Average Rating
-
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="col-lg-3 col-md-6">
-
-                <div class="card shadow-sm border-0 h-100">
-
-                    <div class="card-body text-center">
-
-                        <i class="fa-solid fa-comments text-primary fa-2x mb-3"></i>
-
-                        <h2 class="fw-bold">
-
-                            {{ review_stats.total_reviews }}
-
-                        </h2>
-
-                        <p class="text-muted mb-0">
-
-                            Total Reviews
-
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="col-lg-3 col-md-6">
-
-                <div class="card shadow-sm border-0 h-100">
-
-                    <div class="card-body text-center">
-
-                        <i class="fa-solid fa-thumbs-up text-success fa-2x mb-3"></i>
-
-                        <h2 class="fw-bold">
-
-                            {{ review_stats.recommendation_percentage }}%
-
-                        </h2>
-
-                        <p class="text-muted mb-0">
-
-                            Recommend
-
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="col-lg-3 col-md-6">
-
-                <div class="card shadow-sm border-0 h-100">
-
-                    <div class="card-body text-center">
-
-                        <i class="fa-solid fa-shield-halved text-danger fa-2x mb-3"></i>
-
-                        <h2 class="fw-bold">
-
-                            Trusted
-
-                        </h2>
-
-                        <p class="text-muted mb-0">
-
-                            Community Driven
-
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- ===================================== -->
-        <!-- WRITE REVIEW -->
-        <!-- ===================================== -->
-
-        {% if current_user.is_authenticated %}
-
-        <div class="card border-0 shadow-lg mb-5">
-
-            <div class="card-header bg-primary text-white">
-
-                <h4 class="mb-0">
-
-                    <i class="fa-solid fa-pen-to-square me-2"></i>
-
-                    Write Your Review
-
-                </h4>
-
-            </div>
-
-            <div class="card-body">
-
-                <form method="POST">
-
-                    {{ form.hidden_tag() }}
-
-                    <div class="mb-4">
-
-                        <label class="form-label fw-semibold">
-
-                            Rating
-
-                        </label>
-
-                        {{ form.rating(
-                            class="form-control"
-                        ) }}
-
-                    </div>
-
-                    <div class="mb-4">
-
-                        <label class="form-label fw-semibold">
-
-                            Review Title
-
-                        </label>
-
-                        {{ form.title(
-                            class="form-control",
-                            placeholder="Short summary..."
-                        ) }}
-
-                    </div>
-
-                    <div class="mb-4">
-
-                        <label class="form-label fw-semibold">
-
-                            Your Experience
-
-                        </label>
-
-                        {{ form.comment(
-                            class="form-control",
-                            rows="5",
-                            placeholder="Tell other developers about your experience..."
-                        ) }}
-
-                    </div>
-
-                    <button
-                        type="submit"
-                        class="btn btn-primary btn-lg">
-
-                        <i class="fa-solid fa-paper-plane me-2"></i>
-
-                        Submit Review
-
-                    </button>
-
-                </form>
-
-            </div>
-
-        </div>
-
-        {% else %}
-
-        <div class="alert alert-info text-center shadow-sm mb-5">
-
-            <h5>
-
-                <i class="fa-solid fa-user-lock me-2"></i>
-
-                Login to share your experience with CodeSentinel AI.
-
-            </h5>
-
-            <a href="{{ url_for('main.login') }}"
-               class="btn btn-primary mt-3">
-
-                Login
-
-            </a>
-
-        </div>
-
-        {% endif %}
-
-<!-- ===================================== -->
-        <!-- COMMUNITY REVIEWS -->
-        <!-- ===================================== -->
-
-        <div class="d-flex justify-content-between align-items-center mb-4">
-
-            <div>
-
-                <h2 class="fw-bold mb-1">
-
-                    Latest Community Reviews
-
-                </h2>
-
-                <p class="text-muted mb-0">
-
-                    Honest feedback from developers using CodeSentinel AI.
+                    Analyze your Python applications using
+                    CodeSentinel AI. Receive AI-powered insights
+                    about code quality, security vulnerabilities,
+                    complexity, formatting and best practices.
 
                 </p>
 
@@ -284,90 +41,417 @@
 
         </div>
 
+        <!-- ===================================== -->
+        <!-- MAIN CONTENT -->
+        <!-- ===================================== -->
+
         <div class="row g-4">
 
-            {% if reviews %}
+            <!-- ===================================== -->
+            <!-- LEFT SIDE -->
+            <!-- ===================================== -->
 
-                {% for review in reviews %}
+            <div class="col-lg-8">
 
-                <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-lg rounded-4">
 
-                    <div class="card border-0 shadow-sm h-100 review-card">
+                    <div class="card-body p-5">
 
-                        <div class="card-body">
+                        <div class="text-center mb-4">
 
-                            <!-- Rating -->
+                            <div class="upload-icon mb-3">
 
-                            <div class="mb-3">
-
-                                {% for i in range(review.rating) %}
-
-                                    <i class="fa-solid fa-star text-warning"></i>
-
-                                {% endfor %}
-
-                                {% for i in range(5 - review.rating) %}
-
-                                    <i class="fa-regular fa-star text-warning"></i>
-
-                                {% endfor %}
+                                <i class="fas fa-cloud-upload-alt fa-5x text-primary"></i>
 
                             </div>
 
-                            <!-- Title -->
+                            <h3 class="fw-bold">
 
-                            <h5 class="fw-bold">
+                                Upload Project
 
-                                {{ review.title }}
-
-                            </h5>
-
-                            <!-- Comment -->
+                            </h3>
 
                             <p class="text-muted">
 
-                                {{ review.comment }}
+                                Drag & Drop your Python project
+                                or click below to browse.
 
                             </p>
 
                         </div>
 
-                        <div class="card-footer bg-white border-0">
+                        <!-- ===================================== -->
+                        <!-- DRAG & DROP -->
+                        <!-- ===================================== -->
 
-                            <div class="d-flex align-items-center">
+                        <div
+                            id="dropArea"
+                            class="upload-drop-area rounded-4 text-center p-5 mb-4">
 
-                                <!-- Avatar -->
+                            <i class="fas fa-folder-open fa-4x text-primary mb-4"></i>
 
-                                {% if review.user.profile_picture %}
+                            <h4 class="fw-bold">
 
-                                    <img
-                                        src="{{ url_for('static', filename='uploads/profile_pics/' ~ review.user.profile_picture) }}"
-                                        class="rounded-circle me-3"
-                                        width="55"
-                                        height="55"
-                                        alt="Profile">
+                                Drag & Drop Here
 
-                                {% else %}
+                            </h4>
 
-                                    <div
-                                        class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center me-3"
-                                        style="width:55px;height:55px;">
+                            <p class="text-muted mb-3">
 
-                                        <strong>
+                                or
 
-                                            {{ review.user.username[:1]|upper }}
+                            </p>
 
-                                        </strong>
+                            <button
+                                type="button"
+                                id="browseButton"
+                                class="btn btn-outline-primary btn-lg">
+
+                                <i class="fas fa-folder-open me-2"></i>
+
+                                Browse Files
+
+                            </button>
+
+                            <div class="mt-4">
+
+                                <span class="badge bg-primary me-2">
+
+                                    .py
+
+                                </span>
+
+                                <span class="badge bg-success">
+
+                                    .zip
+
+                                </span>
+
+                            </div>
+
+                            <small class="text-muted d-block mt-3">
+
+                                Maximum Upload Size: 100 MB
+
+                            </small>
+
+                        </div>
+
+                        <!-- ===================================== -->
+                        <!-- FILE PREVIEW -->
+                        <!-- ===================================== -->
+
+                        <div
+                            id="filePreview"
+                            class="card bg-light border-0 rounded-4 d-none">
+
+                            <div class="card-body">
+
+                                <h5 class="fw-bold mb-4">
+
+                                    <i class="fas fa-file-code text-primary me-2"></i>
+
+                                    Selected Project
+
+                                </h5>
+
+                                <div class="row">
+
+                                    <div class="col-md-6 mb-3">
+
+                                        <small class="text-muted">
+
+                                            File Name
+
+                                        </small>
+
+                                        <h6
+                                            id="previewFileName"
+                                            class="fw-bold mt-2">
+
+                                            -
+
+                                        </h6>
 
                                     </div>
 
-                                {% endif %}
+                                    <div class="col-md-3 mb-3">
 
-                                <div class="flex-grow-1">
+                                        <small class="text-muted">
+
+                                            Type
+
+                                        </small>
+
+                                        <h6
+                                            id="previewFileType"
+                                            class="fw-bold mt-2">
+
+                                            -
+
+                                        </h6>
+
+                                    </div>
+
+                                    <div class="col-md-3 mb-3">
+
+                                        <small class="text-muted">
+
+                                            Size
+
+                                        </small>
+
+                                        <h6
+                                            id="previewFileSize"
+                                            class="fw-bold mt-2">
+
+                                            -
+
+                                        </h6>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+<!-- ===================================== -->
+                        <!-- UPLOAD FORM -->
+                        <!-- ===================================== -->
+
+                        <form
+                            method="POST"
+                            enctype="multipart/form-data"
+                            id="uploadForm"
+                            class="mt-4">
+
+                            {{ form.hidden_tag() }}
+
+                            <div class="mb-4 d-none">
+
+                                {{ form.file(
+                                    id="fileInput",
+                                    class="form-control"
+                                ) }}
+
+                            </div>
+
+                            <div class="d-grid">
+
+                                <button
+                                    type="submit"
+                                    id="uploadButton"
+                                    class="btn btn-primary btn-lg">
+
+                                    <span
+                                        id="uploadSpinner"
+                                        class="spinner-border spinner-border-sm me-2 d-none"
+                                        role="status"
+                                        aria-hidden="true">
+
+                                    </span>
+
+                                    <i
+                                        class="fas fa-upload me-2"
+                                        id="uploadIcon">
+
+                                    </i>
+
+                                    Analyze Project
+
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                        <!-- ===================================== -->
+                        <!-- PROGRESS BAR -->
+                        <!-- ===================================== -->
+
+                        <div
+                            id="progressContainer"
+                            class="mt-5 d-none">
+
+                            <div
+                                class="d-flex justify-content-between mb-2">
+
+                                <strong>
+
+                                    Upload Progress
+
+                                </strong>
+
+                                <span
+                                    id="progressPercent">
+
+                                    0%
+
+                                </span>
+
+                            </div>
+
+                            <div
+                                class="progress"
+                                style="height:12px;">
+
+                                <div
+                                    id="uploadProgress"
+                                    class="progress-bar progress-bar-striped progress-bar-animated"
+                                    role="progressbar"
+                                    style="width:0%;">
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ===================================== -->
+            <!-- RIGHT SIDEBAR -->
+            <!-- ===================================== -->
+
+            <div class="col-lg-4">
+
+                <!-- Upload Guidelines -->
+
+                <div class="card border-0 shadow rounded-4 mb-4">
+
+                    <div class="card-body">
+
+                        <h5 class="fw-bold mb-4">
+
+                            <i class="fas fa-circle-info text-primary me-2"></i>
+
+                            Upload Guidelines
+
+                        </h5>
+
+                        <ul class="list-unstyled">
+
+                            <li class="mb-3">
+
+                                <i class="fas fa-check-circle text-success me-2"></i>
+
+                                Upload only Python (.py) or ZIP (.zip) projects.
+
+                            </li>
+
+                            <li class="mb-3">
+
+                                <i class="fas fa-check-circle text-success me-2"></i>
+
+                                Maximum upload size: 100 MB.
+
+                            </li>
+
+                            <li class="mb-3">
+
+                                <i class="fas fa-folder-minus text-warning me-2"></i>
+
+                                Remove venv, __pycache__, and .git folders.
+
+                            </li>
+
+                            <li>
+
+                                <i class="fas fa-shield-alt text-primary me-2"></i>
+
+                                AI analysis may take a few minutes.
+
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                </div>
+
+                <!-- Upload Statistics -->
+
+                <div class="card border-0 shadow rounded-4 mb-4">
+
+                    <div class="card-body">
+
+                        <h5 class="fw-bold mb-4">
+
+                            <i class="fas fa-chart-bar text-success me-2"></i>
+
+                            Upload Statistics
+
+                        </h5>
+
+                        <div class="d-flex justify-content-between mb-3">
+
+                            <span>Total Projects</span>
+
+                            <strong>
+
+                                {{ current_user.projects|length if current_user.is_authenticated else 0 }}
+
+                            </strong>
+
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-3">
+
+                            <span>Supported Types</span>
+
+                            <strong>
+
+                                PY / ZIP
+
+                            </strong>
+
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+
+                            <span>Status</span>
+
+                            <span class="badge bg-success">
+
+                                Ready
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Recent Uploads -->
+
+                <div class="card border-0 shadow rounded-4">
+
+                    <div class="card-body">
+
+                        <h5 class="fw-bold mb-4">
+
+                            <i class="fas fa-clock-rotate-left text-primary me-2"></i>
+
+                            Recent Uploads
+
+                        </h5>
+
+                        {% if current_user.is_authenticated and current_user.projects %}
+
+                            {% for project in current_user.projects[:5] %}
+
+                                <div class="border-bottom pb-3 mb-3">
 
                                     <strong>
 
-                                        {{ review.user.username }}
+                                        {{ project.name }}
 
                                     </strong>
 
@@ -375,162 +459,21 @@
 
                                     <small class="text-muted">
 
-                                        {{ review.created_at.strftime("%d %b %Y") }}
+                                        {{ project.created_at.strftime("%d %b %Y") }}
 
                                     </small>
 
                                 </div>
 
-                            </div>
-
-                            {% if current_user.is_authenticated and review.user_id == current_user.id %}
-
-                            <hr>
-
-                            <div class="d-flex justify-content-between">
-
-                                <a
-                                    href="{{ url_for('main.edit_review', review_id=review.id) }}"
-                                    class="btn btn-outline-primary btn-sm">
-
-                                    <i class="fa-solid fa-pen"></i>
-
-                                    Edit
-
-                                </a>
-
-                                <form
-                                    method="POST"
-                                    action="{{ url_for('main.delete_review', review_id=review.id) }}">
-
-                                    <button
-                                        type="submit"
-                                        class="btn btn-outline-danger btn-sm"
-                                        onclick="return confirm('Delete this review?')">
-
-                                        <i class="fa-solid fa-trash"></i>
-
-                                        Delete
-
-                                    </button>
-
-                                </form>
-
-                            </div>
-
-                            {% endif %}
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                {% endfor %}
-
-            {% else %}
-
-                <div class="col-12">
-
-                    <div class="card border-0 shadow-sm">
-
-                        <div class="card-body text-center py-5">
-
-                            <i class="fa-solid fa-comments fa-4x text-secondary mb-4"></i>
-
-                            <h3>
-
-                                No Reviews Yet
-
-                            </h3>
-
-                            <p class="text-muted">
-
-                                Be the first developer to share your experience with CodeSentinel AI.
-
-                            </p>
-
-                            {% if current_user.is_authenticated %}
-
-                            <a
-                                href="#"
-                                class="btn btn-primary">
-
-                                Write the First Review
-
-                            </a>
-
-                            {% else %}
-
-                            <a
-                                href="{{ url_for('main.login') }}"
-                                class="btn btn-primary">
-
-                                Login to Review
-
-                            </a>
-
-                            {% endif %}
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            {% endif %}
-
-        </div>
-
-<!-- ===================================== -->
-        <!-- CALL TO ACTION -->
-        <!-- ===================================== -->
-
-        <div class="row mt-5">
-
-            <div class="col-12">
-
-                <div class="card border-0 bg-primary text-white shadow-lg">
-
-                    <div class="card-body text-center py-5">
-
-                        <h2 class="fw-bold mb-3">
-
-                            Help Improve CodeSentinel AI
-
-                        </h2>
-
-                        <p class="lead mb-4">
-
-                            Your feedback helps us improve our AI-powered
-                            code analysis platform for developers around
-                            the world.
-
-                        </p>
-
-                        {% if current_user.is_authenticated %}
-
-                        <a
-                            href="#top"
-                            class="btn btn-light btn-lg">
-
-                            <i class="fa-solid fa-star me-2"></i>
-
-                            Write Your Review
-
-                        </a>
+                            {% endfor %}
 
                         {% else %}
 
-                        <a
-                            href="{{ url_for('main.register') }}"
-                            class="btn btn-light btn-lg">
+                            <p class="text-muted mb-0">
 
-                            <i class="fa-solid fa-user-plus me-2"></i>
+                                No uploads yet.
 
-                            Join the Community
-
-                        </a>
+                            </p>
 
                         {% endif %}
 
@@ -542,55 +485,41 @@
 
         </div>
 
-    </div>
+        <!-- Loading Overlay -->
+
+        <div
+            id="loadingOverlay"
+            class="d-none">
+
+            <div class="loading-content text-center">
+
+                <div
+                    class="spinner-border text-light mb-4"
+                    style="width:4rem;height:4rem;"
+                    role="status">
+
+                </div>
+
+                <h3 class="text-white">
+
+                    Analyzing Project...
+
+                </h3>
+
+                <p class="text-light">
+
+                    Please wait while CodeSentinel AI processes your project.
+
+                </p>
+
+            </div>
+
+        </div>
+
+</div>
 
 </section>
 
 {% endblock %}
 
-{% block scripts %}
 
-<script>
-
-document.addEventListener("DOMContentLoaded", function () {
-
-    const ratingInput = document.getElementById("rating");
-
-    if (!ratingInput) return;
-
-    ratingInput.setAttribute("min", "1");
-    ratingInput.setAttribute("max", "5");
-
-    const reviewCards = document.querySelectorAll(".review-card");
-
-    reviewCards.forEach(function(card){
-
-        card.style.transition =
-            "all .3s ease";
-
-        card.addEventListener("mouseenter", function(){
-
-            card.style.transform =
-                "translateY(-8px)";
-
-            card.style.boxShadow =
-                "0 18px 40px rgba(0,0,0,.12)";
-
-        });
-
-        card.addEventListener("mouseleave", function(){
-
-            card.style.transform =
-                "translateY(0px)";
-
-            card.style.boxShadow = "";
-
-        });
-
-    });
-
-});
-
-</script>
-
-{% endblock %}

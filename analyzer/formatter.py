@@ -3,25 +3,51 @@ import subprocess
 
 def run_black(file_path):
     """
-    Run Black in check mode against a Python file.
+    Run Black in check mode on a Python file.
+
+    Returns:
+        {
+            "passed": bool,
+            "status": str,
+            "output": str
+        }
     """
 
     try:
+
         result = subprocess.run(
-            ["black", "--check", file_path],
+            [
+                "black",
+                "--check",
+                file_path
+            ],
             capture_output=True,
             text=True,
+            check=False
         )
 
+        passed = result.returncode == 0
+
+        output = (
+            result.stdout +
+            "\n" +
+            result.stderr
+        ).strip()
+
         return {
-            "passed": result.returncode == 0,
-            "status": "Passed" if result.returncode == 0 else "Needs Formatting",
-            "output": result.stdout + result.stderr,
+            "passed": passed,
+            "status": (
+                "Passed"
+                if passed
+                else "Needs Formatting"
+            ),
+            "output": output
         }
 
-    except Exception as e:
+    except Exception as error:
+
         return {
             "passed": False,
             "status": "Error",
-            "output": str(e),
+            "output": str(error)
         }
