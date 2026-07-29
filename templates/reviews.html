@@ -280,110 +280,141 @@
 
         {% endif %}
 
-<!-- ===================================== -->
-        <!-- COMMUNITY REVIEWS -->
         <!-- ===================================== -->
+<!-- COMMUNITY REVIEWS -->
+<!-- ===================================== -->
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-4">
 
-            <div>
+    <div>
 
-                <h2 class="fw-bold mb-1">
+        <h2 class="fw-bold mb-1">
+            Latest Community Reviews
+        </h2>
 
-                    Latest Community Reviews
+        <p class="text-muted mb-0">
+            Honest feedback from developers using CodeSentinel AI.
+        </p>
 
-                </h2>
+    </div>
 
-                <p class="text-muted mb-0">
+</div>
 
-                    Honest feedback from developers using CodeSentinel AI.
+<!-- Search & Filter -->
 
-                </p>
+<div class="row mb-4">
 
-            </div>
+    <div class="col-lg-8 mb-3 mb-lg-0">
 
-        </div>
+        <input
+            id="reviewSearch"
+            type="text"
+            class="form-control"
+            placeholder="Search reviews...">
 
-        <div class="row g-4">
+    </div>
 
-            {% if reviews %}
+    <div class="col-lg-4">
 
-                {% for review in reviews %}
+        <select
+            id="ratingFilter"
+            class="form-select">
 
-                <div class="col-lg-4 col-md-6">
+            <option value="0">All Ratings</option>
+            <option value="5">★★★★★</option>
+            <option value="4">★★★★☆</option>
+            <option value="3">★★★☆☆</option>
+            <option value="2">★★☆☆☆</option>
+            <option value="1">★☆☆☆☆</option>
 
-                    <div class="card border-0 shadow-sm h-100 review-card">
+        </select>
 
-                        <div class="card-body">
+    </div>
 
-                            <!-- Rating -->
+</div>
 
-                            <div class="mb-3">
+<div class="row g-4">
 
-                                {% for i in range(review.rating) %}
+    {% if reviews %}
 
-                                    <i class="fa-solid fa-star text-warning"></i>
+        {% for review in reviews %}
 
-                                {% endfor %}
+            <div class="col-lg-4 col-md-6">
 
-                                {% for i in range(5 - review.rating) %}
+                <div
+                    class="card border-0 shadow-sm h-100 review-card"
+                    data-rating="{{ review.rating }}">
 
-                                    <i class="fa-regular fa-star text-warning"></i>
+                    <div class="card-body">
 
-                                {% endfor %}
+                        <!-- Rating -->
 
-                            </div>
+                        <div class="mb-3">
 
-                            <!-- Title -->
+                            {% for i in range(review.rating) %}
 
-                            <h5 class="fw-bold">
+                                <i class="fa-solid fa-star text-warning"></i>
 
-                                {{ review.title }}
+                            {% endfor %}
 
-                            </h5>
+                            {% for i in range(5 - review.rating) %}
 
-                            <!-- Comment -->
+                                <i class="fa-regular fa-star text-warning"></i>
 
-                            <p class="text-muted">
-
-                                {{ review.comment }}
-
-                            </p>
+                            {% endfor %}
 
                         </div>
 
-                        <div class="card-footer bg-white border-0">
+                        <!-- Title -->
 
-                            <div class="d-flex align-items-center">
+                        <h5 class="fw-bold">
 
-                                <!-- Avatar -->
+                            {{ review.title }}
 
-                                {% if review.user.profile_picture %}
+                        </h5>
 
-                                    <img
-                                        src="{{ url_for('static', filename='uploads/profile_pics/' ~ review.user.profile_picture) }}"
-                                        class="rounded-circle me-3"
-                                        width="55"
-                                        height="55"
-                                        alt="Profile">
+                        <!-- Comment -->
 
-                                {% else %}
+                        <p class="text-muted">
 
-                                    <div
-                                        class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center me-3"
-                                        style="width:55px;height:55px;">
+                            {{ review.comment }}
 
-                                        <strong>
+                        </p>
 
-                                            {{ review.user.username[:1]|upper }}
+                    </div>
 
-                                        </strong>
+                    <div class="card-footer bg-white border-0">
 
-                                    </div>
+                        <div class="d-flex align-items-center">
 
-                                {% endif %}
+                            {% if review.user.profile_picture %}
 
-                                <div class="flex-grow-1">
+                                <img
+                                    src="{{ url_for('static', filename='uploads/profile_pics/' ~ review.user.profile_picture) }}"
+                                    class="rounded-circle me-3"
+                                    width="55"
+                                    height="55"
+                                    alt="Profile">
+
+                            {% else %}
+
+                                <div
+                                    class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center me-3"
+                                    style="width:55px;height:55px;">
+
+                                    <strong>
+
+                                        {{ review.user.username[:1]|upper }}
+
+                                    </strong>
+
+                                </div>
+
+                            {% endif %}
+
+                            <div class="flex-grow-1">
+
+                                <div class="d-flex align-items-center">
 
                                     <strong>
 
@@ -391,19 +422,27 @@
 
                                     </strong>
 
-                                    <br>
+                                    <span class="badge bg-success ms-2">
 
-                                    <small class="text-muted">
+                                        <i class="fa-solid fa-circle-check"></i>
 
-                                        {{ review.created_at.strftime("%d %b %Y") }}
+                                        Verified
 
-                                    </small>
+                                    </span>
 
                                 </div>
 
+                                <small class="text-muted">
+
+                                    {{ review.created_at.strftime("%d %b %Y") }}
+
+                                </small>
+
                             </div>
 
-                            {% if current_user.is_authenticated and review.user_id == current_user.id %}
+                        </div>
+
+                        {% if current_user.is_authenticated and review.user_id == current_user.id %}
 
                             <hr>
 
@@ -438,71 +477,71 @@
 
                             </div>
 
-                            {% endif %}
-
-                        </div>
+                        {% endif %}
 
                     </div>
 
                 </div>
 
-                {% endfor %}
+            </div>
 
-            {% else %}
+        {% endfor %}
 
-                <div class="col-12">
+    {% else %}
 
-                    <div class="card border-0 shadow-sm">
+        <div class="col-12">
 
-                        <div class="card-body text-center py-5">
+            <div class="card border-0 shadow-sm">
 
-                            <i class="fa-solid fa-comments fa-4x text-secondary mb-4"></i>
+                <div class="card-body text-center py-5">
 
-                            <h3>
+                    <i class="fa-solid fa-comments fa-4x text-secondary mb-4"></i>
 
-                                No Reviews Yet
+                    <h3>
 
-                            </h3>
+                        No Reviews Yet
 
-                            <p class="text-muted">
+                    </h3>
 
-                                Be the first developer to share your experience with CodeSentinel AI.
+                    <p class="text-muted">
 
-                            </p>
+                        Be the first developer to share your experience with CodeSentinel AI.
 
-                            {% if current_user.is_authenticated %}
+                    </p>
 
-                            <a
-                                href="#"
-                                class="btn btn-primary">
+                    {% if current_user.is_authenticated %}
 
-                                Write the First Review
+                        <a
+                            href="#"
+                            class="btn btn-primary">
 
-                            </a>
+                            Write the First Review
 
-                            {% else %}
+                        </a>
 
-                            <a
-                                href="{{ url_for('main.login') }}"
-                                class="btn btn-primary">
+                    {% else %}
 
-                                Login to Review
+                        <a
+                            href="{{ url_for('main.login') }}"
+                            class="btn btn-primary">
 
-                            </a>
+                            Login to Review
 
-                            {% endif %}
+                        </a>
 
-                        </div>
-
-                    </div>
+                    {% endif %}
 
                 </div>
 
-            {% endif %}
+            </div>
 
         </div>
 
-<!-- ===================================== -->
+    {% endif %}
+
+</div>
+
+        <!-- ===================================== -->
         <!-- CALL TO ACTION -->
         <!-- ===================================== -->
 
@@ -574,35 +613,61 @@
 
 document.addEventListener("DOMContentLoaded", function () {
 
-    const ratingInput = document.getElementById("rating");
+    // Star Rating
+    const hiddenRating = document.getElementById("rating");
+    const stars = document.querySelectorAll(".rating-star");
 
-    if (!ratingInput) return;
+    if (hiddenRating && stars.length > 0) {
 
-    ratingInput.setAttribute("min", "1");
-    ratingInput.setAttribute("max", "5");
+        stars.forEach(function (star) {
 
-    const reviewCards = document.querySelectorAll(".review-card");
+            star.addEventListener("click", function () {
 
-    reviewCards.forEach(function(card){
+                const value = parseInt(star.dataset.value);
 
-        card.style.transition =
-            "all .3s ease";
+                hiddenRating.value = value;
 
-        card.addEventListener("mouseenter", function(){
+                stars.forEach(function (s, index) {
 
-            card.style.transform =
-                "translateY(-8px)";
+                    if (index < value) {
 
-            card.style.boxShadow =
-                "0 18px 40px rgba(0,0,0,.12)";
+                        s.classList.remove("fa-regular");
+                        s.classList.add("fa-solid");
+                        s.style.color = "#ffc107";
+
+                    } else {
+
+                        s.classList.remove("fa-solid");
+                        s.classList.add("fa-regular");
+                        s.style.color = "";
+
+                    }
+
+                });
+
+            });
 
         });
 
-        card.addEventListener("mouseleave", function(){
+    }
 
-            card.style.transform =
-                "translateY(0px)";
+    // Review Card Hover Effect
+    const reviewCards = document.querySelectorAll(".review-card");
 
+    reviewCards.forEach(function (card) {
+
+        card.style.transition = "all .3s ease";
+
+        card.addEventListener("mouseenter", function () {
+
+            card.style.transform = "translateY(-8px)";
+            card.style.boxShadow = "0 18px 40px rgba(0,0,0,.12)";
+
+        });
+
+        card.addEventListener("mouseleave", function () {
+
+            card.style.transform = "translateY(0)";
             card.style.boxShadow = "";
 
         });
