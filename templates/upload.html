@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Upload Workspace | CodeSentinel AI{% endblock %}
+{% block title %}Community Reviews | CodeSentinel AI{% endblock %}
 
 {% block content %}
 
@@ -8,1541 +8,59 @@
 
     <div class="container">
 
-<<<<<<< HEAD
-        <!-- Header -->
-        <div class="text-center mb-5">
-
-            <span class="badge bg-primary-subtle text-primary px-3 py-2 mb-3">
-                <i class="fa-solid fa-shield-halved me-2"></i>
-                Secure Code Analysis
-            </span>
-
-            <h1 class="display-5 fw-bold mb-3">
-                Upload Workspace
-            </h1>
-
-            <p class="lead text-muted mx-auto"
-               style="max-width: 760px;">
-
-                Upload your Python project and let CodeSentinel AI
-                analyze code quality, security, complexity,
-                formatting, and improvement opportunities.
-
-            </p>
-
-        </div>
-
-
-        <!-- Main Workspace -->
-        <div class="row g-4">
-
-
-            <!-- Upload Panel -->
-            <div class="col-lg-8">
-
-                <div class="card border-0 shadow-lg rounded-4">
-
-                    <div class="card-body p-4 p-md-5">
-
-                        <form
-                            method="POST"
-                            enctype="multipart/form-data"
-                            id="uploadForm"
-                        >
-=======
-        <!-- ========================= -->
-        <!-- Page Header -->
-        <!-- ========================= -->
+        <!-- ===================================== -->
+        <!-- HERO -->
+        <!-- ===================================== -->
 
         <div class="text-center mb-5">
 
             <span class="badge bg-primary px-3 py-2 mb-3">
-                AI Powered Static Code Analysis
+                Community Feedback
             </span>
 
-            <h1 class="display-5 fw-bold">
-                Code Review Workspace
+            <h1 class="fw-bold display-5">
+
+                What Developers Say About
+                <span class="text-primary">
+                    CodeSentinel AI
+                </span>
+
             </h1>
 
-            <p class="lead text-muted col-lg-8 mx-auto">
-                Upload a Python file or ZIP project and let CodeSentinel AI
-                perform security analysis, code quality inspection,
-                complexity measurement, formatting checks and AI-assisted
-                recommendations.
+            <p class="lead text-muted mt-3">
+
+                Real reviews from developers using
+                CodeSentinel AI to analyze Python
+                projects for quality, security,
+                complexity and best practices.
+
             </p>
-
-            <div class="d-flex justify-content-center flex-wrap gap-2 mt-4">
-
-                <span class="badge bg-success">
-                    Python (.py)
-                </span>
-
-                <span class="badge bg-secondary">
-                    ZIP Project (.zip)
-                </span>
-
-                <span class="badge bg-dark">
-                    Max Size 16 MB
-                </span>
-
-            </div>
->>>>>>> 72c40c1 (Update upload page)
 
         </div>
 
-<<<<<<< HEAD
+        <!-- ===================================== -->
+        <!-- REVIEW STATISTICS -->
+        <!-- ===================================== -->
 
-                            <!-- Upload Area -->
-                            <div class="mb-4">
+        <div class="row g-4 mb-5">
 
-                                <label class="form-label fw-bold fs-5">
-                                    Project File
-                                </label>
+            <div class="col-lg-3 col-md-6">
 
-                                <div
-                                    id="dropZone"
-                                    class="border border-2 border-primary rounded-4 p-5 text-center"
-                                    style="cursor: pointer; transition: 0.2s;"
-                                >
+                <div class="card shadow-sm border-0 h-100">
 
-                                    <div class="mb-3">
+                    <div class="card-body text-center">
 
-                                        <i
-                                            id="uploadIcon"
-                                            class="fa-solid fa-cloud-arrow-up fa-4x text-primary"
-                                        ></i>
+                        <i class="fa-solid fa-star text-warning fa-2x mb-3"></i>
 
-                                    </div>
+                        <h2 class="fw-bold">
 
-                                    <h3 class="fw-bold">
-                                        Drop your project here
-                                    </h3>
+                            {{ review_stats.average_rating }}
 
-                                    <p class="text-muted mb-4">
-                                        or click anywhere in this area
-                                        to browse your computer
-                                    </p>
+                        </h2>
 
+                        <p class="text-muted mb-0">
 
-                                    <div class="d-none">
-
-                                        {{ form.file(
-                                            id="fileInput",
-                                            accept=".py,.zip"
-                                        ) }}
-
-                                    </div>
-
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-outline-primary px-4"
-                                        id="browseButton"
-                                    >
-                                        <i class="fa-solid fa-folder-open me-2"></i>
-                                        Browse Files
-                                    </button>
-
-
-                                    <div
-                                        id="fileInfo"
-                                        class="mt-4 d-none"
-                                    >
-
-                                        <div class="alert alert-primary mb-0">
-
-                                            <div class="d-flex align-items-center">
-
-                                                <i
-                                                    class="fa-solid fa-file-code fa-2x me-3"
-                                                ></i>
-
-                                                <div class="text-start">
-
-                                                    <div
-                                                        class="fw-bold"
-                                                        id="fileName"
-                                                    >
-                                                    </div>
-
-                                                    <small
-                                                        class="text-muted"
-                                                        id="fileSize"
-                                                    >
-                                                    </small>
-
-                                                </div>
-
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-
-                                    {% if form.file.errors %}
-
-                                        <div class="text-danger mt-3">
-
-                                            {% for error in form.file.errors %}
-
-                                                <div>
-                                                    <i class="fa-solid fa-circle-exclamation me-1"></i>
-                                                    {{ error }}
-                                                </div>
-
-                                            {% endfor %}
-
-                                        </div>
-
-                                    {% endif %}
-
-
-                                    <small class="text-muted d-block mt-4">
-
-                                        <i class="fa-solid fa-circle-info me-1"></i>
-
-                                        Supported formats:
-                                        <strong>.py</strong> and
-                                        <strong>.zip</strong>
-
-                                    </small>
-=======
-        <!-- ========================= -->
-        <!-- Upload Form -->
-        <!-- ========================= -->
-
-        <form method="POST"
-              enctype="multipart/form-data">
-
-            {{ form.hidden_tag() }}
-
-            <div class="row g-4">
-
-                <!-- LEFT COLUMN -->
-
-                <div class="col-lg-8">
-
-                    <div class="card shadow-lg border-0 rounded-4">
-
-                        <div class="card-body p-4">
-
-                            <h3 class="fw-bold mb-3">
-                                Upload Project
-                            </h3>
->>>>>>> 72c40c1 (Update upload page)
-
-                            <div class="alert alert-info rounded-3">
-
-                                Upload either
-
-                                <strong>.py</strong>
-
-                                or
-
-                                <strong>.zip</strong>
-
-                                containing your complete project.
-
-                                Maximum upload size:
-                                <strong>16 MB</strong>
-
-                            </div>
-
-<<<<<<< HEAD
-
-                            <!-- Analysis Options -->
-                            <div class="mb-4">
-
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-
-                                    <div>
-
-                                        <h4 class="fw-bold mb-1">
-                                            Analysis Options
-                                        </h4>
-
-                                        <p class="text-muted mb-0">
-                                            Choose the checks you want to run.
-                                        </p>
-
-                                    </div>
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-sm btn-outline-secondary"
-                                        id="toggleAll"
-                                    >
-                                        Deselect All
-                                    </button>
-
-                                </div>
-
-
-                                <div class="row g-3">
-
-
-                                    <!-- Black -->
-                                    <div class="col-md-6">
-
-                                        <div class="border rounded-3 p-3 h-100">
-
-                                            <div class="form-check">
-
-                                                <input
-                                                    class="form-check-input analysis-option"
-                                                    type="checkbox"
-                                                    id="formatter"
-                                                    name="formatter"
-                                                    checked
-                                                >
-
-                                                <label
-                                                    class="form-check-label fw-semibold"
-                                                    for="formatter"
-                                                >
-
-                                                    <i class="fa-solid fa-wand-magic-sparkles text-primary me-2"></i>
-
-                                                    Code Formatting
-
-                                                </label>
-
-                                            </div>
-
-                                            <small class="text-muted ms-4">
-                                                Black formatting analysis
-                                            </small>
-
-                                        </div>
-
-                                    </div>
-
-
-                                    <!-- Bandit -->
-                                    <div class="col-md-6">
-
-                                        <div class="border rounded-3 p-3 h-100">
-
-                                            <div class="form-check">
-
-                                                <input
-                                                    class="form-check-input analysis-option"
-                                                    type="checkbox"
-                                                    id="security"
-                                                    name="security"
-                                                    checked
-                                                >
-
-                                                <label
-                                                    class="form-check-label fw-semibold"
-                                                    for="security"
-                                                >
-
-                                                    <i class="fa-solid fa-shield-halved text-danger me-2"></i>
-
-                                                    Security Scan
-
-                                                </label>
-
-                                            </div>
-
-                                            <small class="text-muted ms-4">
-                                                Bandit security analysis
-                                            </small>
-
-                                        </div>
-
-                                    </div>
-
-
-                                    <!-- Pylint -->
-                                    <div class="col-md-6">
-
-                                        <div class="border rounded-3 p-3 h-100">
-
-                                            <div class="form-check">
-
-                                                <input
-                                                    class="form-check-input analysis-option"
-                                                    type="checkbox"
-                                                    id="quality"
-                                                    name="quality"
-                                                    checked
-                                                >
-
-                                                <label
-                                                    class="form-check-label fw-semibold"
-                                                    for="quality"
-                                                >
-
-                                                    <i class="fa-solid fa-chart-line text-success me-2"></i>
-
-                                                    Code Quality
-
-                                                </label>
-
-                                            </div>
-
-                                            <small class="text-muted ms-4">
-                                                Pylint quality analysis
-                                            </small>
-
-                                        </div>
-
-                                    </div>
-
-
-                                    <!-- Flake8 -->
-                                    <div class="col-md-6">
-
-                                        <div class="border rounded-3 p-3 h-100">
-
-                                            <div class="form-check">
-
-                                                <input
-                                                    class="form-check-input analysis-option"
-                                                    type="checkbox"
-                                                    id="flake8"
-                                                    name="flake8"
-                                                    checked
-                                                >
-
-                                                <label
-                                                    class="form-check-label fw-semibold"
-                                                    for="flake8"
-                                                >
-
-                                                    <i class="fa-solid fa-code text-warning me-2"></i>
-
-                                                    Style Check
-
-                                                </label>
-
-                                            </div>
-
-                                            <small class="text-muted ms-4">
-                                                Flake8 style validation
-                                            </small>
-
-                                        </div>
-
-                                    </div>
-
-
-                                    <!-- isort -->
-                                    <div class="col-md-6">
-
-                                        <div class="border rounded-3 p-3 h-100">
-
-                                            <div class="form-check">
-
-                                                <input
-                                                    class="form-check-input analysis-option"
-                                                    type="checkbox"
-                                                    id="imports"
-                                                    name="imports"
-                                                    checked
-                                                >
-
-                                                <label
-                                                    class="form-check-label fw-semibold"
-                                                    for="imports"
-                                                >
-
-                                                    <i class="fa-solid fa-list-check text-info me-2"></i>
-
-                                                    Import Sorting
-
-                                                </label>
-
-                                            </div>
-
-                                            <small class="text-muted ms-4">
-                                                isort import analysis
-                                            </small>
-
-                                        </div>
-
-                                    </div>
-
-
-                                    <!-- Radon -->
-                                    <div class="col-md-6">
-
-                                        <div class="border rounded-3 p-3 h-100">
-
-                                            <div class="form-check">
-
-                                                <input
-                                                    class="form-check-input analysis-option"
-                                                    type="checkbox"
-                                                    id="complexity"
-                                                    name="complexity"
-                                                    checked
-                                                >
-
-                                                <label
-                                                    class="form-check-label fw-semibold"
-                                                    for="complexity"
-                                                >
-
-                                                    <i class="fa-solid fa-diagram-project text-secondary me-2"></i>
-
-                                                    Complexity Analysis
-
-                                                </label>
-
-                                            </div>
-
-                                            <small class="text-muted ms-4">
-                                                Radon complexity analysis
-                                            </small>
-
-                                        </div>
-
-                                    </div>
-
-
-                                    <!-- AI -->
-                                    <div class="col-12">
-
-                                        <div class="border border-primary-subtle bg-primary-subtle rounded-3 p-3">
-
-                                            <div class="form-check">
-
-                                                <input
-                                                    class="form-check-input analysis-option"
-                                                    type="checkbox"
-                                                    id="ai"
-                                                    name="ai"
-                                                    checked
-                                                >
-
-                                                <label
-                                                    class="form-check-label fw-bold"
-                                                    for="ai"
-                                                >
-
-                                                    <i class="fa-solid fa-robot text-primary me-2"></i>
-
-                                                    AI Explanation & Recommendations
-
-                                                </label>
-
-                                            </div>
-
-                                            <small class="text-muted ms-4">
-                                                Generate intelligent explanations and improvement suggestions.
-                                            </small>
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-
-                            <!-- Submit -->
-                            <div class="d-grid mt-4">
-
-                                <button
-                                    type="submit"
-                                    class="btn btn-primary btn-lg rounded-3 py-3"
-                                    id="analyzeButton"
-                                >
-
-                                    <i class="fa-solid fa-magnifying-glass-chart me-2"></i>
-
-                                    Analyze Project
-
-                                </button>
-
-                            </div>
-
-
-                            <!-- Loading -->
-                            <div
-                                id="uploadLoading"
-                                class="text-center mt-4 d-none"
-                            >
-
-                                <div
-                                    class="spinner-border text-primary mb-3"
-                                    role="status"
-                                >
-                                    <span class="visually-hidden">
-                                        Analyzing...
-                                    </span>
-                                </div>
-
-                                <p class="fw-semibold mb-1">
-                                    Uploading your project...
-                                </p>
-
-                                <small class="text-muted">
-                                    Please wait while CodeSentinel AI processes your project.
-                                </small>
-=======
-                            <!-- Upload Zone -->
-
-                            <div id="uploadZone"
-                                 class="border border-2 border-primary rounded-4 text-center p-5">
-
-                                <div class="display-2 text-primary mb-3">
-
-                                    <i class="bi bi-cloud-arrow-up"></i>
-
-                                </div>
-
-                                <h4 class="fw-bold">
-
-                                    Drag & Drop Project Here
-
-                                </h4>
-
-                                <p class="text-muted">
-
-                                    or click below to browse files
-
-                                </p>
-
-                                {{ form.file(
-                                    class="form-control mt-3",
-                                    id="projectFile"
-                                ) }}
->>>>>>> 72c40c1 (Update upload page)
-
-                                <small class="text-muted d-block mt-3">
-
-                                    Supported:
-                                    .py
-                                    .zip
-
-<<<<<<< HEAD
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- Information Panel -->
-            <div class="col-lg-4">
-
-                <div class="card border-0 shadow-sm rounded-4 mb-4">
-
-                    <div class="card-body p-4">
-
-                        <h4 class="fw-bold mb-4">
-                            <i class="fa-solid fa-shield-halved text-primary me-2"></i>
-                            What happens next?
-                        </h4>
-
-
-                        <div class="d-flex mb-4">
-
-                            <div class="me-3">
-
-                                <span class="badge rounded-circle bg-primary p-2">
-                                    1
-                                </span>
-
-                            </div>
-
-                            <div>
-
-                                <h6 class="fw-bold mb-1">
-                                    Secure Upload
-                                </h6>
-
-                                <p class="small text-muted mb-0">
-                                    Your project is stored inside its own workspace.
-                                </p>
-=======
-                                </small>
->>>>>>> 72c40c1 (Update upload page)
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="d-flex mb-4">
-
-                            <div class="me-3">
-
-                                <span class="badge rounded-circle bg-primary p-2">
-                                    2
-                                </span>
-
-                            </div>
-
-                            <div>
-
-                                <h6 class="fw-bold mb-1">
-                                    Automated Analysis
-                                </h6>
-
-                                <p class="small text-muted mb-0">
-                                    Code quality, formatting, security, and complexity checks run against the project.
-                                </p>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="d-flex">
-
-                            <div class="me-3">
-
-                                <span class="badge rounded-circle bg-primary p-2">
-                                    3
-                                </span>
-
-                            </div>
-
-                            <div>
-
-                                <h6 class="fw-bold mb-1">
-                                    AI Insights
-                                </h6>
-
-                                <p class="small text-muted mb-0">
-                                    Receive recommendations and actionable insights on the results.
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Limits -->
-                <div class="card border-0 shadow-sm rounded-4">
-
-                    <div class="card-body p-4">
-
-                        <h5 class="fw-bold mb-3">
-                            <i class="fa-solid fa-circle-info text-primary me-2"></i>
-                            Upload Requirements
-                        </h5>
-
-                        <ul class="list-unstyled mb-0">
-
-                            <li class="mb-3">
-                                <i class="fa-solid fa-check text-success me-2"></i>
-                                Python files: <strong>.py</strong>
-                            </li>
-
-                            <li class="mb-3">
-                                <i class="fa-solid fa-check text-success me-2"></i>
-                                Projects: <strong>.zip</strong>
-                            </li>
-
-                            <li class="mb-3">
-                                <i class="fa-solid fa-check text-success me-2"></i>
-                                Maximum size: <strong>16 MB</strong>
-                            </li>
-
-                            <li>
-                                <i class="fa-solid fa-check text-success me-2"></i>
-                                Secure filename handling
-                            </li>
-
-                        </ul>
-
-                    </div>
-
-                    <!-- Project Information -->
-
-                    <div class="card shadow-sm border-0 rounded-4 mt-4">
-
-                        <div class="card-body p-4">
-
-                            <h4 class="fw-bold mb-4">
-
-                                Project Information
-
-                            </h4>
-
-                            <div class="row g-3">
-
-                                <div class="col-md-6">
-
-                                    <label class="form-label fw-semibold">
-
-                                        File Name
-
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        id="fileName"
-                                        readonly>
-
-                                </div>
-
-                                <div class="col-md-6">
-
-                                    <label class="form-label fw-semibold">
-
-                                        Extension
-
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        id="fileExtension"
-                                        readonly>
-
-                                </div>
-
-                                <div class="col-md-6">
-
-                                    <label class="form-label fw-semibold">
-
-                                        File Size
-
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        id="fileSize"
-                                        readonly>
-
-                                </div>
-
-                                <div class="col-md-6">
-
-                                    <label class="form-label fw-semibold">
-
-                                        Last Modified
-
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        id="lastModified"
-                                        readonly>
-
-                                </div>
-
-                                <div class="col-md-6">
-
-                                    <label class="form-label fw-semibold">
-
-                                        Estimated Python Files
-
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        value="Will be detected"
-                                        readonly>
-
-                                </div>
-
-                                <div class="col-md-6">
-
-                                    <label class="form-label fw-semibold">
-
-                                        Estimated Analysis Time
-
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        value="10–60 Seconds"
-                                        readonly>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <!-- ========================= -->
-                    <!-- Analysis Pipeline -->
-                    <!-- ========================= -->
-
-                    <div class="card shadow-sm border-0 rounded-4 mt-4">
-
-                        <div class="card-body p-4">
-
-                            <div class="d-flex justify-content-between align-items-center mb-4">
-
-                                <div>
-
-                                    <h3 class="fw-bold mb-1">
-                                        Analysis Pipeline
-                                    </h3>
-
-                                    <p class="text-muted mb-0">
-                                        Select the tools you want CodeSentinel AI to execute.
-                                    </p>
-
-                                </div>
-
-                                <span class="badge bg-success">
-                                    Recommended
-                                </span>
-
-                            </div>
-
-                            <div class="row g-3">
-
-                                <!-- Black -->
-
-                                <div class="col-md-6">
-
-                                    <div class="card border h-100">
-
-                                        <div class="card-body">
-
-                                            <div class="form-check">
-
-                                                <input class="form-check-input"
-                                                       type="checkbox"
-                                                       id="black"
-                                                       name="black"
-                                                       checked>
-
-                                                <label class="form-check-label fw-bold"
-                                                       for="black">
-
-                                                    Black Formatter
-
-                                                </label>
-
-                                            </div>
-
-                                            <small class="text-muted">
-
-                                                Automatically formats your Python
-                                                code according to PEP 8 standards.
-
-                                            </small>
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                                <!-- Flake8 -->
-
-                                <div class="col-md-6">
-
-                                    <div class="card border h-100">
-
-                                        <div class="card-body">
-
-                                            <div class="form-check">
-
-                                                <input class="form-check-input"
-                                                       type="checkbox"
-                                                       id="flake8"
-                                                       name="flake8"
-                                                       checked>
-
-                                                <label class="form-check-label fw-bold"
-                                                       for="flake8">
-
-                                                    Flake8
-
-                                                </label>
-
-                                            </div>
-
-                                            <small class="text-muted">
-
-                                                Detects syntax errors,
-                                                unused imports,
-                                                style violations
-                                                and possible bugs.
-
-                                            </small>
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                                <!-- Pylint -->
-
-                                <div class="col-md-6">
-
-                                    <div class="card border h-100">
-
-                                        <div class="card-body">
-
-                                            <div class="form-check">
-
-                                                <input class="form-check-input"
-                                                       type="checkbox"
-                                                       id="pylint"
-                                                       name="pylint"
-                                                       checked>
-
-                                                <label class="form-check-label fw-bold"
-                                                       for="pylint">
-
-                                                    Pylint
-
-                                                </label>
-
-                                            </div>
-
-                                            <small class="text-muted">
-
-                                                Performs deep code quality
-                                                inspection and calculates
-                                                maintainability score.
-
-                                            </small>
-
-                                        </div>
-
-                                    </
-
-                    <!-- ========================= -->
-                    <!-- AI Provider Configuration -->
-                    <!-- ========================= -->
-
-                    <div class="card shadow-sm border-0 rounded-4 mt-4">
-
-                        <div class="card-body p-4">
-
-                            <div class="d-flex justify-content-between align-items-center mb-4">
-
-                                <div>
-
-                                    <h3 class="fw-bold mb-1">
-                                        AI Provider Configuration
-                                    </h3>
-
-                                    <p class="text-muted mb-0">
-                                        Connect your preferred AI provider to enable intelligent code reviews and suggestions.
-                                    </p>
-
-                                </div>
-
-                                <span class="badge bg-primary">
-                                    Optional
-                                </span>
-
-                            </div>
-
-                            <div class="row g-4">
-
-                                <!-- Provider -->
-
-                                <div class="col-md-6">
-
-                                    <label class="form-label fw-semibold">
-
-                                        AI Provider
-
-                                    </label>
-
-                                    <select
-                                        class="form-select"
-                                        id="aiProvider"
-                                        name="ai_provider">
-
-                                        <option value="gemini" selected>
-                                            Google Gemini
-                                        </option>
-
-                                        <option value="openai">
-                                            OpenAI GPT
-                                        </option>
-
-                                        <option value="claude">
-                                            Anthropic Claude
-                                        </option>
-
-                                        <option value="groq">
-                                            Groq
-                                        </option>
-
-                                        <option value="openrouter">
-                                            OpenRouter
-                                        </option>
-
-                                        <option value="ollama">
-                                            Ollama (Local)
-                                        </option>
-
-                                        <option value="custom">
-
-                    <!-- ========================= -->
-                    <!-- Report Options -->
-                    <!-- ========================= -->
-
-                    <div class="card shadow-sm border-0 rounded-4 mt-4">
-
-                        <div class="card-body p-4">
-
-                            <h3 class="fw-bold mb-4">
-
-                                Report Options
-
-                            </h3>
-
-                            <div class="row g-3">
-
-                                <div class="col-md-3">
-
-                                    <div class="form-check">
-
-                                        <input
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            id="reportHtml"
-                                            name="report_html"
-                                            checked>
-
-                                        <label
-                                            class="form-check-label fw-semibold"
-                                            for="reportHtml">
-
-                                            HTML Report
-
-                                        </label>
-
-                                    </div>
-
-                                </div>
-
-                                <div class="col-md-3">
-
-                                    <div class="form-check">
-
-                                        <input
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            id="reportPdf"
-                                            name="report_pdf"
-                                            checked>
-
-                                        <label
-                                            class="form-check-label fw-semibold"
-                                            for="reportPdf">
-
-                                            PDF Report
-
-                                        </label>
-
-                                    </div>
-
-                                </div>
-
-                                <div class="col-md-3">
-
-                                    <div class="form-check">
-
-                                        <input
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            id="reportJson"
-                                            name="report_json">
-
-                                        <label
-                                            class="form-check-label fw-semibold"
-                                            for="reportJson">
-
-                                            JSON Report
-
-                                        </label>
-
-                                    </div>
-
-                                </div>
-
-                                <div class="col-md-3">
-
-                                    <div class="form-check">
-
-                                        <input
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            id="reportCsv"
-                                            name="report_csv">
-
-                                        <label
-                                            class="form-check-label fw-semibold"
-                                            for="reportCsv">
-
-                                            CSV Report
-
-                                        </label>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <!-- ========================= -->
-                    <!-- Ignore Rules -->
-                    <!-- ========================= -->
-
-                    <div class="card shadow-sm border-0 rounded-4 mt-4">
-
-                        <div class="card-body p-4">
-
-                            <h3 class="fw-bold mb-4">
-
-                                Ignore Rules
-
-                            </h3>
-
-                            <label class="form-label">
-
-                                Ignore Files & Folders
-
-                            </label>
-
-                            <textarea
-                              class="form-control"
-                              rows="5"
-                              name="ignore_rules">__pycache__/
-                             venv/
-                             .env
-                             *.log
-                             node_modules/
-                             dist/
-                             build/</textarea>
-
-                            <small class="text-muted">
-
-                                One rule per line. Supports wildcards and folders.
-
-                            </small>
-
-                        </div>
-
-                    </div>
-
-                    <!-- ========================= -->
-                    <!-- Analysis Settings -->
-                    <!-- ========================= -->
-
-                    <div class="card shadow-sm border-0 rounded-4 mt-4">
-
-                        <div class="card-body p-4">
-
-                            <h3 class="fw-bold mb-4">
-
-                                Analysis Settings
-
-                            </h3>
-
-                            <div class="row">
-
-                                <div class="col-md-6">
-
-                                    <div class="form-check mb-3">
-
-                                        <input
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            id="recursive"
-                                            checked>
-
-                                        <label
-                                            class="form-check-label"
-                                            for="recursive">
-
-                                            Scan subdirectories recursively
-
-                                        </label>
-
-                                    </div>
-
-                                    <div class="form-check mb-3">
-
-                                        <input
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            id="failFast">
-
-                                        <label
-                                            class="form-check-label"
-                                            for="failFast">
-
-                                            Stop on first critical error
-
-                                        </label>
-
-                                    </div>
-
-                                </div>
-
-                                <div class="col-md-6">
-
-                                    <div class="form-check mb-3">
-
-                                        <input
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            id="saveHistory"
-                                            checked>
-
-                                        <label
-                                            class="form-check-label"
-                                            for="saveHistory">
-
-                                            Save analysis history
-
-                                        </label>
-
-                                    </div>
-
-                                    <div class="form-check mb-3">
-
-                                        <input
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            id="autoDownload">
-
-                                        <label
-                                            class="form-check-label"
-                                            for="autoDownload">
-
-                                            Auto download report after completion
-
-                                        </label>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <!-- ========================= -->
-                    <!-- Ready To Analyze -->
-                    <!-- ========================= -->
-
-                    <div class="card shadow border-success rounded-4 mt-4">
-
-                        <div class="card-body text-center py-5">
-
-                            <h2 class="fw-bold mb-3">
-
-                                Ready to Analyze?
-
-                            </h2>
-
-                            <p class="text-muted mb-4">
-
-                                Your project will be scanned using the selected
-                                analysis tools and AI provider configuration.
-
-                            </p>
-
-                            {{ form.submit(
-                                class="btn btn-success btn-lg px-5 py-3"
-                            ) }}
-
-                            <div class="mt-3">
-
-                                <small class="text-muted">
-
-                                    Average analysis time:
-                                    <strong>10–60 seconds</strong>
-
-                                </small>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-</div>
-
-                <!-- ========================= -->
-                <!-- RIGHT SIDEBAR -->
-                <!-- ========================= -->
-
-                <div class="col-lg-4">
-
-                    <!-- Analysis Features -->
-
-                    <div class="card shadow-sm border-0 rounded-4 mb-4">
-
-                        <div class="card-body">
-
-                            <h4 class="fw-bold mb-4">
-
-                                Analysis Features
-
-                            </h4>
-
-                            <ul class="list-group list-group-flush">
-
-                                <li class="list-group-item">
-                                    Static Code Analysis
-                                </li>
-
-                                <li class="list-group-item">
-                                    Security Vulnerability Detection
-                                </li>
-
-                                <li class="list-group-item">
-                                    AI Code Review
-                                </li>
-
-                                <li class="list-group-item">
-                                    Complexity Analysis
-                                </li>
-
-                                <li class="list-group-item">
-                                    Maintainability Score
-                                </li>
-
-                                <li class="list-group-item">
-                                    Import Optimization
-                                </li>
-
-                                <li class="list-group-item">
-                                    Automatic Code Formatting
-                                </li>
-
-                                <li class="list-group-item">
-                                    Professional Reports
-                                </li>
-
-                            </ul>
-
-                        </div>
-
-                    </div>
-
-                    <!-- Supported Technologies -->
-
-                    <div class="card shadow-sm border-0 rounded-4 mb-4">
-
-                        <div class="card-body">
-
-                            <h4 class="fw-bold mb-4">
-
-                                Supported Technologies
-
-                            </h4>
-
-                            <div class="d-flex flex-wrap gap-2">
-
-                                <span class="badge bg-primary">
-                                    Python
-                                </span>
-
-                                <span class="badge bg-success">
-                                    Flask
-                                </span>
-
-                                <span class="badge bg-info text-dark">
-                                    Django
-                                </span>
-
-                                <span class="badge bg-warning text-dark">
-                                    FastAPI
-                                </span>
-
-                                <span class="badge bg-dark">
-                                    Bootstrap
-                                </span>
-
-                                <span class="badge bg-secondary">
-                                    AI Review
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <!-- Tips -->
-
-                    <div class="card shadow-sm border-0 rounded-4 mb-4">
-
-                        <div class="card-body">
-
-                            <h4 class="fw-bold mb-3">
-
-                                Best Practices
-
-                            </h4>
-
-                            <ul class="small mb-0">
-
-                                <li>
-                                    Upload the complete project as a ZIP archive.
-                                </li>
-
-                                <li>
-                                    Exclude virtual environments and cache folders.
-                                </li>
-
-                                <li>
-                                    Configure your AI provider before enabling AI Review.
-                                </li>
-
-                                <li>
-                                    Enable all analysis modules for the best results.
-                                </li>
-
-                                <li>
-                                    Download the generated report for future reference.
-                                </li>
-
-                            </ul>
-
-                        </div>
-
-                    </div>
-
-                    <!-- Security Notice -->
-
-                    <div class="alert alert-success rounded-4">
-
-                        <h5 class="fw-bold">
-
-                            Privacy First
-
-                        </h5>
-
-                        <p class="mb-0">
-
-                            Your uploaded project is processed securely.
-                            API keys remain private and are never shared with third-party services except the AI provider you choose.
+                            Average Rating
 
                         </p>
 
@@ -1552,220 +70,522 @@
 
             </div>
 
-        </form>
+            <div class="col-lg-3 col-md-6">
+
+                <div class="card shadow-sm border-0 h-100">
+
+                    <div class="card-body text-center">
+
+                        <i class="fa-solid fa-comments text-primary fa-2x mb-3"></i>
+
+                        <h2 class="fw-bold">
+
+                            {{ review_stats.total_reviews }}
+
+                        </h2>
+
+                        <p class="text-muted mb-0">
+
+                            Total Reviews
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="card shadow-sm border-0 h-100">
+
+                    <div class="card-body text-center">
+
+                        <i class="fa-solid fa-thumbs-up text-success fa-2x mb-3"></i>
+
+                        <h2 class="fw-bold">
+
+                            {{ review_stats.recommendation_percentage }}%
+
+                        </h2>
+
+                        <p class="text-muted mb-0">
+
+                            Recommend
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="card shadow-sm border-0 h-100">
+
+                    <div class="card-body text-center">
+
+                        <i class="fa-solid fa-shield-halved text-danger fa-2x mb-3"></i>
+
+                        <h2 class="fw-bold">
+
+                            Trusted
+
+                        </h2>
+
+                        <p class="text-muted mb-0">
+
+                            Community Driven
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ===================================== -->
+        <!-- WRITE REVIEW -->
+        <!-- ===================================== -->
+
+        {% if current_user.is_authenticated %}
+
+        <div class="card border-0 shadow-lg mb-5">
+
+            <div class="card-header bg-primary text-white">
+
+                <h4 class="mb-0">
+
+                    <i class="fa-solid fa-pen-to-square me-2"></i>
+
+                    Write Your Review
+
+                </h4>
+
+            </div>
+
+            <div class="card-body">
+
+                <form method="POST">
+
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-4">
+
+                        <label class="form-label fw-semibold">
+
+                            Rating
+
+                        </label>
+
+                        {{ form.rating(
+                            class="form-control"
+                        ) }}
+
+                    </div>
+
+                    <div class="mb-4">
+
+                        <label class="form-label fw-semibold">
+
+                            Review Title
+
+                        </label>
+
+                        {{ form.title(
+                            class="form-control",
+                            placeholder="Short summary..."
+                        ) }}
+
+                    </div>
+
+                    <div class="mb-4">
+
+                        <label class="form-label fw-semibold">
+
+                            Your Experience
+
+                        </label>
+
+                        {{ form.comment(
+                            class="form-control",
+                            rows="5",
+                            placeholder="Tell other developers about your experience..."
+                        ) }}
+
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary btn-lg">
+
+                        <i class="fa-solid fa-paper-plane me-2"></i>
+
+                        Submit Review
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+        {% else %}
+
+        <div class="alert alert-info text-center shadow-sm mb-5">
+
+            <h5>
+
+                <i class="fa-solid fa-user-lock me-2"></i>
+
+                Login to share your experience with CodeSentinel AI.
+
+            </h5>
+
+            <a href="{{ url_for('main.login') }}"
+               class="btn btn-primary mt-3">
+
+                Login
+
+            </a>
+
+        </div>
+
+        {% endif %}
+
+<!-- ===================================== -->
+        <!-- COMMUNITY REVIEWS -->
+        <!-- ===================================== -->
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+
+                <h2 class="fw-bold mb-1">
+
+                    Latest Community Reviews
+
+                </h2>
+
+                <p class="text-muted mb-0">
+
+                    Honest feedback from developers using CodeSentinel AI.
+
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="row g-4">
+
+            {% if reviews %}
+
+                {% for review in reviews %}
+
+                <div class="col-lg-4 col-md-6">
+
+                    <div class="card border-0 shadow-sm h-100 review-card">
+
+                        <div class="card-body">
+
+                            <!-- Rating -->
+
+                            <div class="mb-3">
+
+                                {% for i in range(review.rating) %}
+
+                                    <i class="fa-solid fa-star text-warning"></i>
+
+                                {% endfor %}
+
+                                {% for i in range(5 - review.rating) %}
+
+                                    <i class="fa-regular fa-star text-warning"></i>
+
+                                {% endfor %}
+
+                            </div>
+
+                            <!-- Title -->
+
+                            <h5 class="fw-bold">
+
+                                {{ review.title }}
+
+                            </h5>
+
+                            <!-- Comment -->
+
+                            <p class="text-muted">
+
+                                {{ review.comment }}
+
+                            </p>
+
+                        </div>
+
+                        <div class="card-footer bg-white border-0">
+
+                            <div class="d-flex align-items-center">
+
+                                <!-- Avatar -->
+
+                                {% if review.user.profile_picture %}
+
+                                    <img
+                                        src="{{ url_for('static', filename='uploads/profile_pics/' ~ review.user.profile_picture) }}"
+                                        class="rounded-circle me-3"
+                                        width="55"
+                                        height="55"
+                                        alt="Profile">
+
+                                {% else %}
+
+                                    <div
+                                        class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center me-3"
+                                        style="width:55px;height:55px;">
+
+                                        <strong>
+
+                                            {{ review.user.username[:1]|upper }}
+
+                                        </strong>
+
+                                    </div>
+
+                                {% endif %}
+
+                                <div class="flex-grow-1">
+
+                                    <strong>
+
+                                        {{ review.user.username }}
+
+                                    </strong>
+
+                                    <br>
+
+                                    <small class="text-muted">
+
+                                        {{ review.created_at.strftime("%d %b %Y") }}
+
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                            {% if current_user.is_authenticated and review.user_id == current_user.id %}
+
+                            <hr>
+
+                            <div class="d-flex justify-content-between">
+
+                                <a
+                                    href="{{ url_for('main.edit_review', review_id=review.id) }}"
+                                    class="btn btn-outline-primary btn-sm">
+
+                                    <i class="fa-solid fa-pen"></i>
+
+                                    Edit
+
+                                </a>
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for('main.delete_review', review_id=review.id) }}">
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-outline-danger btn-sm"
+                                        onclick="return confirm('Delete this review?')">
+
+                                        <i class="fa-solid fa-trash"></i>
+
+                                        Delete
+
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="col-12">
+
+                    <div class="card border-0 shadow-sm">
+
+                        <div class="card-body text-center py-5">
+
+                            <i class="fa-solid fa-comments fa-4x text-secondary mb-4"></i>
+
+                            <h3>
+
+                                No Reviews Yet
+
+                            </h3>
+
+                            <p class="text-muted">
+
+                                Be the first developer to share your experience with CodeSentinel AI.
+
+                            </p>
+
+                            {% if current_user.is_authenticated %}
+
+                            <a
+                                href="#"
+                                class="btn btn-primary">
+
+                                Write the First Review
+
+                            </a>
+
+                            {% else %}
+
+                            <a
+                                href="{{ url_for('main.login') }}"
+                                class="btn btn-primary">
+
+                                Login to Review
+
+                            </a>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+<!-- ===================================== -->
+        <!-- CALL TO ACTION -->
+        <!-- ===================================== -->
+
+        <div class="row mt-5">
+
+            <div class="col-12">
+
+                <div class="card border-0 bg-primary text-white shadow-lg">
+
+                    <div class="card-body text-center py-5">
+
+                        <h2 class="fw-bold mb-3">
+
+                            Help Improve CodeSentinel AI
+
+                        </h2>
+
+                        <p class="lead mb-4">
+
+                            Your feedback helps us improve our AI-powered
+                            code analysis platform for developers around
+                            the world.
+
+                        </p>
+
+                        {% if current_user.is_authenticated %}
+
+                        <a
+                            href="#top"
+                            class="btn btn-light btn-lg">
+
+                            <i class="fa-solid fa-star me-2"></i>
+
+                            Write Your Review
+
+                        </a>
+
+                        {% else %}
+
+                        <a
+                            href="{{ url_for('main.register') }}"
+                            class="btn btn-light btn-lg">
+
+                            <i class="fa-solid fa-user-plus me-2"></i>
+
+                            Join the Community
+
+                        </a>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
 
     </div>
 
 </section>
 
+{% endblock %}
+
+{% block scripts %}
 
 <script>
 
 document.addEventListener("DOMContentLoaded", function () {
 
-    const dropZone = document.getElementById("dropZone");
-    const fileInput = document.getElementById("fileInput");
-    const browseButton = document.getElementById("browseButton");
+    const ratingInput = document.getElementById("rating");
 
-    const fileInfo = document.getElementById("fileInfo");
-    const fileName = document.getElementById("fileName");
-    const fileSize = document.getElementById("fileSize");
+    if (!ratingInput) return;
 
-    const uploadForm = document.getElementById("uploadForm");
-    const analyzeButton = document.getElementById("analyzeButton");
-    const uploadLoading = document.getElementById("uploadLoading");
+    ratingInput.setAttribute("min", "1");
+    ratingInput.setAttribute("max", "5");
 
-    const toggleAll = document.getElementById("toggleAll");
-    const options = document.querySelectorAll(".analysis-option");
+    const reviewCards = document.querySelectorAll(".review-card");
 
+    reviewCards.forEach(function(card){
 
-    // --------------------------------------------------
-    // Browse button
-    // --------------------------------------------------
+        card.style.transition =
+            "all .3s ease";
 
-    browseButton.addEventListener("click", function (event) {
+        card.addEventListener("mouseenter", function(){
 
-        event.stopPropagation();
+            card.style.transform =
+                "translateY(-8px)";
 
-        fileInput.click();
-
-    });
-
-
-    // --------------------------------------------------
-    // Click upload area
-    // --------------------------------------------------
-
-    dropZone.addEventListener("click", function () {
-
-        fileInput.click();
-
-    });
-
-
-    // --------------------------------------------------
-    // File selected
-    // --------------------------------------------------
-
-    fileInput.addEventListener("change", function () {
-
-        if (fileInput.files.length > 0) {
-
-            displayFile(fileInput.files[0]);
-
-        }
-
-    });
-
-
-    // --------------------------------------------------
-    // Display file
-    // --------------------------------------------------
-
-    function displayFile(file) {
-
-        fileName.textContent = file.name;
-
-        fileSize.textContent = formatFileSize(file.size);
-
-        fileInfo.classList.remove("d-none");
-
-    }
-
-
-    // --------------------------------------------------
-    // File size
-    // --------------------------------------------------
-
-    function formatFileSize(bytes) {
-
-        if (bytes === 0) {
-            return "0 Bytes";
-        }
-
-        const units = [
-            "Bytes",
-            "KB",
-            "MB",
-            "GB"
-        ];
-
-        const index = Math.floor(
-            Math.log(bytes) / Math.log(1024)
-        );
-
-        return (
-            parseFloat(
-                (bytes / Math.pow(1024, index)).toFixed(2)
-            )
-            + " "
-            + units[index]
-        );
-
-    }
-
-
-    // --------------------------------------------------
-    // Drag enter
-    // --------------------------------------------------
-
-    dropZone.addEventListener("dragover", function (event) {
-
-        event.preventDefault();
-
-        dropZone.classList.add("bg-primary-subtle");
-
-    });
-
-
-    // --------------------------------------------------
-    // Drag leave
-    // --------------------------------------------------
-
-    dropZone.addEventListener("dragleave", function () {
-
-        dropZone.classList.remove("bg-primary-subtle");
-
-    });
-
-
-    // --------------------------------------------------
-    // Drop
-    // --------------------------------------------------
-
-    dropZone.addEventListener("drop", function (event) {
-
-        event.preventDefault();
-
-        dropZone.classList.remove("bg-primary-subtle");
-
-        const files = event.dataTransfer.files;
-
-        if (files.length > 0) {
-
-            try {
-
-                const dataTransfer = new DataTransfer();
-
-                dataTransfer.items.add(files[0]);
-
-                fileInput.files = dataTransfer.files;
-
-                displayFile(files[0]);
-
-            } catch (error) {
-
-                console.error(
-                    "Unable to attach dropped file:",
-                    error
-                );
-
-            }
-
-        }
-
-    });
-
-
-    // --------------------------------------------------
-    // Select / deselect all
-    // --------------------------------------------------
-
-    toggleAll.addEventListener("click", function () {
-
-        const anyChecked = Array.from(options)
-            .some(option => option.checked);
-
-        options.forEach(function (option) {
-
-            option.checked = !anyChecked;
+            card.style.boxShadow =
+                "0 18px 40px rgba(0,0,0,.12)";
 
         });
 
-        toggleAll.textContent = anyChecked
-            ? "Select All"
-            : "Deselect All";
+        card.addEventListener("mouseleave", function(){
 
-    });
+            card.style.transform =
+                "translateY(0px)";
 
+            card.style.boxShadow = "";
 
-    // --------------------------------------------------
-    // Submit loading state
-    // --------------------------------------------------
-
-    uploadForm.addEventListener("submit", function () {
-
-        if (!fileInput.files.length) {
-            return;
-        }
-
-        analyzeButton.disabled = true;
-
-        analyzeButton.innerHTML =
-            '<span class="spinner-border spinner-border-sm me-2"></span>' +
-            'Uploading...';
-
-        uploadLoading.classList.remove("d-none");
+        });
 
     });
 
