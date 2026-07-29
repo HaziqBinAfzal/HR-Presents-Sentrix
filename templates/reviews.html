@@ -1,0 +1,618 @@
+{% extends "base.html" %}
+
+{% block title %}Community Reviews | CodeSentinel AI{% endblock %}
+
+{% block content %}
+
+<section class="py-5">
+
+    <div class="container">
+
+        <!-- ===================================== -->
+        <!-- HERO -->
+        <!-- ===================================== -->
+
+        <div class="text-center mb-5">
+
+            <span class="badge bg-primary px-3 py-2 mb-3">
+                Community Feedback
+            </span>
+
+            <h1 class="fw-bold display-5">
+
+                What Developers Say About
+                <span class="text-primary">
+                    CodeSentinel AI
+                </span>
+
+            </h1>
+
+            <p class="lead text-muted mt-3">
+
+                Real reviews from developers using
+                CodeSentinel AI to analyze Python
+                projects for quality, security,
+                complexity and best practices.
+
+            </p>
+
+        </div>
+
+        <!-- ===================================== -->
+        <!-- REVIEW STATISTICS -->
+        <!-- ===================================== -->
+
+        <div class="row g-4 mb-5">
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="card shadow-sm border-0 h-100">
+
+                    <div class="card-body text-center">
+
+                        <i class="fa-solid fa-star text-warning fa-2x mb-3"></i>
+
+                        <h2 class="fw-bold">
+
+                            {{ review_stats.average_rating }}
+
+                        </h2>
+
+                        <p class="text-muted mb-0">
+
+                            Average Rating
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="card shadow-sm border-0 h-100">
+
+                    <div class="card-body text-center">
+
+                        <i class="fa-solid fa-comments text-primary fa-2x mb-3"></i>
+
+                        <h2 class="fw-bold">
+
+                            {{ review_stats.total_reviews }}
+
+                        </h2>
+
+                        <p class="text-muted mb-0">
+
+                            Total Reviews
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="card shadow-sm border-0 h-100">
+
+                    <div class="card-body text-center">
+
+                        <i class="fa-solid fa-thumbs-up text-success fa-2x mb-3"></i>
+
+                        <h2 class="fw-bold">
+
+                            {{ review_stats.recommendation_percentage }}%
+
+                        </h2>
+
+                        <p class="text-muted mb-0">
+
+                            Recommend
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="card shadow-sm border-0 h-100">
+
+                    <div class="card-body text-center">
+
+                        <i class="fa-solid fa-shield-halved text-danger fa-2x mb-3"></i>
+
+                        <h2 class="fw-bold">
+
+                            Trusted
+
+                        </h2>
+
+                        <p class="text-muted mb-0">
+
+                            Community Driven
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ===================================== -->
+        <!-- WRITE REVIEW -->
+        <!-- ===================================== -->
+
+        {% if current_user.is_authenticated %}
+
+        <div class="card border-0 shadow-lg mb-5">
+
+            <div class="card-header bg-primary text-white">
+
+                <h4 class="mb-0">
+
+                    <i class="fa-solid fa-pen-to-square me-2"></i>
+
+                    Write Your Review
+
+                </h4>
+
+            </div>
+
+            <div class="card-body">
+
+                <form method="POST">
+
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-4">
+
+                        <label class="form-label fw-semibold">
+
+                            Rating
+
+                        </label>
+
+                        <div
+                            id="starRating"
+                            class="fs-2 mb-3">
+
+                            <i class="fa-regular fa-star rating-star" data-value="1"></i>
+
+                            <i class="fa-regular fa-star rating-star" data-value="2"></i>
+
+                            <i class="fa-regular fa-star rating-star" data-value="3"></i>
+
+                            <i class="fa-regular fa-star rating-star" data-value="4"></i>
+
+                            <i class="fa-regular fa-star rating-star" data-value="5"></i>
+
+                        </div>
+
+                        {{ form.rating() }}
+
+                        <small class="text-muted">
+
+                        Click a star to rate your experience.
+
+                        </small>
+
+                    </div>
+
+                    <div class="mb-4">
+
+                        <label class="form-label fw-semibold">
+
+                            Review Title
+
+                        </label>
+
+                        {{ form.title(
+                            class="form-control",
+                            placeholder="Short summary..."
+                        ) }}
+
+                    </div>
+
+                    <div class="mb-4">
+
+                        <label class="form-label fw-semibold">
+
+                            Your Experience
+
+                        </label>
+
+                        {{ form.comment(
+                            class="form-control",
+                            rows="5",
+                            placeholder="Tell other developers about your experience..."
+                        ) }}
+
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary btn-lg">
+
+                        <i class="fa-solid fa-paper-plane me-2"></i>
+
+                        Submit Review
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+        {% else %}
+
+        <div class="alert alert-info text-center shadow-sm mb-5">
+
+            <h5>
+
+                <i class="fa-solid fa-user-lock me-2"></i>
+
+                Login to share your experience with CodeSentinel AI.
+
+            </h5>
+
+            <a href="{{ url_for('main.login') }}"
+               class="btn btn-primary mt-3">
+
+                Login
+
+            </a>
+
+        </div>
+
+        {% endif %}
+
+<!-- ===================================== -->
+        <!-- COMMUNITY REVIEWS -->
+        <!-- ===================================== -->
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+
+                <h2 class="fw-bold mb-1">
+
+                    Latest Community Reviews
+
+                </h2>
+
+                <p class="text-muted mb-0">
+
+                    Honest feedback from developers using CodeSentinel AI.
+
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="row g-4">
+
+            {% if reviews %}
+
+                {% for review in reviews %}
+
+                <div class="col-lg-4 col-md-6">
+
+                    <div class="card border-0 shadow-sm h-100 review-card">
+
+                        <div class="card-body">
+
+                            <!-- Rating -->
+
+                            <div class="mb-3">
+
+                                {% for i in range(review.rating) %}
+
+                                    <i class="fa-solid fa-star text-warning"></i>
+
+                                {% endfor %}
+
+                                {% for i in range(5 - review.rating) %}
+
+                                    <i class="fa-regular fa-star text-warning"></i>
+
+                                {% endfor %}
+
+                            </div>
+
+                            <!-- Title -->
+
+                            <h5 class="fw-bold">
+
+                                {{ review.title }}
+
+                            </h5>
+
+                            <!-- Comment -->
+
+                            <p class="text-muted">
+
+                                {{ review.comment }}
+
+                            </p>
+
+                        </div>
+
+                        <div class="card-footer bg-white border-0">
+
+                            <div class="d-flex align-items-center">
+
+                                <!-- Avatar -->
+
+                                {% if review.user.profile_picture %}
+
+                                    <img
+                                        src="{{ url_for('static', filename='uploads/profile_pics/' ~ review.user.profile_picture) }}"
+                                        class="rounded-circle me-3"
+                                        width="55"
+                                        height="55"
+                                        alt="Profile">
+
+                                {% else %}
+
+                                    <div
+                                        class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center me-3"
+                                        style="width:55px;height:55px;">
+
+                                        <strong>
+
+                                            {{ review.user.username[:1]|upper }}
+
+                                        </strong>
+
+                                    </div>
+
+                                {% endif %}
+
+                                <div class="flex-grow-1">
+
+                                    <strong>
+
+                                        {{ review.user.username }}
+
+                                    </strong>
+
+                                    <br>
+
+                                    <small class="text-muted">
+
+                                        {{ review.created_at.strftime("%d %b %Y") }}
+
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                            {% if current_user.is_authenticated and review.user_id == current_user.id %}
+
+                            <hr>
+
+                            <div class="d-flex justify-content-between">
+
+                                <a
+                                    href="{{ url_for('main.edit_review', review_id=review.id) }}"
+                                    class="btn btn-outline-primary btn-sm">
+
+                                    <i class="fa-solid fa-pen"></i>
+
+                                    Edit
+
+                                </a>
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for('main.delete_review', review_id=review.id) }}">
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-outline-danger btn-sm"
+                                        onclick="return confirm('Delete this review?')">
+
+                                        <i class="fa-solid fa-trash"></i>
+
+                                        Delete
+
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="col-12">
+
+                    <div class="card border-0 shadow-sm">
+
+                        <div class="card-body text-center py-5">
+
+                            <i class="fa-solid fa-comments fa-4x text-secondary mb-4"></i>
+
+                            <h3>
+
+                                No Reviews Yet
+
+                            </h3>
+
+                            <p class="text-muted">
+
+                                Be the first developer to share your experience with CodeSentinel AI.
+
+                            </p>
+
+                            {% if current_user.is_authenticated %}
+
+                            <a
+                                href="#"
+                                class="btn btn-primary">
+
+                                Write the First Review
+
+                            </a>
+
+                            {% else %}
+
+                            <a
+                                href="{{ url_for('main.login') }}"
+                                class="btn btn-primary">
+
+                                Login to Review
+
+                            </a>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+<!-- ===================================== -->
+        <!-- CALL TO ACTION -->
+        <!-- ===================================== -->
+
+        <div class="row mt-5">
+
+            <div class="col-12">
+
+                <div class="card border-0 bg-primary text-white shadow-lg">
+
+                    <div class="card-body text-center py-5">
+
+                        <h2 class="fw-bold mb-3">
+
+                            Help Improve CodeSentinel AI
+
+                        </h2>
+
+                        <p class="lead mb-4">
+
+                            Your feedback helps us improve our AI-powered
+                            code analysis platform for developers around
+                            the world.
+
+                        </p>
+
+                        {% if current_user.is_authenticated %}
+
+                        <a
+                            href="#top"
+                            class="btn btn-light btn-lg">
+
+                            <i class="fa-solid fa-star me-2"></i>
+
+                            Write Your Review
+
+                        </a>
+
+                        {% else %}
+
+                        <a
+                            href="{{ url_for('main.register') }}"
+                            class="btn btn-light btn-lg">
+
+                            <i class="fa-solid fa-user-plus me-2"></i>
+
+                            Join the Community
+
+                        </a>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const ratingInput = document.getElementById("rating");
+
+    if (!ratingInput) return;
+
+    ratingInput.setAttribute("min", "1");
+    ratingInput.setAttribute("max", "5");
+
+    const reviewCards = document.querySelectorAll(".review-card");
+
+    reviewCards.forEach(function(card){
+
+        card.style.transition =
+            "all .3s ease";
+
+        card.addEventListener("mouseenter", function(){
+
+            card.style.transform =
+                "translateY(-8px)";
+
+            card.style.boxShadow =
+                "0 18px 40px rgba(0,0,0,.12)";
+
+        });
+
+        card.addEventListener("mouseleave", function(){
+
+            card.style.transform =
+                "translateY(0px)";
+
+            card.style.boxShadow = "";
+
+        });
+
+    });
+
+});
+
+</script>
+
+{% endblock %}
+
+

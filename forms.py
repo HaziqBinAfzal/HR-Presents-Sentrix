@@ -4,16 +4,55 @@ from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms import (
     StringField,
     PasswordField,
-    SubmitField
+    SubmitField,
+    TextAreaField,
+    IntegerField
 )
 
 from wtforms.validators import (
     DataRequired,
     Email,
     EqualTo,
-    Length
+    Length,
+    NumberRange
 )
 
+
+# ============================================================
+# UPLOAD VALIDATION
+# ============================================================
+
+MAX_UPLOAD_SIZE = 16 * 1024 * 1024  # 16 MB
+
+
+def validate_file_size(form, field):
+    """
+    Validate uploaded file size.
+    """
+
+    if not field.data:
+        return
+
+    file = field.data
+
+    # Move to the end of the uploaded file
+    file.seek(0, 2)
+
+    size = file.tell()
+
+    # Reset file position
+    file.seek(0)
+
+    if size > MAX_UPLOAD_SIZE:
+
+        raise ValidationError(
+            "File size must not exceed 16 MB."
+        )
+
+
+# ============================================================
+# REGISTER FORM
+# ============================================================
 
 class RegisterForm(FlaskForm):
 
@@ -52,6 +91,10 @@ class RegisterForm(FlaskForm):
     submit = SubmitField("Register")
 
 
+# ============================================================
+# LOGIN FORM
+# ============================================================
+
 class LoginForm(FlaskForm):
 
     email = StringField(
@@ -72,6 +115,10 @@ class LoginForm(FlaskForm):
     submit = SubmitField("Login")
 
 
+# ============================================================
+# FORGOT PASSWORD FORM
+# ============================================================
+
 class ForgotPasswordForm(FlaskForm):
 
     email = StringField(
@@ -84,6 +131,10 @@ class ForgotPasswordForm(FlaskForm):
 
     submit = SubmitField("Send Reset Link")
 
+
+# ============================================================
+# RESET PASSWORD FORM
+# ============================================================
 
 class ResetPasswordForm(FlaskForm):
 
@@ -106,17 +157,59 @@ class ResetPasswordForm(FlaskForm):
     submit = SubmitField("Reset Password")
 
 
+# ============================================================
+# UPLOAD FORM
+# ============================================================
+
 class UploadForm(FlaskForm):
 
     file = FileField(
         "Upload File",
         validators=[
             FileRequired(),
+
             FileAllowed(
                 ["py", "zip"],
                 "Only Python (.py) and ZIP (.zip) files are allowed."
-            )
+            ),
+
+            validate_file_size
         ]
     )
 
     submit = SubmitField("Analyze Code")
+
+
+class ReviewForm(FlaskForm):
+
+    rating = IntegerField(
+    "",
+    validators=[
+        DataRequired(),
+        NumberRange(min=1, max=5)
+    ],
+    render_kw={
+        "type": "hidden",
+        "id": "rating"
+    }
+)
+
+    title = StringField(
+        "Title",
+        validators=[
+            DataRequired(),
+            Length(min=3, max=150)
+        ]
+    )
+
+    comment = TextAreaField(
+        "Review",
+        validators=[
+            DataRequired(),
+            Length(min=10, max=1000)
+        ]
+    )
+
+    submit = SubmitField(
+        "Submit Review"
+    )

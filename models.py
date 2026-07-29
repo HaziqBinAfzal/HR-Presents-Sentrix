@@ -48,6 +48,13 @@ class User(UserMixin, db.Model):
         lazy=True,
         cascade="all, delete-orphan"
     )
+    
+    reviews = db.relationship(
+    "Review",
+    backref="user",
+    lazy=True,
+    cascade="all, delete-orphan"
+    )
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -61,6 +68,64 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return f"<User {self.username}>"
 
+class Project(db.Model):
+    __tablename__ = "projects"
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    project_id = db.Column(
+        db.String(64),
+        unique=True,
+        nullable=False,
+        index=True
+    )
+
+    project_name = db.Column(
+        db.String(255),
+        nullable=False
+    )
+
+    original_filename = db.Column(
+        db.String(255),
+        nullable=False
+    )
+
+    stored_filename = db.Column(
+        db.String(255),
+        nullable=False
+    )
+
+    file_type = db.Column(
+        db.String(20),
+        nullable=False
+    )
+
+    file_size = db.Column(
+        db.Integer,
+        nullable=False
+    )
+
+    project_path = db.Column(
+        db.String(500),
+        nullable=False
+    )
+
+    upload_date = db.Column(
+        db.DateTime,
+        default=datetime.utcnow
+    )
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id"),
+        nullable=False
+    )
+
+    def __repr__(self):
+        return f"<Project {self.project_name}>"
 
 class Analysis(db.Model):
     __tablename__ = "analyses"
@@ -100,3 +165,46 @@ class Analysis(db.Model):
 
     def __repr__(self):
         return f"<Analysis {self.filename}>"
+
+class Review(db.Model):
+    __tablename__ = "reviews"
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    rating = db.Column(
+        db.Integer,
+        nullable=False
+    )
+
+    title = db.Column(
+        db.String(150),
+        nullable=False
+    )
+
+    comment = db.Column(
+        db.Text,
+        nullable=False
+    )
+
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow
+    )
+
+    updated_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow
+    )
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id"),
+        nullable=False
+    )
+
+    def __repr__(self):
+        return f"<Review {self.title}>"

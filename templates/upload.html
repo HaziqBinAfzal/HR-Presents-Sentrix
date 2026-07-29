@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Upload Project | CodeSentinel AI{% endblock %}
+{% block title %}Upload Workspace | CodeSentinel AI{% endblock %}
 
 {% block content %}
 
@@ -8,238 +8,455 @@
 
     <div class="container">
 
-        <div class="row justify-content-center">
+        <!-- Header -->
+        <div class="text-center mb-5">
 
-            <div class="col-lg-10">
+            <span class="badge bg-primary-subtle text-primary px-3 py-2 mb-3">
+                <i class="fa-solid fa-shield-halved me-2"></i>
+                Secure Code Analysis
+            </span>
 
-                <div class="text-center mb-5">
+            <h1 class="display-5 fw-bold mb-3">
+                Upload Workspace
+            </h1>
 
-                    <i class="fa-solid fa-cloud-arrow-up fa-4x text-primary mb-3"></i>
+            <p class="lead text-muted mx-auto"
+               style="max-width: 760px;">
 
-                    <h2 class="fw-bold">
-                        Upload Your Python Project
-                    </h2>
+                Upload your Python project and let CodeSentinel AI
+                analyze code quality, security, complexity,
+                formatting, and improvement opportunities.
 
-                    <p class="text-muted">
-                        Upload a Python file or ZIP project for AI-powered
-                        code analysis, formatting, security scanning,
-                        and report generation.
-                    </p>
+            </p>
 
-                </div>
+        </div>
 
-                <div class="card shadow-lg border-0 rounded-4">
 
-                    <div class="card-body p-5">
+        <!-- Main Workspace -->
+        <div class="row g-4">
 
-                        <form method="POST" enctype="multipart/form-data">
+
+            <!-- Upload Panel -->
+            <div class="col-lg-8">
+
+                <div class="card border-0 shadow-lg rounded-4">
+
+                    <div class="card-body p-4 p-md-5">
+
+                        <form
+                            method="POST"
+                            enctype="multipart/form-data"
+                            id="uploadForm"
+                        >
 
                             {{ form.hidden_tag() }}
 
-                            <div class="mb-5">
 
-                                <label class="form-label fw-bold">
-                                    Choose File
+                            <!-- Upload Area -->
+                            <div class="mb-4">
+
+                                <label class="form-label fw-bold fs-5">
+                                    Project File
                                 </label>
 
-                                <div class="border border-2 border-primary rounded-4 p-5 text-center">
+                                <div
+                                    id="dropZone"
+                                    class="border border-2 border-primary rounded-4 p-5 text-center"
+                                    style="cursor: pointer; transition: 0.2s;"
+                                >
 
-                                    <i class="fa-solid fa-file-arrow-up fa-4x text-primary mb-3"></i>
+                                    <div class="mb-3">
 
-                                    <h4>
-                                        Drag & Drop Your Project
-                                    </h4>
+                                        <i
+                                            id="uploadIcon"
+                                            class="fa-solid fa-cloud-arrow-up fa-4x text-primary"
+                                        ></i>
 
-                                    <p class="text-muted">
-                                        or click below to browse files
+                                    </div>
+
+                                    <h3 class="fw-bold">
+                                        Drop your project here
+                                    </h3>
+
+                                    <p class="text-muted mb-4">
+                                        or click anywhere in this area
+                                        to browse your computer
                                     </p>
 
-                                    {{ form.file(
-                                        class="form-control mt-3",
-                                        accept=".py,.zip"
-                                    ) }}
+
+                                    <div class="d-none">
+
+                                        {{ form.file(
+                                            id="fileInput",
+                                            accept=".py,.zip"
+                                        ) }}
+
+                                    </div>
+
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-primary px-4"
+                                        id="browseButton"
+                                    >
+                                        <i class="fa-solid fa-folder-open me-2"></i>
+                                        Browse Files
+                                    </button>
+
+
+                                    <div
+                                        id="fileInfo"
+                                        class="mt-4 d-none"
+                                    >
+
+                                        <div class="alert alert-primary mb-0">
+
+                                            <div class="d-flex align-items-center">
+
+                                                <i
+                                                    class="fa-solid fa-file-code fa-2x me-3"
+                                                ></i>
+
+                                                <div class="text-start">
+
+                                                    <div
+                                                        class="fw-bold"
+                                                        id="fileName"
+                                                    >
+                                                    </div>
+
+                                                    <small
+                                                        class="text-muted"
+                                                        id="fileSize"
+                                                    >
+                                                    </small>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
 
                                     {% if form.file.errors %}
-                                        <div class="text-danger mt-2">
+
+                                        <div class="text-danger mt-3">
+
                                             {% for error in form.file.errors %}
-                                                <div>{{ error }}</div>
+
+                                                <div>
+                                                    <i class="fa-solid fa-circle-exclamation me-1"></i>
+                                                    {{ error }}
+                                                </div>
+
                                             {% endfor %}
+
                                         </div>
+
                                     {% endif %}
 
-                                    <small class="text-muted d-block mt-3">
-                                        Supported Formats:
-                                        .py and .zip
+
+                                    <small class="text-muted d-block mt-4">
+
+                                        <i class="fa-solid fa-circle-info me-1"></i>
+
+                                        Supported formats:
+                                        <strong>.py</strong> and
+                                        <strong>.zip</strong>
+
                                     </small>
 
                                 </div>
 
                             </div>
 
-                            <div class="mb-5">
 
-                                <h4 class="mb-4">
-                                    Select Analysis Options
-                                </h4>
+                            <!-- Analysis Options -->
+                            <div class="mb-4">
 
-                                <div class="row">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
 
-                                    <div class="col-md-6 mb-3">
+                                    <div>
 
-                                        <div class="form-check">
+                                        <h4 class="fw-bold mb-1">
+                                            Analysis Options
+                                        </h4>
 
-                                            <input
-                                                class="form-check-input"
-                                                type="checkbox"
-                                                id="formatter"
-                                                name="formatter"
-                                                checked>
+                                        <p class="text-muted mb-0">
+                                            Choose the checks you want to run.
+                                        </p>
 
-                                            <label
-                                                class="form-check-label"
-                                                for="formatter">
+                                    </div>
 
-                                                Code Formatting (Black)
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-outline-secondary"
+                                        id="toggleAll"
+                                    >
+                                        Deselect All
+                                    </button>
 
-                                            </label>
+                                </div>
+
+
+                                <div class="row g-3">
+
+
+                                    <!-- Black -->
+                                    <div class="col-md-6">
+
+                                        <div class="border rounded-3 p-3 h-100">
+
+                                            <div class="form-check">
+
+                                                <input
+                                                    class="form-check-input analysis-option"
+                                                    type="checkbox"
+                                                    id="formatter"
+                                                    name="formatter"
+                                                    checked
+                                                >
+
+                                                <label
+                                                    class="form-check-label fw-semibold"
+                                                    for="formatter"
+                                                >
+
+                                                    <i class="fa-solid fa-wand-magic-sparkles text-primary me-2"></i>
+
+                                                    Code Formatting
+
+                                                </label>
+
+                                            </div>
+
+                                            <small class="text-muted ms-4">
+                                                Black formatting analysis
+                                            </small>
 
                                         </div>
 
                                     </div>
 
-                                    <div class="col-md-6 mb-3">
 
-                                        <div class="form-check">
+                                    <!-- Bandit -->
+                                    <div class="col-md-6">
 
-                                            <input
-                                                class="form-check-input"
-                                                type="checkbox"
-                                                id="security"
-                                                name="security"
-                                                checked>
+                                        <div class="border rounded-3 p-3 h-100">
 
-                                            <label
-                                                class="form-check-label"
-                                                for="security">
+                                            <div class="form-check">
 
-                                                Security Scan (Bandit)
+                                                <input
+                                                    class="form-check-input analysis-option"
+                                                    type="checkbox"
+                                                    id="security"
+                                                    name="security"
+                                                    checked
+                                                >
 
-                                            </label>
+                                                <label
+                                                    class="form-check-label fw-semibold"
+                                                    for="security"
+                                                >
 
-                                        </div>
+                                                    <i class="fa-solid fa-shield-halved text-danger me-2"></i>
 
-                                    </div>
+                                                    Security Scan
 
-                                    <div class="col-md-6 mb-3">
+                                                </label>
 
-                                        <div class="form-check">
+                                            </div>
 
-                                            <input
-                                                class="form-check-input"
-                                                type="checkbox"
-                                                id="quality"
-                                                name="quality"
-                                                checked>
-
-                                            <label
-                                                class="form-check-label"
-                                                for="quality">
-
-                                                Code Quality (Pylint)
-
-                                            </label>
+                                            <small class="text-muted ms-4">
+                                                Bandit security analysis
+                                            </small>
 
                                         </div>
 
                                     </div>
 
-                                    <div class="col-md-6 mb-3">
 
-                                        <div class="form-check">
+                                    <!-- Pylint -->
+                                    <div class="col-md-6">
 
-                                            <input
-                                                class="form-check-input"
-                                                type="checkbox"
-                                                id="flake8"
-                                                name="flake8"
-                                                checked>
+                                        <div class="border rounded-3 p-3 h-100">
 
-                                            <label
-                                                class="form-check-label"
-                                                for="flake8">
+                                            <div class="form-check">
 
-                                                Style Check (Flake8)
+                                                <input
+                                                    class="form-check-input analysis-option"
+                                                    type="checkbox"
+                                                    id="quality"
+                                                    name="quality"
+                                                    checked
+                                                >
 
-                                            </label>
+                                                <label
+                                                    class="form-check-label fw-semibold"
+                                                    for="quality"
+                                                >
 
-                                        </div>
+                                                    <i class="fa-solid fa-chart-line text-success me-2"></i>
 
-                                    </div>
+                                                    Code Quality
 
-                                    <div class="col-md-6 mb-3">
+                                                </label>
 
-                                        <div class="form-check">
+                                            </div>
 
-                                            <input
-                                                class="form-check-input"
-                                                type="checkbox"
-                                                id="imports"
-                                                name="imports"
-                                                checked>
-
-                                            <label
-                                                class="form-check-label"
-                                                for="imports">
-
-                                                Import Sorting (isort)
-
-                                            </label>
+                                            <small class="text-muted ms-4">
+                                                Pylint quality analysis
+                                            </small>
 
                                         </div>
 
                                     </div>
 
-                                    <div class="col-md-6 mb-3">
 
-                                        <div class="form-check">
+                                    <!-- Flake8 -->
+                                    <div class="col-md-6">
 
-                                            <input
-                                                class="form-check-input"
-                                                type="checkbox"
-                                                id="complexity"
-                                                name="complexity"
-                                                checked>
+                                        <div class="border rounded-3 p-3 h-100">
 
-                                            <label
-                                                class="form-check-label"
-                                                for="complexity">
+                                            <div class="form-check">
 
-                                                Complexity Analysis (Radon)
+                                                <input
+                                                    class="form-check-input analysis-option"
+                                                    type="checkbox"
+                                                    id="flake8"
+                                                    name="flake8"
+                                                    checked
+                                                >
 
-                                            </label>
+                                                <label
+                                                    class="form-check-label fw-semibold"
+                                                    for="flake8"
+                                                >
+
+                                                    <i class="fa-solid fa-code text-warning me-2"></i>
+
+                                                    Style Check
+
+                                                </label>
+
+                                            </div>
+
+                                            <small class="text-muted ms-4">
+                                                Flake8 style validation
+                                            </small>
 
                                         </div>
 
                                     </div>
 
+
+                                    <!-- isort -->
+                                    <div class="col-md-6">
+
+                                        <div class="border rounded-3 p-3 h-100">
+
+                                            <div class="form-check">
+
+                                                <input
+                                                    class="form-check-input analysis-option"
+                                                    type="checkbox"
+                                                    id="imports"
+                                                    name="imports"
+                                                    checked
+                                                >
+
+                                                <label
+                                                    class="form-check-label fw-semibold"
+                                                    for="imports"
+                                                >
+
+                                                    <i class="fa-solid fa-list-check text-info me-2"></i>
+
+                                                    Import Sorting
+
+                                                </label>
+
+                                            </div>
+
+                                            <small class="text-muted ms-4">
+                                                isort import analysis
+                                            </small>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- Radon -->
+                                    <div class="col-md-6">
+
+                                        <div class="border rounded-3 p-3 h-100">
+
+                                            <div class="form-check">
+
+                                                <input
+                                                    class="form-check-input analysis-option"
+                                                    type="checkbox"
+                                                    id="complexity"
+                                                    name="complexity"
+                                                    checked
+                                                >
+
+                                                <label
+                                                    class="form-check-label fw-semibold"
+                                                    for="complexity"
+                                                >
+
+                                                    <i class="fa-solid fa-diagram-project text-secondary me-2"></i>
+
+                                                    Complexity Analysis
+
+                                                </label>
+
+                                            </div>
+
+                                            <small class="text-muted ms-4">
+                                                Radon complexity analysis
+                                            </small>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- AI -->
                                     <div class="col-12">
 
-                                        <div class="form-check">
+                                        <div class="border border-primary-subtle bg-primary-subtle rounded-3 p-3">
 
-                                            <input
-                                                class="form-check-input"
-                                                type="checkbox"
-                                                id="ai"
-                                                name="ai"
-                                                checked>
+                                            <div class="form-check">
 
-                                            <label
-                                                class="form-check-label"
-                                                for="ai">
+                                                <input
+                                                    class="form-check-input analysis-option"
+                                                    type="checkbox"
+                                                    id="ai"
+                                                    name="ai"
+                                                    checked
+                                                >
 
-                                                AI Explanation & Suggestions
+                                                <label
+                                                    class="form-check-label fw-bold"
+                                                    for="ai"
+                                                >
 
-                                            </label>
+                                                    <i class="fa-solid fa-robot text-primary me-2"></i>
+
+                                                    AI Explanation & Recommendations
+
+                                                </label>
+
+                                            </div>
+
+                                            <small class="text-muted ms-4">
+                                                Generate intelligent explanations and improvement suggestions.
+                                            </small>
 
                                         </div>
 
@@ -249,11 +466,47 @@
 
                             </div>
 
-                            <div class="text-center">
 
-                                {{ form.submit(
-                                    class="btn btn-primary btn-lg px-5"
-                                ) }}
+                            <!-- Submit -->
+                            <div class="d-grid mt-4">
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary btn-lg rounded-3 py-3"
+                                    id="analyzeButton"
+                                >
+
+                                    <i class="fa-solid fa-magnifying-glass-chart me-2"></i>
+
+                                    Analyze Project
+
+                                </button>
+
+                            </div>
+
+
+                            <!-- Loading -->
+                            <div
+                                id="uploadLoading"
+                                class="text-center mt-4 d-none"
+                            >
+
+                                <div
+                                    class="spinner-border text-primary mb-3"
+                                    role="status"
+                                >
+                                    <span class="visually-hidden">
+                                        Analyzing...
+                                    </span>
+                                </div>
+
+                                <p class="fw-semibold mb-1">
+                                    Uploading your project...
+                                </p>
+
+                                <small class="text-muted">
+                                    Please wait while CodeSentinel AI processes your project.
+                                </small>
 
                             </div>
 
@@ -263,56 +516,134 @@
 
                 </div>
 
-                <div class="card shadow-sm border-0 mt-5">
+            </div>
 
-                    <div class="card-body">
 
-                        <h4 class="mb-4">
-                            Analysis Features
+            <!-- Information Panel -->
+            <div class="col-lg-4">
+
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+
+                    <div class="card-body p-4">
+
+                        <h4 class="fw-bold mb-4">
+                            <i class="fa-solid fa-shield-halved text-primary me-2"></i>
+                            What happens next?
                         </h4>
 
-                        <div class="row">
 
-                            <div class="col-md-4 mb-4">
+                        <div class="d-flex mb-4">
 
-                                <i class="fa-solid fa-robot fa-2x text-primary mb-3"></i>
+                            <div class="me-3">
 
-                                <h5>AI Analysis</h5>
-
-                                <p class="text-muted">
-                                    Receive AI-generated explanations,
-                                    improvements, and optimization suggestions.
-                                </p>
+                                <span class="badge rounded-circle bg-primary p-2">
+                                    1
+                                </span>
 
                             </div>
 
-                            <div class="col-md-4 mb-4">
+                            <div>
 
-                                <i class="fa-solid fa-shield-halved fa-2x text-danger mb-3"></i>
+                                <h6 class="fw-bold mb-1">
+                                    Secure Upload
+                                </h6>
 
-                                <h5>Security Scan</h5>
-
-                                <p class="text-muted">
-                                    Detect security vulnerabilities using
-                                    Bandit and provide recommendations.
-                                </p>
-
-                            </div>
-
-                            <div class="col-md-4 mb-4">
-
-                                <i class="fa-solid fa-file-lines fa-2x text-success mb-3"></i>
-
-                                <h5>Detailed Reports</h5>
-
-                                <p class="text-muted">
-                                    Download comprehensive reports containing
-                                    analysis results and fixes.
+                                <p class="small text-muted mb-0">
+                                    Your project is stored inside its own workspace.
                                 </p>
 
                             </div>
 
                         </div>
+
+
+                        <div class="d-flex mb-4">
+
+                            <div class="me-3">
+
+                                <span class="badge rounded-circle bg-primary p-2">
+                                    2
+                                </span>
+
+                            </div>
+
+                            <div>
+
+                                <h6 class="fw-bold mb-1">
+                                    Automated Analysis
+                                </h6>
+
+                                <p class="small text-muted mb-0">
+                                    Code quality, formatting, security, and complexity checks run against the project.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="d-flex">
+
+                            <div class="me-3">
+
+                                <span class="badge rounded-circle bg-primary p-2">
+                                    3
+                                </span>
+
+                            </div>
+
+                            <div>
+
+                                <h6 class="fw-bold mb-1">
+                                    AI Insights
+                                </h6>
+
+                                <p class="small text-muted mb-0">
+                                    Receive recommendations and actionable insights on the results.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Limits -->
+                <div class="card border-0 shadow-sm rounded-4">
+
+                    <div class="card-body p-4">
+
+                        <h5 class="fw-bold mb-3">
+                            <i class="fa-solid fa-circle-info text-primary me-2"></i>
+                            Upload Requirements
+                        </h5>
+
+                        <ul class="list-unstyled mb-0">
+
+                            <li class="mb-3">
+                                <i class="fa-solid fa-check text-success me-2"></i>
+                                Python files: <strong>.py</strong>
+                            </li>
+
+                            <li class="mb-3">
+                                <i class="fa-solid fa-check text-success me-2"></i>
+                                Projects: <strong>.zip</strong>
+                            </li>
+
+                            <li class="mb-3">
+                                <i class="fa-solid fa-check text-success me-2"></i>
+                                Maximum size: <strong>16 MB</strong>
+                            </li>
+
+                            <li>
+                                <i class="fa-solid fa-check text-success me-2"></i>
+                                Secure filename handling
+                            </li>
+
+                        </ul>
 
                     </div>
 
@@ -325,5 +656,220 @@
     </div>
 
 </section>
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const dropZone = document.getElementById("dropZone");
+    const fileInput = document.getElementById("fileInput");
+    const browseButton = document.getElementById("browseButton");
+
+    const fileInfo = document.getElementById("fileInfo");
+    const fileName = document.getElementById("fileName");
+    const fileSize = document.getElementById("fileSize");
+
+    const uploadForm = document.getElementById("uploadForm");
+    const analyzeButton = document.getElementById("analyzeButton");
+    const uploadLoading = document.getElementById("uploadLoading");
+
+    const toggleAll = document.getElementById("toggleAll");
+    const options = document.querySelectorAll(".analysis-option");
+
+
+    // --------------------------------------------------
+    // Browse button
+    // --------------------------------------------------
+
+    browseButton.addEventListener("click", function (event) {
+
+        event.stopPropagation();
+
+        fileInput.click();
+
+    });
+
+
+    // --------------------------------------------------
+    // Click upload area
+    // --------------------------------------------------
+
+    dropZone.addEventListener("click", function () {
+
+        fileInput.click();
+
+    });
+
+
+    // --------------------------------------------------
+    // File selected
+    // --------------------------------------------------
+
+    fileInput.addEventListener("change", function () {
+
+        if (fileInput.files.length > 0) {
+
+            displayFile(fileInput.files[0]);
+
+        }
+
+    });
+
+
+    // --------------------------------------------------
+    // Display file
+    // --------------------------------------------------
+
+    function displayFile(file) {
+
+        fileName.textContent = file.name;
+
+        fileSize.textContent = formatFileSize(file.size);
+
+        fileInfo.classList.remove("d-none");
+
+    }
+
+
+    // --------------------------------------------------
+    // File size
+    // --------------------------------------------------
+
+    function formatFileSize(bytes) {
+
+        if (bytes === 0) {
+            return "0 Bytes";
+        }
+
+        const units = [
+            "Bytes",
+            "KB",
+            "MB",
+            "GB"
+        ];
+
+        const index = Math.floor(
+            Math.log(bytes) / Math.log(1024)
+        );
+
+        return (
+            parseFloat(
+                (bytes / Math.pow(1024, index)).toFixed(2)
+            )
+            + " "
+            + units[index]
+        );
+
+    }
+
+
+    // --------------------------------------------------
+    // Drag enter
+    // --------------------------------------------------
+
+    dropZone.addEventListener("dragover", function (event) {
+
+        event.preventDefault();
+
+        dropZone.classList.add("bg-primary-subtle");
+
+    });
+
+
+    // --------------------------------------------------
+    // Drag leave
+    // --------------------------------------------------
+
+    dropZone.addEventListener("dragleave", function () {
+
+        dropZone.classList.remove("bg-primary-subtle");
+
+    });
+
+
+    // --------------------------------------------------
+    // Drop
+    // --------------------------------------------------
+
+    dropZone.addEventListener("drop", function (event) {
+
+        event.preventDefault();
+
+        dropZone.classList.remove("bg-primary-subtle");
+
+        const files = event.dataTransfer.files;
+
+        if (files.length > 0) {
+
+            try {
+
+                const dataTransfer = new DataTransfer();
+
+                dataTransfer.items.add(files[0]);
+
+                fileInput.files = dataTransfer.files;
+
+                displayFile(files[0]);
+
+            } catch (error) {
+
+                console.error(
+                    "Unable to attach dropped file:",
+                    error
+                );
+
+            }
+
+        }
+
+    });
+
+
+    // --------------------------------------------------
+    // Select / deselect all
+    // --------------------------------------------------
+
+    toggleAll.addEventListener("click", function () {
+
+        const anyChecked = Array.from(options)
+            .some(option => option.checked);
+
+        options.forEach(function (option) {
+
+            option.checked = !anyChecked;
+
+        });
+
+        toggleAll.textContent = anyChecked
+            ? "Select All"
+            : "Deselect All";
+
+    });
+
+
+    // --------------------------------------------------
+    // Submit loading state
+    // --------------------------------------------------
+
+    uploadForm.addEventListener("submit", function () {
+
+        if (!fileInput.files.length) {
+            return;
+        }
+
+        analyzeButton.disabled = true;
+
+        analyzeButton.innerHTML =
+            '<span class="spinner-border spinner-border-sm me-2"></span>' +
+            'Uploading...';
+
+        uploadLoading.classList.remove("d-none");
+
+    });
+
+});
+
+</script>
 
 {% endblock %}

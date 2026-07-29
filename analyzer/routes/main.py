@@ -28,9 +28,32 @@ from flask_login import (
 
 from werkzeug.utils import secure_filename
 
-from forms import LoginForm, RegisterForm, UploadForm
+from helpers.upload_service import (
+     validate_upload,
+    build_metadata,
+    generate_unique_filename,
+    generate_project_id,
+    create_project_workspace
+)
+
+from helpers.review_service import (
+    create_review,
+    update_review,
+    delete_review,
+    get_review,
+    get_latest_reviews,
+    get_all_reviews,
+    get_review_statistics
+)
+
+from forms import (
+    LoginForm,
+    RegisterForm,
+    UploadForm,
+    ReviewForm
+)
 from database import db
-from models import User
+from models import User, Project, Review
 
 
 main = Blueprint("main", __name__)
@@ -65,8 +88,14 @@ def allowed_profile_picture(filename):
 @main.route("/")
 def home():
 
+    latest_reviews = get_latest_reviews(3)
+
+    review_stats = get_review_statistics()
+
     return render_template(
-        "home.html"
+        "home.html",
+        latest_reviews=latest_reviews,
+        review_stats=review_stats
     )
 
 
@@ -249,26 +278,232 @@ def upload():
 
         uploaded_file = form.file.data
 
-        filename = secure_filename(
-            uploaded_file.filename
+        # --------------------------------------------------
+        # Validate upload
+        # --------------------------------------------------
+
+        is_valid, message = validate_upload(
+            uploaded_file
         )
 
-        upload_folder = os.path.join(
-            current_app.root_path,
-            current_app.config["UPLOAD_FOLDER"]
+        if not is_valid:
+
+            flash(
+                message,
+                "error"
+            )
+
+            return render_template(
+                "upload.html",
+                form=form
+            )
+
+        # --------------------------------------------------
+        # Generate project ID
+        # --------------------------------------------------
+
+        project_id = generate_project_id()
+
+        # --------------------------------------------------
+        # Create project workspace
+        # --------------------------------------------------
+
+        projects_folder = current_app.config[
+            "PROJECT_FOLDER"
+        ]
+
+        workspace = create_project_workspace(
+            projects_folder,
+            project_id
         )
+
+        # --------------------------------------------------
+        # Generate unique stored filename
+        # --------------------------------------------------
+
+        original_filename = uploaded_file.filename
+
+        stored_filename = generate_unique_filename(
+            original_filename
+        )
+
+        # --------------------------------------------------
+        # Source file path
+        # --------------------------------------------------
+
+        source_path = os.path.join(
+            workspace["source"],
+            stored_filename
+        )
+
+        # --------------------------------------------------
+        # Save uploaded file
+        # --------------------------------------------------
+
+        uploaded_file.save(
+            source_path
+        )
+
+        # --------------------------------------------------
+        # Build metadata
+        # --------------------------------------------------
+
+        metadata = build_metadata(
+            uploaded_file,
+            stored_filename=stored_filename
+        )
+
+        # --------------------------------------------------
+        # Create database project
+        # --------------------------------------------------
+
+        project = Project(
+
+            project_id=project_id,
+
+            project_name=metadata[
+                "project_name"
+            ],
+
+            original_filename=metadata[
+                "original_filename"
+            ],
+
+            stored_filename=stored_filename,
+
+            file_type=metadata[
+                "extension"
+            ],
+
+            file_size=metadata[
+                "size"
+            ],
+
+            project_path=workspace[
+                "root"
+            ],
+
+            user_id=current_user.id
+        )
+
+        db.session.add(project)
+
+        db.session.commit()
+
+        # --------------------------------------------------
+        # Debug information
+        # --------------------------------------------------
+
+        print("=== PROJECT CREATED ===")
+
+        print(
+            "Project ID:",
+            project_id
+        )
+
+        print(
+            "Project Name:",
+            metadata["project_name"]
+        )
+
+        print(
+            "Original File:",
+            metadata["original_filename"]
+        )
+
+        print(
+            "Stored File:",
+            stored_filename
+        )
+
+        print(
+            "Project Path:",
+            workspace["root"]
+        )
+
+        # --------------------------------------------------
+        # Success
+        # --------------------------------------------------
+
+        flash(
+            "Project uploaded successfully!",
+            "success"
+        )
+
+        return redirect(
+            url_for(
+                "main.results",
+                filename=stored_filename
+            )
+        )
+
+    return render_template(
+        "upload.html",
+        form=form
+    )
+
+    form = UploadForm()
+
+    if form.validate_on_submit():
+
+        uploaded_file = form.file.data
+
+
+        # --------------------------------------------------
+        # Generate unique filename
+        # --------------------------------------------------
+
+        original_filename = uploaded_file.filename
+
+        filename = generate_unique_filename(
+            original_filename
+        )
+
+        # --------------------------------------------------
+        # Upload directory
+        # --------------------------------------------------
+
+        upload_folder = current_app.config[
+            "UPLOAD_FOLDER"
+        ]
 
         os.makedirs(
             upload_folder,
             exist_ok=True
         )
 
+        # --------------------------------------------------
+        # File path
+        # --------------------------------------------------
+
         filepath = os.path.join(
             upload_folder,
             filename
         )
 
-        uploaded_file.save(filepath)
+        # --------------------------------------------------
+        # Save file
+        # --------------------------------------------------
+
+        uploaded_file.save(
+            filepath
+        )
+
+        # --------------------------------------------------
+        # Build metadata
+        # --------------------------------------------------
+
+        metadata = build_metadata(
+            uploaded_file,
+            stored_filename=filename
+        )
+
+        print("=== UPLOAD METADATA ===")
+        print(metadata)
+
+        # --------------------------------------------------
+        # Success
+        # --------------------------------------------------
 
         flash(
             "File uploaded successfully!",
@@ -288,6 +523,7 @@ def upload():
     )
 
 
+
 # ============================================================
 # RESULTS
 # ============================================================
@@ -296,20 +532,77 @@ def upload():
 @login_required
 def results():
 
-
     print("=== NEW RESULTS ROUTE IS RUNNING ===")
 
     filename = request.args.get("filename")
 
-    upload_folder = os.path.join(
-        current_app.root_path,
-        current_app.config["UPLOAD_FOLDER"]
+    if not filename:
+        flash(
+            "No uploaded project was specified.",
+            "error"
+        )
+
+        return redirect(
+            url_for("main.upload")
+        )
+
+    # --------------------------------------------------
+    # Find project belonging to current user
+    # --------------------------------------------------
+
+    project = Project.query.filter_by(
+        stored_filename=filename,
+        user_id=current_user.id
+    ).first()
+
+    if not project:
+
+        flash(
+            "Project not found.",
+            "error"
+        )
+
+        return redirect(
+            url_for("main.upload")
+        )
+
+    # --------------------------------------------------
+    # Build project source path
+    # --------------------------------------------------
+
+    project_folder = os.path.abspath(
+        project.project_path
+    )
+
+    source_folder = os.path.join(
+        project_folder,
+        "source"
     )
 
     upload_path = os.path.join(
-        upload_folder,
-        filename
+        source_folder,
+        project.stored_filename
     )
+
+    # --------------------------------------------------
+    # Security check
+    # --------------------------------------------------
+
+    if not os.path.isfile(upload_path):
+
+        flash(
+            "Uploaded project file could not be found.",
+            "error"
+        )
+
+        return redirect(
+            url_for("main.upload")
+        )
+
+    print("=== PROJECT FOUND ===")
+    print("Project ID:", project.project_id)
+    print("Project Name:", project.project_name)
+    print("Source File:", upload_path)
 
     extract_folder = tempfile.mkdtemp(prefix="codesentinel_")
 
@@ -683,3 +976,71 @@ def forbidden():
 def server_error_test():
 
     abort(500)
+
+
+# ============================================================
+# REVIEWS
+# ============================================================
+
+@main.route("/reviews", methods=["GET", "POST"])
+def reviews():
+
+    form = ReviewForm()
+
+    if form.validate_on_submit():
+
+        if not current_user.is_authenticated:
+            flash(
+                "Please login to submit a review.",
+                "warning"
+            )
+
+            return redirect(
+                url_for("main.login")
+            )
+
+        review = Review(
+            rating=form.rating.data,
+            title=form.title.data,
+            comment=form.comment.data,
+            user_id=current_user.id
+        )
+
+        db.session.add(review)
+        db.session.commit()
+
+        flash(
+            "Your review has been submitted!",
+            "success"
+        )
+
+        return redirect(
+            url_for("main.reviews")
+        )
+
+
+    all_reviews = Review.query.order_by(
+        Review.created_at.desc()
+    ).all()
+
+
+    average_rating = 0
+
+    if all_reviews:
+
+        average_rating = round(
+            sum(
+                r.rating for r in all_reviews
+            )
+            /
+            len(all_reviews),
+            1
+        )
+
+
+    return render_template(
+        "reviews.html",
+        form=form,
+        reviews=all_reviews,
+        average_rating=average_rating
+    )
