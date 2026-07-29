@@ -21,7 +21,9 @@
                     </h2>
 
                     <p class="text-muted">
-                        Upload a Python file or ZIP project for AI-powered code analysis, formatting, security scanning, and report generation.
+                        Upload a Python file or ZIP project for AI-powered
+                        code analysis, formatting, security scanning,
+                        and report generation.
                     </p>
 
                 </div>
@@ -32,12 +34,12 @@
 
                         <form method="POST" enctype="multipart/form-data">
 
+                            {{ form.hidden_tag() }}
+
                             <div class="mb-5">
 
                                 <label class="form-label fw-bold">
-
                                     Choose File
-
                                 </label>
 
                                 <div class="border border-2 border-primary rounded-4 p-5 text-center">
@@ -45,29 +47,29 @@
                                     <i class="fa-solid fa-file-arrow-up fa-4x text-primary mb-3"></i>
 
                                     <h4>
-
                                         Drag & Drop Your Project
-
                                     </h4>
 
                                     <p class="text-muted">
-
                                         or click below to browse files
-
                                     </p>
 
-                                    <input
-                                        class="form-control mt-3"
-                                        type="file"
-                                        name="project_file"
+                                    {{ form.file(
+                                        class="form-control mt-3",
                                         accept=".py,.zip"
-                                        required>
+                                    ) }}
+
+                                    {% if form.file.errors %}
+                                        <div class="text-danger mt-2">
+                                            {% for error in form.file.errors %}
+                                                <div>{{ error }}</div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
 
                                     <small class="text-muted d-block mt-3">
-
                                         Supported Formats:
                                         .py and .zip
-
                                     </small>
 
                                 </div>
@@ -77,9 +79,7 @@
                             <div class="mb-5">
 
                                 <h4 class="mb-4">
-
                                     Select Analysis Options
-
                                 </h4>
 
                                 <div class="row">
@@ -92,6 +92,7 @@
                                                 class="form-check-input"
                                                 type="checkbox"
                                                 id="formatter"
+                                                name="formatter"
                                                 checked>
 
                                             <label
@@ -114,6 +115,7 @@
                                                 class="form-check-input"
                                                 type="checkbox"
                                                 id="security"
+                                                name="security"
                                                 checked>
 
                                             <label
@@ -136,6 +138,7 @@
                                                 class="form-check-input"
                                                 type="checkbox"
                                                 id="quality"
+                                                name="quality"
                                                 checked>
 
                                             <label
@@ -158,6 +161,7 @@
                                                 class="form-check-input"
                                                 type="checkbox"
                                                 id="flake8"
+                                                name="flake8"
                                                 checked>
 
                                             <label
@@ -180,6 +184,7 @@
                                                 class="form-check-input"
                                                 type="checkbox"
                                                 id="imports"
+                                                name="imports"
                                                 checked>
 
                                             <label
@@ -202,6 +207,7 @@
                                                 class="form-check-input"
                                                 type="checkbox"
                                                 id="complexity"
+                                                name="complexity"
                                                 checked>
 
                                             <label
@@ -224,6 +230,7 @@
                                                 class="form-check-input"
                                                 type="checkbox"
                                                 id="ai"
+                                                name="ai"
                                                 checked>
 
                                             <label
@@ -244,15 +251,9 @@
 
                             <div class="text-center">
 
-                                <button
-                                    type="submit"
-                                    class="btn btn-primary btn-lg px-5">
-
-                                    <i class="fa-solid fa-magnifying-glass-chart me-2"></i>
-
-                                    Analyze Project
-
-                                </button>
+                                {{ form.submit(
+                                    class="btn btn-primary btn-lg px-5"
+                                ) }}
 
                             </div>
 
@@ -267,9 +268,7 @@
                     <div class="card-body">
 
                         <h4 class="mb-4">
-
                             Analysis Features
-
                         </h4>
 
                         <div class="row">
@@ -281,9 +280,8 @@
                                 <h5>AI Analysis</h5>
 
                                 <p class="text-muted">
-
-                                    Receive AI-generated explanations, improvements, and optimization suggestions.
-
+                                    Receive AI-generated explanations,
+                                    improvements, and optimization suggestions.
                                 </p>
 
                             </div>
@@ -295,9 +293,8 @@
                                 <h5>Security Scan</h5>
 
                                 <p class="text-muted">
-
-                                    Detect security vulnerabilities using Bandit and provide recommendations.
-
+                                    Detect security vulnerabilities using
+                                    Bandit and provide recommendations.
                                 </p>
 
                             </div>
@@ -309,9 +306,8 @@
                                 <h5>Detailed Reports</h5>
 
                                 <p class="text-muted">
-
-                                    Download comprehensive reports containing analysis results and fixes.
-
+                                    Download comprehensive reports containing
+                                    analysis results and fixes.
                                 </p>
 
                             </div>

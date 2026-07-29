@@ -9,10 +9,13 @@ from database import db
 class User(UserMixin, db.Model):
     __tablename__ = "users"
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
 
     username = db.Column(
-        db.String(50),
+        db.String(80),
         unique=True,
         nullable=False
     )
@@ -28,9 +31,10 @@ class User(UserMixin, db.Model):
         nullable=False
     )
 
-    api_key = db.Column(
-        db.Text,
-        nullable=True
+    profile_picture = db.Column(
+        db.String(255),
+        nullable=True,
+        default="default.png"
     )
 
     created_at = db.Column(
@@ -38,11 +42,11 @@ class User(UserMixin, db.Model):
         default=datetime.utcnow
     )
 
-    projects = db.relationship(
-        "Project",
+    analyses = db.relationship(
+        "Analysis",
         backref="user",
         lazy=True,
-        cascade="all, delete"
+        cascade="all, delete-orphan"
     )
 
     def set_password(self, password):
@@ -54,46 +58,12 @@ class User(UserMixin, db.Model):
             password
         )
 
-
-class Project(db.Model):
-    __tablename__ = "projects"
-
-    id = db.Column(
-        db.Integer,
-        primary_key=True
-    )
-
-    project_name = db.Column(
-        db.String(150),
-        nullable=False
-    )
-
-    description = db.Column(
-        db.Text,
-        nullable=True
-    )
-
-    created_at = db.Column(
-        db.DateTime,
-        default=datetime.utcnow
-    )
-
-    user_id = db.Column(
-        db.Integer,
-        db.ForeignKey("users.id"),
-        nullable=False
-    )
-
-    scans = db.relationship(
-        "ScanHistory",
-        backref="project",
-        lazy=True,
-        cascade="all, delete"
-    )
+    def __repr__(self):
+        return f"<User {self.username}>"
 
 
-class ScanHistory(db.Model):
-    __tablename__ = "scan_history"
+class Analysis(db.Model):
+    __tablename__ = "analyses"
 
     id = db.Column(
         db.Integer,
@@ -105,32 +75,28 @@ class ScanHistory(db.Model):
         nullable=False
     )
 
-    pylint_score = db.Column(
-        db.Float,
-        default=0
+    upload_date = db.Column(
+        db.DateTime,
+        default=datetime.utcnow
     )
 
-    security_score = db.Column(
-        db.Float,
-        default=0
+    overall_score = db.Column(
+        db.Float
     )
 
-    complexity_score = db.Column(
-        db.Float,
-        default=0
+    ai_summary = db.Column(
+        db.Text
     )
 
     report_path = db.Column(
         db.String(255)
     )
 
-    created_at = db.Column(
-        db.DateTime,
-        default=datetime.utcnow
-    )
-
-    project_id = db.Column(
+    user_id = db.Column(
         db.Integer,
-        db.ForeignKey("projects.id"),
+        db.ForeignKey("users.id"),
         nullable=False
     )
+
+    def __repr__(self):
+        return f"<Analysis {self.filename}>"

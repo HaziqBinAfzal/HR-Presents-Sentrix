@@ -25,18 +25,52 @@
                             </h2>
 
                             <p class="text-muted">
-                                Login to your CodeSentinel AI account and continue analyzing your Python projects.
+                                Login to your CodeSentinel AI account and continue
+                                analyzing your Python projects.
                             </p>
 
                         </div>
 
+
+                        <!-- Flash Messages -->
+
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+
+                            {% if messages %}
+
+                                {% for category, message in messages %}
+
+                                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+
+                                        {{ message }}
+
+                                        <button
+                                            type="button"
+                                            class="btn-close"
+                                            data-bs-dismiss="alert">
+                                        </button>
+
+                                    </div>
+
+                                {% endfor %}
+
+                            {% endif %}
+
+                        {% endwith %}
+
+
+                        <!-- Login Form -->
+
                         <form method="POST">
+
+                            {{ form.hidden_tag() }}
+
+
+                            <!-- Email -->
 
                             <div class="mb-3">
 
-                                <label class="form-label fw-semibold">
-                                    Email Address
-                                </label>
+                                {{ form.email.label(class="form-label fw-semibold") }}
 
                                 <div class="input-group">
 
@@ -44,22 +78,33 @@
                                         <i class="fa-solid fa-envelope"></i>
                                     </span>
 
-                                    <input
-                                        type="email"
-                                        class="form-control"
-                                        name="email"
+                                    {{ form.email(
+                                        class="form-control",
                                         placeholder="Enter your email"
-                                        required>
+                                    ) }}
 
                                 </div>
 
+                                {% if form.email.errors %}
+
+                                    <div class="text-danger small mt-1">
+
+                                        {% for error in form.email.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+
+                                    </div>
+
+                                {% endif %}
+
                             </div>
+
+
+                            <!-- Password -->
 
                             <div class="mb-4">
 
-                                <label class="form-label fw-semibold">
-                                    Password
-                                </label>
+                                {{ form.password.label(class="form-label fw-semibold") }}
 
                                 <div class="input-group">
 
@@ -67,16 +112,29 @@
                                         <i class="fa-solid fa-lock"></i>
                                     </span>
 
-                                    <input
-                                        type="password"
-                                        class="form-control"
-                                        name="password"
+                                    {{ form.password(
+                                        class="form-control",
                                         placeholder="Enter your password"
-                                        required>
+                                    ) }}
 
                                 </div>
 
+                                {% if form.password.errors %}
+
+                                    <div class="text-danger small mt-1">
+
+                                        {% for error in form.password.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+
+                                    </div>
+
+                                {% endif %}
+
                             </div>
+
+
+                            <!-- Remember Me / Forgot Password -->
 
                             <div class="d-flex justify-content-between align-items-center mb-4">
 
@@ -85,7 +143,8 @@
                                     <input
                                         class="form-check-input"
                                         type="checkbox"
-                                        id="remember">
+                                        id="remember"
+                                        name="remember">
 
                                     <label
                                         class="form-check-label"
@@ -97,55 +156,34 @@
 
                                 </div>
 
-                                <a href="#" class="text-decoration-none">
+                                <a
+                                    href="{{ url_for('main.forgot_password') }}"
+                                    class="text-decoration-none">
+
                                     Forgot Password?
+
                                 </a>
 
                             </div>
+
+
+                            <!-- Login Button -->
 
                             <div class="d-grid">
 
-                                <button
-                                    type="submit"
-                                    class="btn btn-primary btn-lg">
-
-                                    <i class="fa-solid fa-right-to-bracket me-2"></i>
-
-                                    Login
-
-                            <div class="text-end mb-3">
-                                   <a href="{{ url_for('main.forgot_password') }}"
-                                     class="text-decoration-none">
-                                    Forgot Password?
-                                </a>
-                            </div>
-                           
-                            <hr>
-
-                            <div class="text-center">
-
-                               <p>
-
-                                    Don't have an account?
-
-                               </p>
-
-                               <a href="{{ url_for('main.register') }}"
-                                  class="btn btn-outline-primary">
-
-                                    Create Account
-
-                               </a>
-
-                           </div>
-                            
-                                </button>
+                                {{ form.submit(
+                                    class="btn btn-primary btn-lg"
+                                ) }}
 
                             </div>
 
                         </form>
 
+
                         <hr class="my-4">
+
+
+                        <!-- Register -->
 
                         <div class="text-center">
 
