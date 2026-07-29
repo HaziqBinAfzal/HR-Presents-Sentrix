@@ -8,7 +8,9 @@
 
     <div class="container">
 
-        <div class="row">
+        <div class="row g-4">
+
+            <!-- Left Profile Card -->
 
             <div class="col-lg-4">
 
@@ -16,27 +18,120 @@
 
                     <div class="card-body text-center">
 
-                        <img
-                            src="https://via.placeholder.com/150"
-                            class="rounded-circle img-fluid mb-3"
-                            width="150"
-                            alt="Profile Picture">
+                        <img src="https://via.placeholder.com/180"
+                             class="rounded-circle border border-4 border-primary mb-3"
+                             width="180"
+                             alt="Profile">
 
-                        <h3>John Doe</h3>
+                        <h3 class="fw-bold mb-1">
+
+                            John Doe
+
+                        </h3>
 
                         <p class="text-muted">
 
-                            john@example.com
+                            AI Software Engineer
 
                         </p>
 
+                        <span class="badge bg-success mb-3">
+
+                            Premium Member
+
+                        </span>
+
+                        <div class="d-grid">
+
+                            <button class="btn btn-outline-primary">
+
+                                <i class="fa-solid fa-camera me-2"></i>
+
+                                Change Profile Picture
+
+                            </button>
+
+                        </div>
+
                         <hr>
+
+                        <div class="text-start">
+
+                            <p>
+
+                                <i class="fa-solid fa-envelope text-primary me-2"></i>
+
+                                john@example.com
+
+                            </p>
+
+                            <p>
+
+                                <i class="fa-solid fa-user text-primary me-2"></i>
+
+                                @johndoe
+
+                            </p>
+
+                            <p>
+
+                                <i class="fa-solid fa-calendar text-primary me-2"></i>
+
+                                Member Since
+
+                                <strong>July 2026</strong>
+
+                            </p>
+
+                            <p>
+
+                                <i class="fa-solid fa-clock text-primary me-2"></i>
+
+                                Last Login
+
+                                <strong>2 Hours Ago</strong>
+
+                            </p>
+
+                            <p>
+
+                                <i class="fa-solid fa-circle text-success me-2"></i>
+
+                                Online
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Statistics -->
+
+                <div class="card shadow-lg border-0 rounded-4 mt-4">
+
+                    <div class="card-header bg-white">
+
+                        <h5 class="mb-0">
+
+                            Statistics
+
+                        </h5>
+
+                    </div>
+
+                    <div class="card-body">
 
                         <div class="row text-center">
 
-                            <div class="col-4">
+                            <div class="col-6 mb-4">
 
-                                <h5>15</h5>
+                                <h3 class="text-primary">
+
+                                    35
+
+                                </h3>
 
                                 <small class="text-muted">
 
@@ -46,9 +141,13 @@
 
                             </div>
 
-                            <div class="col-4">
+                            <div class="col-6 mb-4">
 
-                                <h5>42</h5>
+                                <h3 class="text-success">
+
+                                    92
+
+                                </h3>
 
                                 <small class="text-muted">
 
@@ -58,13 +157,33 @@
 
                             </div>
 
-                            <div class="col-4">
+                            <div class="col-6">
 
-                                <h5>98%</h5>
+                                <h3 class="text-warning">
+
+                                    96%
+
+                                </h3>
 
                                 <small class="text-muted">
 
                                     Avg Score
+
+                                </small>
+
+                            </div>
+
+                            <div class="col-6">
+
+                                <h3 class="text-danger">
+
+                                    12
+
+                                </h3>
+
+                                <small class="text-muted">
+
+                                    AI Scans
 
                                 </small>
 
@@ -76,181 +195,838 @@
 
                 </div>
 
-            </div>
-
-            <div class="col-lg-8">
-
-                <div class="card shadow-lg border-0 rounded-4">
-
-                    <div class="card-header bg-white">
-
-                        <h4>
-
-                            Edit Profile
-
-                        </h4>
-
-                    </div>
-
-                    <div class="card-body">
-
-                        <form>
-
-                            <div class="row">
-
-                                <div class="col-md-6 mb-3">
-
-                                    <label class="form-label">
-
-                                        Full Name
-
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        value="John Doe">
-
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-
-                                    <label class="form-label">
-
-                                        Username
-
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        value="johndoe">
-
-                                </div>
-
-                            </div>
-
-                            <div class="mb-3">
-
-                                <label class="form-label">
-
-                                    Email Address
-
-                                </label>
-
-                                <input
-                                    type="email"
-                                    class="form-control"
-                                    value="john@example.com">
-
-                            </div>
-
-                            <div class="mb-3">
-
-                                <label class="form-label">
-
-                                    Bio
-
-                                </label>
-
-                                <textarea
-                                    class="form-control"
-                                    rows="4"
-                                    placeholder="Tell us about yourself..."></textarea>
-
-                            </div>
-
-                            <button
-                                type="submit"
-                                class="btn btn-primary">
-
-                                Save Changes
-
-                            </button>
-
-                        </form>
-
-                    </div>
-
-                </div>
+                <!-- Achievements -->
 
                 <div class="card shadow-lg border-0 rounded-4 mt-4">
 
                     <div class="card-header bg-white">
 
-                        <h4>
+                        <h5>
 
-                            Change Password
+                            Achievements
 
-                        </h4>
+                        </h5>
 
                     </div>
 
                     <div class="card-body">
 
-                        <form>
+                        <p>
 
-                            <div class="mb-3">
+                            🏆 First Analysis Completed
 
-                                <label class="form-label">
+                        </p>
 
-                                    Current Password
+                        <p>
 
-                                </label>
+                            🥇 25 Projects Analyzed
 
-                                <input
-                                    type="password"
-                                    class="form-control">
+                        </p>
 
-                            </div>
+                        <p>
 
-                            <div class="mb-3">
+                            🛡 Security Champion
 
-                                <label class="form-label">
+                        </p>
 
-                                    New Password
+                        <p>
 
-                                </label>
+                            🤖 AI Explorer
 
-                                <input
-                                    type="password"
-                                    class="form-control">
-
-                            </div>
-
-                            <div class="mb-3">
-
-                                <label class="form-label">
-
-                                    Confirm Password
-
-                                </label>
-
-                                <input
-                                    type="password"
-                                    class="form-control">
-
-                            </div>
-
-                            <button
-                                type="submit"
-                                class="btn btn-warning">
-
-                                Update Password
-
-                            </button>
-
-                        </form>
+                        </p>
 
                     </div>
 
                 </div>
+
+            </div>
+
+            <!-- Right Content -->
+
+            <div class="col-lg-8">
+
+<!-- Edit Profile -->
+
+<div class="card shadow-lg border-0 rounded-4 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h4 class="mb-0">
+
+            Edit Profile
+
+        </h4>
+
+    </div>
+
+    <div class="card-body">
+
+        <form>
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="form-label">
+
+                        Full Name
+
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        value="John Doe">
+
+                </div>
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="form-label">
+
+                        Username
+
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        value="johndoe">
+
+                </div>
+
+            </div>
+
+            <div class="mb-3">
+
+                <label class="form-label">
+
+                    Email Address
+
+                </label>
+
+                <input
+                    type="email"
+                    class="form-control"
+                    value="john@example.com">
+
+            </div>
+
+            <div class="mb-3">
+
+                <label class="form-label">
+
+                    Phone Number
+
+                </label>
+
+                <input
+                    type="text"
+                    class="form-control"
+                    placeholder="+92 300 1234567">
+
+            </div>
+
+            <div class="mb-3">
+
+                <label class="form-label">
+
+                    Bio
+
+                </label>
+
+                <textarea
+                    rows="4"
+                    class="form-control"
+                    placeholder="Write something about yourself..."></textarea>
+
+            </div>
+
+            <button
+                type="submit"
+                class="btn btn-primary">
+
+                <i class="fa-solid fa-floppy-disk me-2"></i>
+
+                Save Changes
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- Change Password -->
+
+<div class="card shadow-lg border-0 rounded-4 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h4 class="mb-0">
+
+            Change Password
+
+        </h4>
+
+    </div>
+
+    <div class="card-body">
+
+        <form>
+
+            <div class="mb-3">
+
+                <label class="form-label">
+
+                    Current Password
+
+                </label>
+
+                <input
+                    type="password"
+                    class="form-control">
+
+            </div>
+
+            <div class="mb-3">
+
+                <label class="form-label">
+
+                    New Password
+
+                </label>
+
+                <input
+                    type="password"
+                    class="form-control">
+
+            </div>
+
+            <div class="mb-3">
+
+                <label class="form-label">
+
+                    Confirm Password
+
+                </label>
+
+                <input
+                    type="password"
+                    class="form-control">
+
+            </div>
+
+            <button
+                type="submit"
+                class="btn btn-warning">
+
+                <i class="fa-solid fa-key me-2"></i>
+
+                Update Password
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- Account Information -->
+
+<div class="card shadow-lg border-0 rounded-4 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h4 class="mb-0">
+
+            Account Information
+
+        </h4>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="row">
+
+            <div class="col-md-6 mb-3">
+
+                <strong>Account Type</strong>
+
+                <p class="text-success">
+
+                    Premium
+
+                </p>
+
+            </div>
+
+            <div class="col-md-6 mb-3">
+
+                <strong>Email Status</strong>
+
+                <p class="text-success">
+
+                    Verified
+
+                </p>
+
+            </div>
+
+            <div class="col-md-6 mb-3">
+
+                <strong>Storage Used</strong>
+
+                <p>
+
+                    1.8 GB / 10 GB
+
+                </p>
+
+            </div>
+
+            <div class="col-md-6 mb-3">
+
+                <strong>Projects Uploaded</strong>
+
+                <p>
+
+                    35
+
+                </p>
+
+            </div>
+
+            <div class="col-md-6 mb-3">
+
+                <strong>Reports Generated</strong>
+
+                <p>
+
+                    92
+
+                </p>
+
+            </div>
+
+            <div class="col-md-6 mb-3">
+
+                <strong>Last Analysis</strong>
+
+                <p>
+
+                    Today • 10:45 AM
+
+                </p>
 
             </div>
 
         </div>
 
     </div>
+
+</div>
+
+<!-- Recent Activity -->
+
+<div class="card shadow-lg border-0 rounded-4 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h4 class="mb-0">
+
+            Recent Activity
+
+        </h4>
+
+    </div>
+
+    <div class="card-body">
+
+        <ul class="list-group list-group-flush">
+
+            <li class="list-group-item d-flex justify-content-between">
+
+                <span>
+
+                    <i class="fa-solid fa-upload text-primary me-2"></i>
+
+                    Uploaded <strong>Inventory_System.zip</strong>
+
+                </span>
+
+                <small class="text-muted">
+
+                    Today
+
+                </small>
+
+            </li>
+
+            <li class="list-group-item d-flex justify-content-between">
+
+                <span>
+
+                    <i class="fa-solid fa-brain text-success me-2"></i>
+
+                    AI Analysis Completed
+
+                </span>
+
+                <small class="text-muted">
+
+                    Today
+
+                </small>
+
+            </li>
+
+            <li class="list-group-item d-flex justify-content-between">
+
+                <span>
+
+                    <i class="fa-solid fa-download text-warning me-2"></i>
+
+                    Downloaded Analysis Report
+
+                </span>
+
+                <small class="text-muted">
+
+                    Yesterday
+
+                </small>
+
+            </li>
+
+            <li class="list-group-item d-flex justify-content-between">
+
+                <span>
+
+                    <i class="fa-solid fa-lock text-danger me-2"></i>
+
+                    Password Updated
+
+                </span>
+
+                <small class="text-muted">
+
+                    3 Days Ago
+
+                </small>
+
+            </li>
+
+        </ul>
+
+    </div>
+
+</div>
+
+<!-- Analysis Statistics -->
+
+<div class="card shadow-lg border-0 rounded-4 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h4 class="mb-0">
+
+            Analysis Statistics
+
+        </h4>
+
+    </div>
+
+    <div class="card-body">
+
+        <label class="fw-bold">
+
+            Code Quality
+
+        </label>
+
+        <div class="progress mb-3">
+
+            <div class="progress-bar bg-success"
+                 style="width:96%;">
+
+                96%
+
+            </div>
+
+        </div>
+
+        <label class="fw-bold">
+
+            Security Score
+
+        </label>
+
+        <div class="progress mb-3">
+
+            <div class="progress-bar bg-danger"
+                 style="width:89%;">
+
+                89%
+
+            </div>
+
+        </div>
+
+        <label class="fw-bold">
+
+            Code Formatting
+
+        </label>
+
+        <div class="progress mb-3">
+
+            <div class="progress-bar bg-primary"
+                 style="width:100%;">
+
+                100%
+
+            </div>
+
+        </div>
+
+        <label class="fw-bold">
+
+            AI Recommendation Score
+
+        </label>
+
+        <div class="progress">
+
+            <div class="progress-bar bg-warning"
+                 style="width:93%;">
+
+                93%
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- AI Usage Summary -->
+
+<div class="card shadow-lg border-0 rounded-4 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h4 class="mb-0">
+
+            AI Usage Summary
+
+        </h4>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="row text-center">
+
+            <div class="col-md-3">
+
+                <h3 class="text-primary">
+
+                    120
+
+                </h3>
+
+                <small class="text-muted">
+
+                    AI Requests
+
+                </small>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <h3 class="text-success">
+
+                    35
+
+                </h3>
+
+                <small class="text-muted">
+
+                    Projects
+
+                </small>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <h3 class="text-warning">
+
+                    18
+
+                </h3>
+
+                <small class="text-muted">
+
+                    Vulnerabilities Fixed
+
+                </small>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <h3 class="text-danger">
+
+                    92%
+
+                </h3>
+
+                <small class="text-muted">
+
+                    Success Rate
+
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Connected Accounts -->
+
+<div class="card shadow-lg border-0 rounded-4 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h4 class="mb-0">
+
+            Connected Accounts
+
+        </h4>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <div>
+
+                <i class="fa-brands fa-github fa-lg me-2"></i>
+
+                GitHub
+
+            </div>
+
+            <span class="badge bg-success">
+
+                Connected
+
+            </span>
+
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <div>
+
+                <i class="fa-solid fa-robot fa-lg me-2"></i>
+
+                OpenAI API
+
+            </div>
+
+            <span class="badge bg-warning text-dark">
+
+                Not Connected
+
+            </span>
+
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center">
+
+            <div>
+
+                <i class="fa-brands fa-gitlab fa-lg me-2"></i>
+
+                GitLab
+
+            </div>
+
+            <span class="badge bg-secondary">
+
+                Optional
+
+            </span>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Quick Actions -->
+
+<div class="card shadow-lg border-0 rounded-4 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h4 class="mb-0">
+
+            Quick Actions
+
+        </h4>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="d-grid gap-3">
+
+            <a href="{{ url_for('main.upload') }}" class="btn btn-primary">
+
+                <i class="fa-solid fa-upload me-2"></i>
+
+                Upload New Project
+
+            </a>
+
+            <a href="{{ url_for('main.history') }}" class="btn btn-success">
+
+                <i class="fa-solid fa-clock-rotate-left me-2"></i>
+
+                View Analysis History
+
+            </a>
+
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-info text-white">
+
+                <i class="fa-solid fa-chart-line me-2"></i>
+
+                Dashboard
+
+            </a>
+
+            <a href="{{ url_for('main.settings') }}" class="btn btn-secondary">
+
+                <i class="fa-solid fa-gear me-2"></i>
+
+                Settings
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Account Preferences -->
+
+<div class="card shadow-lg border-0 rounded-4 mb-4">
+
+    <div class="card-header bg-white">
+
+        <h4 class="mb-0">
+
+            Preferences
+
+        </h4>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="form-check form-switch mb-3">
+
+            <input class="form-check-input" type="checkbox" checked>
+
+            <label class="form-check-label">
+
+                Email Notifications
+
+            </label>
+
+        </div>
+
+        <div class="form-check form-switch mb-3">
+
+            <input class="form-check-input" type="checkbox" checked>
+
+            <label class="form-check-label">
+
+                AI Recommendations
+
+            </label>
+
+        </div>
+
+        <div class="form-check form-switch">
+
+            <input class="form-check-input" type="checkbox">
+
+            <label class="form-check-label">
+
+                Dark Mode
+
+            </label>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Danger Zone -->
+
+<div class="card shadow-lg border border-danger rounded-4 mb-4">
+
+    <div class="card-header bg-danger text-white">
+
+        <h4 class="mb-0">
+
+            Danger Zone
+
+        </h4>
+
+    </div>
+
+    <div class="card-body">
+
+        <p class="text-muted">
+
+            Deleting your account is permanent and cannot be undone.
+
+        </p>
+
+        <button class="btn btn-danger">
+
+            <i class="fa-solid fa-trash me-2"></i>
+
+            Delete Account
+
+        </button>
+
+    </div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
 
 </section>
 
