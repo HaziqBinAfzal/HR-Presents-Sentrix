@@ -340,6 +340,59 @@ def dashboard():
         .all()
     )
 
+
+        # -----------------------------------------
+    # Quality Trend
+    # -----------------------------------------
+
+    quality_chart = []
+
+    for analysis in reversed(recent_analyses):
+
+        quality_chart.append({
+
+            "label": analysis.created_at.strftime("%d %b"),
+
+            "value": analysis.pylint_score
+
+        })
+
+    # -----------------------------------------
+    # Security Trend
+    # -----------------------------------------
+
+    security_chart = []
+
+    for analysis in reversed(recent_analyses):
+
+        security_chart.append({
+
+            "label": analysis.created_at.strftime("%d %b"),
+
+            "value": analysis.security_count
+
+        })
+
+    # -----------------------------------------
+    # Recent Activities
+    # -----------------------------------------
+
+    recent_activities = []
+
+    for analysis in recent_analyses:
+
+        recent_activities.append({
+
+            "project": analysis.filename,
+
+            "score": analysis.overall_score,
+
+            "status": analysis.status,
+
+            "date": analysis.created_at.strftime("%d %b %Y")
+
+        })
+
     return render_template(
         "dashboard.html",
 
@@ -360,11 +413,11 @@ def dashboard():
         maintainability_score=100,
         ai_score=100,
 
-        quality_chart=[],
-        security_chart=[],
-        language_chart=[],
+        quality_chart=quality_chart,
+        security_chart=security_chart,
+        language_chart=None,
 
-        recent_activities=[],
+        recent_activities=recent_activities,
 
         ai_insight=(
             latest_analysis.ai_summary
