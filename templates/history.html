@@ -225,6 +225,7 @@
 
 <div class="col-12">
 
+<form method="GET" action="{{ url_for('main.history') }}">
                 <div class="card border-0 shadow-sm">
 
                     <div class="card-body">
@@ -245,6 +246,7 @@
                 <i class="fa-solid fa-magnifying-glass"></i>
             </span>
 
+
             <input
                 type="search"
                 id="historySearch"
@@ -252,6 +254,171 @@
                 value="{{ search }}"
                 class="form-control"
                 placeholder="Search by project name or language">
+
+                                        <i class="fa-solid fa-magnifying-glass"></i>
+
+                                    </span>
+
+                                    <input
+    type="search"
+    id="historySearch"
+    name="search"
+    value="{{ search }}"
+    class="form-control"
+    placeholder="Search by project name, language or report...">
+
+                                </div>
+
+                            </div>
+
+                            <div class="col-md-4 col-lg-2">
+
+                                <label class="form-label fw-semibold">
+
+                                    Status
+
+                                </label>
+
+                                <select
+    id="statusFilter"
+    name="status"
+    class="form-select">
+                                         
+                                    <option value="">
+
+                                        All Status
+
+                                    </option>
+
+                                    <option value="Completed">
+
+                                        Completed
+
+                                    </option>
+
+                                    <option value="Processing">
+
+                                        Processing
+
+                                    </option>
+
+                                    <option value="Failed">
+
+                                        Failed
+
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <div class="col-md-4 col-lg-2">
+
+                                <label class="form-label fw-semibold">
+
+                                    Risk Level
+
+                                </label>
+
+                                <select
+    id="riskFilter"
+    name="risk"
+    class="form-select">
+                                    <option value="">
+
+                                        All Levels
+
+                                    </option>
+
+                                    <option value="Critical">
+
+                                        Critical
+
+                                    </option>
+
+                                    <option value="High">
+
+                                        High
+
+                                    </option>
+
+                                    <option value="Medium">
+
+                                        Medium
+
+                                    </option>
+
+                                    <option value="Low">
+
+                                        Low
+
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <div class="col-md-4 col-lg-2">
+
+                                <label class="form-label fw-semibold">
+
+                                    Sort By
+
+                                </label>
+
+                                <select
+    id="sortHistory"
+    name="sort"
+    class="form-select">
+                                    <option value="latest">
+
+                                        Latest
+
+                                    </option>
+
+                                    <option value="oldest">
+
+                                        Oldest
+
+                                    </option>
+
+                                    <option value="highest">
+
+                                        Highest Score
+
+                                    </option>
+
+                                    <option value="lowest">
+
+                                        Lowest Score
+
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <div class="col-lg-1 d-grid">
+
+                                <button
+    type="submit"
+    class="btn btn-primary">
+                                    <i class="fa-solid fa-rotate"></i>
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                    
+                  </form>
+                   
+                </div>
+
+            </div>
+
 
         </div>
 
@@ -615,7 +782,7 @@
     </div>
 
 </section>
-
+<!--
 <script>
 
 document.addEventListener("DOMContentLoaded", function () {
