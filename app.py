@@ -20,6 +20,9 @@ def create_app():
     # Load application configuration
     app.config.from_object(Config)
 
+    app.config.setdefault("SESSION_COOKIE_HTTPONLY", True)
+    app.config.setdefault("SESSION_COOKIE_SAMESITE", "Lax")
+
     # Initialize database
     db.init_app(app)
 
@@ -43,7 +46,8 @@ def create_app():
 
     @app.errorhandler(500)
     def internal_server_error(error):
-        return render_template("500.html"), 500
+      db.session.rollback()
+    return render_template("500.html"), 500
 
     # --------------------------------------------------
     # Create Required Directories + Database
@@ -53,19 +57,6 @@ def create_app():
 
         # Create database tables
         db.create_all()
-
-        # Upload directories
-        folders = [
-            app.config["UPLOAD_FOLDER"],
-            app.config["TEMP_FOLDER"],
-            app.config["PROJECT_FOLDER"],
-            app.config["REPORT_FOLDER"],
-            app.config["CORRECTED_FOLDER"],
-            app.config["DIFF_FOLDER"],
-        ]
-
-        for folder in folders:
-            os.makedirs(folder, exist_ok=True)
 
     return app
 

@@ -18,7 +18,7 @@ class Config:
 
     SECRET_KEY = os.getenv(
         "SECRET_KEY",
-        "codesentinel-secret-key"
+        os.urandom(32).hex()
     )
 
     # --------------------------------------------------
@@ -31,6 +31,10 @@ class Config:
     )
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_pre_ping": True
+    }
 
     # --------------------------------------------------
     # Upload Configuration
@@ -66,5 +70,19 @@ class Config:
         "diff"
     )
 
-    # Maximum upload size: 16 MB
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024
+    # --------------------------------------------------
+# Create Required Directories
+# --------------------------------------------------
+
+    for folder in (
+      UPLOAD_FOLDER,
+      TEMP_FOLDER,
+      PROJECT_FOLDER,
+      REPORT_FOLDER,
+      CORRECTED_FOLDER,
+      DIFF_FOLDER
+    ):
+      os.makedirs(folder, exist_ok=True)
+
+    # Maximum upload size: 100 MB
+    MAX_CONTENT_LENGTH = 100 * 1024 * 1024
