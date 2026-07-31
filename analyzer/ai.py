@@ -155,7 +155,6 @@ def generate_ai_summary(
             "Address the reported issues before using the project in production."
         )
 
-    return " ".join(summary)
 
     # -----------------------------------------
     # Recommendations

@@ -112,7 +112,7 @@ def validate_upload(file):
             "Unable to determine file size."
         )
 
-    if size > MAX_FILE_SIZE:
+    if size > MAX_UPLOAD_SIZE:
 
         return (
             False,
