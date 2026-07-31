@@ -6,11 +6,8 @@ from werkzeug.utils import secure_filename
 
 ALLOWED_EXTENSIONS = {"py", "zip"}
 
-<<<<<<< HEAD
+
 MAX_UPLOAD_SIZE = 100 * 1024 * 1024 #100 MB
-=======
-MAX_FILE_SIZE = 100 * 1024 * 1024  # 100 MB
->>>>>>> origin/backend
 
 
 def allowed_file(filename):

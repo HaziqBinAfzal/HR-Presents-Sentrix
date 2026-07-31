@@ -526,7 +526,7 @@ def upload():
 
     db.session.add(project)
 
-try:
+    try:
 
         db.session.commit()
 
@@ -534,8 +534,6 @@ try:
             f"Project {project.project_id} uploaded successfully."
         )
 
-<<<<<<< HEAD
-=======
         print(
             "Project Name:",
             metadata["project_name"]
@@ -565,7 +563,7 @@ try:
             current_user,
         )
 
->>>>>>> origin/backend
+
         flash(
             "Project uploaded successfully. Analysis is starting...",
             "success"
@@ -580,7 +578,6 @@ try:
 
     except Exception:
 
-<<<<<<< HEAD
         db.session.rollback()
 
         current_app.logger.exception(
@@ -597,9 +594,7 @@ try:
             form=form
         )
 
-=======
-    
->>>>>>> origin/backend
+
 # ============================================================
 # RESULTS
 # ============================================================

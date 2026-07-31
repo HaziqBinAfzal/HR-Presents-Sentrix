@@ -178,13 +178,13 @@ class UploadForm(FlaskForm):
     file = FileField(
         "Project File",
         validators=[
-<<<<<<< HEAD
+
             FileRequired(
                 message="Please select a Python or ZIP file."
             ),
-=======
+
             FileRequired(),
->>>>>>> origin/backend
+
             FileAllowed(
                 ["py", "zip"],
                 "Only .py and .zip files are allowed."

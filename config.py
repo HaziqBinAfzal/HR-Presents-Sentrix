@@ -70,7 +70,7 @@ class Config:
         "diff"
     )
 
-<<<<<<< HEAD
+
     # --------------------------------------------------
 # Create Required Directories
 # --------------------------------------------------
@@ -87,9 +87,6 @@ class Config:
 
     # Maximum upload size: 100 MB
     MAX_CONTENT_LENGTH = 100 * 1024 * 1024
-=======
-    # Maximum upload size: 100 MB
-    MAX_CONTENT_LENGTH = 100 * 1024 * 1024
 
     # --------------------------------------------------
     # Mail Configuration
@@ -103,4 +100,4 @@ class Config:
     MAIL_USERNAME = os.getenv("MAIL_USERNAME")
     MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
     MAIL_DEFAULT_SENDER = os.getenv("MAIL_USERNAME")
->>>>>>> origin/backend
+
