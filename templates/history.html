@@ -225,6 +225,7 @@
 
 <div class="col-12">
 
+<form method="GET" action="{{ url_for('main.history') }}">
                 <div class="card border-0 shadow-sm">
 
                     <div class="card-body">
@@ -248,10 +249,12 @@
                                     </span>
 
                                     <input
-                                        type="search"
-                                        id="historySearch"
-                                        class="form-control"
-                                        placeholder="Search by project name, language or report...">
+    type="search"
+    id="historySearch"
+    name="search"
+    value="{{ search }}"
+    class="form-control"
+    placeholder="Search by project name, language or report...">
 
                                 </div>
 
@@ -266,28 +269,29 @@
                                 </label>
 
                                 <select
-                                    id="statusFilter"
-                                    class="form-select">
-
+    id="statusFilter"
+    name="status"
+    class="form-select">
+                                         
                                     <option value="">
 
                                         All Status
 
                                     </option>
 
-                                    <option value="completed">
+                                    <option value="Completed">
 
                                         Completed
 
                                     </option>
 
-                                    <option value="processing">
+                                    <option value="Processing">
 
                                         Processing
 
                                     </option>
 
-                                    <option value="failed">
+                                    <option value="Failed">
 
                                         Failed
 
@@ -306,34 +310,34 @@
                                 </label>
 
                                 <select
-                                    id="riskFilter"
-                                    class="form-select">
-
+    id="riskFilter"
+    name="risk"
+    class="form-select">
                                     <option value="">
 
                                         All Levels
 
                                     </option>
 
-                                    <option value="critical">
+                                    <option value="Critical">
 
                                         Critical
 
                                     </option>
 
-                                    <option value="high">
+                                    <option value="High">
 
                                         High
 
                                     </option>
 
-                                    <option value="medium">
+                                    <option value="Medium">
 
                                         Medium
 
                                     </option>
 
-                                    <option value="low">
+                                    <option value="Low">
 
                                         Low
 
@@ -352,9 +356,9 @@
                                 </label>
 
                                 <select
-                                    id="sortHistory"
-                                    class="form-select">
-
+    id="sortHistory"
+    name="sort"
+    class="form-select">
                                     <option value="latest">
 
                                         Latest
@@ -367,13 +371,13 @@
 
                                     </option>
 
-                                    <option value="score_desc">
+                                    <option value="highest">
 
                                         Highest Score
 
                                     </option>
 
-                                    <option value="score_asc">
+                                    <option value="lowest">
 
                                         Lowest Score
 
@@ -386,9 +390,8 @@
                             <div class="col-lg-1 d-grid">
 
                                 <button
-                                    type="button"
-                                    class="btn btn-outline-secondary">
-
+    type="submit"
+    class="btn btn-primary">
                                     <i class="fa-solid fa-rotate"></i>
 
                                 </button>
@@ -398,7 +401,9 @@
                         </div>
 
                     </div>
-
+                    
+                  </form>
+                   
                 </div>
 
             </div>
@@ -696,7 +701,7 @@
     </div>
 
 </section>
-
+<!--
 <script>
 
 document.addEventListener("DOMContentLoaded", function () {
