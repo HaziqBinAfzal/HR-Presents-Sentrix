@@ -2,6 +2,7 @@ import os
 import time
 import shutil
 import tempfile
+import ast
 
 from database import db
 
@@ -146,7 +147,59 @@ def run_project_analysis(
 
         })
 
-        continue
+        
+
+    with open(
+        file,
+        "r",
+        encoding="utf-8",
+        errors="ignore"
+    ) as f:
+
+        source = f.readlines()
+
+    total_lines += len(source)
+
+    for line in source:
+
+        stripped = line.strip()
+
+        if not stripped:
+
+            blank_lines += 1
+
+        elif stripped.startswith("#"):
+
+            comments_count += 1
+
+    try:
+
+        tree = ast.parse(
+            "".join(source)
+        )
+
+        for node in ast.walk(tree):
+
+            if isinstance(
+                node,
+                ast.FunctionDef
+            ):
+
+                functions_count += 1
+
+            elif isinstance(
+                node,
+                ast.ClassDef
+            ):
+
+                classes_count += 1
+
+    except Exception:
+
+        pass
+
+
+    black = run_black(file)
 
     black = run_black(file)
 
@@ -189,6 +242,13 @@ def run_project_analysis(
 
     bandit_output = bandit_result["output"]
 
+    bandit_findings = "\n".join(
+        [
+            f"{issue['severity']} | {issue['file']} | Line {issue['line']} | {issue['issue']}"
+            for issue in bandit_result["issues"]
+        ]
+    )
+
     radon_output = "\n".join(
         [
             f"{row['function']} | Grade {row['grade']} | Complexity {row['complexity']}"
@@ -225,15 +285,27 @@ def run_project_analysis(
     # Complexity Level
     # -----------------------------------------
 
-    if len(complexity_rows) <= 10:
+    highest_grade = "A"
+
+    for row in complexity_rows:
+
+        grade = row["grade"]
+
+        if grade > highest_grade:
+
+            highest_grade = grade
+
+    if highest_grade in ("A", "B"):
+
         complexity_level = "Low"
 
-    elif len(complexity_rows) <= 30:
+    elif highest_grade == "C":
+
         complexity_level = "Medium"
 
     else:
-        complexity_level = "High"
 
+        complexity_level = "High"
     # -----------------------------------------
     # Overall Score
     # -----------------------------------------
@@ -301,7 +373,7 @@ def run_project_analysis(
 
         pylint_output="\n\n".join(pylint_output),
 
-        bandit_output=bandit_output,
+        bandit_output=bandit_findings,
 
         radon_output=radon_output,
 

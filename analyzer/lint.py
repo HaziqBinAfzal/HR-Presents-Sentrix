@@ -1,53 +1,89 @@
-import re
+import json
 import subprocess
 
 
 def run_pylint(file_path):
     """
-    Run Pylint and return the score plus all reported issues.
+    Run pylint and return structured results.
     """
 
     try:
+
         result = subprocess.run(
-            ["pylint", file_path],
+            [
+                "pylint",
+                file_path,
+                "--output-format=json"
+            ],
             capture_output=True,
-            text=True,
+            text=True
         )
-
-        output = result.stdout
-
-        score = 0.0
-
-        match = re.search(
-            r"rated at ([0-9]+\.[0-9]+)/10",
-            output,
-        )
-
-        if match:
-            score = float(match.group(1))
 
         issues = []
 
-        for line in output.splitlines():
+        score = 10.0
 
-            if ":" in line and (
-                "C" in line
-                or "W" in line
-                or "E" in line
-                or "R" in line
-            ):
-                issues.append(line)
+        try:
+            data = json.loads(result.stdout)
+
+            for item in data:
+
+                issues.append(
+                    {
+                        "file": item.get("path"),
+                        "line": item.get("line"),
+                        "type": item.get("type"),
+                        "symbol": item.get("symbol"),
+                        "message": item.get("message")
+                    }
+                )
+
+        except Exception:
+            data = []
+
+        text_result = subprocess.run(
+            [
+                "pylint",
+                file_path
+            ],
+            capture_output=True,
+            text=True
+        )
+
+        for line in text_result.stdout.splitlines():
+
+            if "rated at" in line:
+
+                try:
+
+                    score = float(
+                        line.split("rated at")[1]
+                        .split("/")[0]
+                        .strip()
+                    )
+
+                except Exception:
+
+                    pass
 
         return {
+
             "score": score,
+
             "issues": issues,
-            "output": output,
+
+            "output": text_result.stdout
+
         }
 
-    except Exception as e:
+    except Exception as error:
 
         return {
+
             "score": 0,
-            "issues": [str(e)],
-            "output": "",
+
+            "issues": [],
+
+            "output": str(error)
+
         }
