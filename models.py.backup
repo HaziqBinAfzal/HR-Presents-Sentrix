@@ -229,51 +229,6 @@ class Analysis(db.Model):
         nullable=True
     )
 
-    pylint_output = db.Column(
-        db.Text,
-        nullable=True
-    )
-
-    bandit_output = db.Column(
-        db.Text,
-        nullable=True
-    )
-
-    radon_output = db.Column(
-        db.Text,
-        nullable=True
-    )
-
-    issues_count = db.Column(
-        db.Integer,
-        nullable=False,
-        default=0
-    )
-
-    functions_count = db.Column(
-        db.Integer,
-        nullable=False,
-        default=0
-    )
-
-    classes_count = db.Column(
-        db.Integer,
-        nullable=False,
-        default=0
-    )
-
-    comments_count = db.Column(
-        db.Integer,
-        nullable=False,
-        default=0
-    )
-
-    blank_lines = db.Column(
-        db.Integer,
-        nullable=False,
-        default=0
-    )
-
     report_path = db.Column(
         db.String(255),
         nullable=True

@@ -70,112 +70,36 @@ def run_project_analysis(
 
     pylint_issues = []
 
-    pylint_output = []
-
     complexity_rows = []
 
-    total_lines = 0
 
-    blank_lines = 0
-
-    comments_count = 0
-
-    functions_count = 0
-
-    classes_count = 0
-
-    # -----------------------------------------
+# -----------------------------------------
     # Run project analyzers
     # -----------------------------------------
 
     for file in python_files:
 
-    # -----------------------------------------
-    # Count file statistics
-    # -----------------------------------------
+        black = run_black(file)
 
-        try:
+        if black["status"] != "Passed":
+            formatting_status = black["status"]
 
-             with open(file, "r", encoding="utf-8") as source:
+        pylint_result = run_pylint(file)
 
-                 lines = source.readlines()
+        pylint_scores.append(
+            pylint_result["score"]
+        )
 
-             total_lines += len(lines)
+        pylint_issues.extend(
+            pylint_result["issues"]
+        )
 
-             for line in lines:
+        complexity_rows.extend(
+            run_radon(file)
+        )
 
-                 stripped = line.strip()
-
-                 if not stripped:
-
-                     blank_lines += 1
-
-                 elif stripped.startswith("#"):
-
-                     comments_count += 1
-
-                 elif stripped.startswith("def "):
-
-                     functions_count += 1
-
-                 elif stripped.startswith("class "):
-
-                     classes_count += 1
-
-        except Exception:
-
-            pass
-
-    # -----------------------------------------
-    # Black
-    # -----------------------------------------
-
-    black = run_black(file)
-
-    if black["status"] != "Passed":
-
-        formatting_status = black["status"]
-
-    # -----------------------------------------
-    # Pylint
-    # -----------------------------------------
-
-    pylint_result = run_pylint(file)
-
-    pylint_scores.append(
-        pylint_result["score"]
-    )
-
-    pylint_issues.extend(
-        pylint_result["issues"]
-    )
-
-    pylint_output.append(
-        pylint_result["output"]
-    )
-
-    # -----------------------------------------
-    # Radon
-    # -----------------------------------------
-
-    complexity_rows.extend(
-        run_radon(file)
-    )
     bandit_result = run_bandit(
         extract_folder
-    )
-
-    # -----------------------------------------
-    # Store detailed outputs
-    # -----------------------------------------
-
-    bandit_output = bandit_result["output"]
-
-    radon_output = "\n".join(
-        [
-            f"{row['function']} | Grade {row['grade']} | Complexity {row['complexity']}"
-            for row in complexity_rows
-        ]
     )
 
     # -----------------------------------------
@@ -265,29 +189,13 @@ def run_project_analysis(
 
         total_files=len(python_files),
 
-        total_lines=total_lines,
+        total_lines=0,
 
         analysis_duration=analysis_duration,
 
         ai_summary=ai_summary,
 
         recommendations="\n".join(recommendations),
-
-        pylint_output="\n\n".join(pylint_output),
-
-        bandit_output=bandit_output,
-
-        radon_output=radon_output,
-
-        issues_count=len(pylint_issues),
-
-        functions_count=functions_count,
-
-        classes_count=classes_count,
-
-        comments_count=comments_count,
-
-        blank_lines=blank_lines,
 
         status="Completed"
     )

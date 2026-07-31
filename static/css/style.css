@@ -1241,6 +1241,7 @@ footer p{
         font-size:
 
 
+
 /* =======================================
    Upload Page
 ======================================= */
@@ -1523,6 +1524,35 @@ footer p{
         width:100%;
 
     }
+
+}
+
+
+.rating-star{
+
+    cursor:pointer;
+
+    transition:.25s;
+
+    margin-right:4px;
+
+}
+
+.rating-star:hover{
+
+    transform:scale(1.2);
+
+}
+
+.review-card{
+
+    transition:.3s ease;
+
+}
+
+.review-card:hover{
+
+    transform:translateY(-8px);
 
 }
 
