@@ -342,34 +342,71 @@
 
         <div class="row g-4 mb-5">
 
-            <!-- Languages -->
 
-            <div class="col-lg-6">
+        <div class="col-lg-6">
 
-                <div class="card border-0 shadow-sm h-100">
+    <div class="card border-0 shadow-sm h-100">
 
-                    <div class="card-header bg-white">
+        <div class="card-header bg-white">
 
-                        <h4 class="mb-0">
+            <h4 class="mb-0">
 
-                            <i class="fa-solid fa-code text-success me-2"></i>
+                <i class="fa-solid fa-chart-column text-primary me-2"></i>
 
-                            Languages Analyzed
+                Code Statistics
 
-                        </h4>
+            </h4>
 
-                    </div>
+        </div>
 
-                    <div class="card-body">
+        <div class="card-body">
 
-                        <canvas id="languageChart" height="220"></canvas>
+            {% if latest_stats %}
 
-                    </div>
-
-                </div>
-
+            <div class="d-flex justify-content-between mb-3">
+                <span>Files Scanned</span>
+                <strong>{{ latest_stats.total_files }}</strong>
             </div>
 
+            <div class="d-flex justify-content-between mb-3">
+                <span>Functions</span>
+                <strong>{{ latest_stats.functions_count }}</strong>
+            </div>
+
+            <div class="d-flex justify-content-between mb-3">
+                <span>Classes</span>
+                <strong>{{ latest_stats.classes_count }}</strong>
+            </div>
+
+            <div class="d-flex justify-content-between mb-3">
+                <span>Comments</span>
+                <strong>{{ latest_stats.comments_count }}</strong>
+            </div>
+
+            <div class="d-flex justify-content-between mb-3">
+                <span>Blank Lines</span>
+                <strong>{{ latest_stats.blank_lines }}</strong>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <span>Pylint Issues</span>
+                <strong>{{ latest_stats.issues_count }}</strong>
+            </div>
+
+            {% else %}
+
+            <p class="text-muted mb-0">
+                No analysis available.
+            </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+            
             <!-- Project Health -->
 
             <div class="col-lg-6">
@@ -733,37 +770,43 @@
 
                             {% for activity in recent_activities[:5] %}
 
-                            <div class="d-flex align-items-start mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
 
-                                <i class="fa-solid fa-circle-check text-success me-3 mt-1"></i>
+    <div>
 
-                                <div>
+        <strong>{{ activity.title }}</strong>
 
-                                    <strong>
+        <br>
 
-                                        {{ activity.title }}
+        <small class="text-muted">
+            {{ activity.date }}
+        </small>
 
-                                    </strong>
+    </div>
 
-                                    <br>
+    <div class="text-end">
 
-                                    <small class="text-muted">
+        <span class="badge bg-success">
 
-                                        {{ activity.time }}
+            {{ activity.status }}
 
-                                    </small>
+        </span>
 
-                                </div>
+        <br>
 
-                            </div>
+        <small>
 
-                            {% if not loop.last %}
+            {{ activity.score }}%
 
-                            <hr>
+        </small>
 
-                            {% endif %}
+    </div>
 
+</div>
+
+<hr>
                             {% endfor %}
+                            
 
                         {% else %}
 
@@ -1026,27 +1069,6 @@ if (securityChart) {
 
 }
 
-const languageChart = document.getElementById('languageChart');
-
-if (languageChart) {
-
-    new Chart(languageChart, {
-
-        type: 'bar',
-
-        data: {{ language_chart|tojson }},
-
-        options: {
-
-            responsive: true,
-
-            maintainAspectRatio: false
-
-        }
-
-    });
-
-}
 
 </script>
 
