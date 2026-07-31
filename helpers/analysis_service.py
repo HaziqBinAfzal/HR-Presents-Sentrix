@@ -6,7 +6,7 @@ import tempfile
 from database import db
 
 from models import Analysis
-
+from analyzer.syntax import check_syntax
 from helpers.report_service import generate_html_report
 from analyzer.extractor import extract_project
 from analyzer.formatter import run_black
@@ -88,6 +88,8 @@ def run_project_analysis(
     # Run project analyzers
     # -----------------------------------------
 
+    syntax_errors = []
+
     for file in python_files:
 
     # -----------------------------------------
@@ -129,6 +131,22 @@ def run_project_analysis(
     # -----------------------------------------
     # Black
     # -----------------------------------------
+    
+    syntax = check_syntax(file)
+
+    if not syntax["valid"]:
+
+        syntax_errors.append({
+
+            "file": file,
+
+            "line": syntax["line"],
+
+            "message": syntax["message"]
+
+        })
+
+        continue
 
     black = run_black(file)
 
@@ -266,6 +284,14 @@ def run_project_analysis(
         formatting_status=formatting_status,
 
         complexity=complexity_level,
+
+        syntax_output="\n".join(
+            [
+                f"{i['file']} : Line {i['line']} : {i['message']}"
+                for i in syntax_errors
+            ]
+        ),
+
 
         total_files=len(python_files),
 
