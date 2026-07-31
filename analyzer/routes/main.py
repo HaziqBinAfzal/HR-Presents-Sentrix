@@ -732,7 +732,7 @@ def delete_analysis(analysis_id):
 def settings():
 
     total_projects = Project.query.filter_by(
-        user_id=current_user.id
+W        user_id=current_user.id
     ).count()
 
     total_analyses = Analysis.query.filter_by(
@@ -937,24 +937,24 @@ def profile():
             url_for("main.profile")
         )
 
-    total_projects = Project.query.filter_by(
-        user_id=current_user.id
-    ).count()
+        total_projects = Project.query.filter_by(
+           user_id=current_user.id
+        ).count()
 
-    total_analyses = Analysis.query.filter_by(
-        user_id=current_user.id
-    ).count()
+        total_analyses = Analysis.query.filter_by(
+           user_id=current_user.id
+        ).count()
 
-    total_reviews = Review.query.filter_by(
-        user_id=current_user.id
-    ).count()
+        total_reviews = Review.query.filter_by(
+           user_id=current_user.id
+        ).count()
 
-    recent_projects = (
-        Project.query
-        .filter_by(user_id=current_user.id)
-        .order_by(Project.upload_date.desc())
-        .limit(5)
-        .all()
+        recent_projects = (
+           Project.query
+           .filter_by(user_id=current_user.id)
+           .order_by(Project.upload_date.desc())
+           .limit(5)
+           .all()
     )
 
     return render_template(
@@ -1299,4 +1299,6 @@ def delete_review(review_id):
 
 
 
+
+o
 
