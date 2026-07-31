@@ -222,7 +222,27 @@ def run_project_analysis(
     )
 
     pylint_output.append(
-        pylint_result["output"]
+
+        "\n".join(
+
+            [
+
+                f"{issue['file']}"
+
+                f"\nLine {issue['line']}"
+
+                f"\n{issue['type']}"
+
+                f"\n{issue['symbol']}"
+
+                f"\n{issue['message']}"
+
+                for issue in pylint_result["issues"]
+
+            ]
+
+       )
+
     )
 
     # -----------------------------------------
@@ -242,20 +262,41 @@ def run_project_analysis(
 
     bandit_output = bandit_result["output"]
 
-    bandit_findings = "\n".join(
+    bandit_findings = "\n\n".join(
+
         [
-            f"{issue['severity']} | {issue['file']} | Line {issue['line']} | {issue['issue']}"
+
+            f"{issue['severity']}"
+
+            f"\n{issue['file']}"
+
+            f"\nLine {issue['line']}"
+
+            f"\nConfidence : {issue['confidence']}"
+
+            f"\n{issue['issue']}"
+
             for issue in bandit_result["issues"]
-        ]
-    )
 
-    radon_output = "\n".join(
+        ]
+
+    )
+    
+    radon_output = "\n\n".join(
+
         [
-            f"{row['function']} | Grade {row['grade']} | Complexity {row['complexity']}"
-            for row in complexity_rows
-        ]
-    )
 
+            f"{row['function']}"
+
+            f"\nGrade : {row['grade']}"
+
+            f"\nComplexity : {row['complexity']}"
+
+            for row in complexity_rows
+
+        ]
+
+    )
     # -----------------------------------------
     # Calculate average pylint score
     # -----------------------------------------

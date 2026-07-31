@@ -84,9 +84,11 @@ def run_pylint(file_path):
                     {
                         "file": item.get("path"),
                         "line": item.get("line"),
+                        "column": item.get("column"),
                         "type": item.get("type"),
                         "symbol": item.get("symbol"),
-                        "message": item.get("message")
+                        "message": item.get("message"),
+                        "message_id": item.get("message-id")
                     }
                 )
 

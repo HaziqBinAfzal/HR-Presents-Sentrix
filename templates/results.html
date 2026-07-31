@@ -108,15 +108,7 @@
 
                     <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
 
-                        <a href="#"
-                           class="btn btn-success">
-
-                            <i class="fa-solid fa-file-arrow-down me-2"></i>
-
-                            Download Report
-
-                        </a>
-
+                        
                     </div>
 
                 </div>
@@ -435,6 +427,13 @@
         </div>
 
 
+
+
+<!-- ======================================================= -->
+<!-- Detailed Analysis Output -->
+<!-- ======================================================= -->
+
+
 {% if analysis.syntax_output %}
 
 <div class="card border-0 shadow-sm mb-4">
@@ -460,6 +459,7 @@
 </div>
 
 {% endif %}
+
 
 {% if analysis.pylint_output %}
 
@@ -498,7 +498,11 @@
 
             <i class="fa-solid fa-shield-halved text-danger me-2"></i>
 
+
             Security Findings
+
+            Detailed Bandit Findings
+
 
         </h4>
 
@@ -523,7 +527,11 @@
 
         <h4 class="mb-0">
 
+
             <i class="fa-solid fa-chart-simple text-primary me-2"></i>
+
+            <i class="fa-solid fa-chart-line text-primary me-2"></i>
+
 
             Cyclomatic Complexity
 
@@ -540,6 +548,7 @@
 </div>
 
 {% endif %}
+
 
 
 <hr>
@@ -581,7 +590,6 @@
     <strong>{{ analysis.blank_lines }}</strong>
 
 </div>
-
 
 
 <!-- Security Findings & Quality Analysis -->
