@@ -5,14 +5,26 @@ def generate_ai_summary(
     complexity_rows,
 ):
     """
+<<<<<<< HEAD
     Generate an AI-style summary from the analysis results.
+=======
+    Generate AI summary and recommendations.
+>>>>>>> origin/backend
     """
 
     summary = []
 
+<<<<<<< HEAD
     # --------------------------------------------------
     # Code Quality
     # --------------------------------------------------
+=======
+    recommendations = []
+
+    # -----------------------------------------
+    # Code Quality Summary
+    # -----------------------------------------
+>>>>>>> origin/backend
 
     if pylint_score >= 9:
 
@@ -38,9 +50,15 @@ def generate_ai_summary(
             "The project contains significant code quality problems and should be refactored."
         )
 
+<<<<<<< HEAD
     # --------------------------------------------------
     # Security
     # --------------------------------------------------
+=======
+    # -----------------------------------------
+    # Security Summary
+    # -----------------------------------------
+>>>>>>> origin/backend
 
     if security_count == 0:
 
@@ -60,9 +78,15 @@ def generate_ai_summary(
             f"{security_count} security issue(s) were detected. Immediate attention is recommended."
         )
 
+<<<<<<< HEAD
     # --------------------------------------------------
     # Formatting
     # --------------------------------------------------
+=======
+    # -----------------------------------------
+    # Formatting Summary
+    # -----------------------------------------
+>>>>>>> origin/backend
 
     if formatting_status == "Passed":
 
@@ -76,9 +100,15 @@ def generate_ai_summary(
             "The project should be formatted with Black to improve consistency."
         )
 
+<<<<<<< HEAD
     # --------------------------------------------------
     # Complexity
     # --------------------------------------------------
+=======
+    # -----------------------------------------
+    # Complexity Summary
+    # -----------------------------------------
+>>>>>>> origin/backend
 
     if complexity_rows:
 
@@ -93,6 +123,7 @@ def generate_ai_summary(
             f'and grade {highest["grade"]}.'
         )
 
+<<<<<<< HEAD
         if highest["grade"] in ("E", "F"):
 
             summary.append(
@@ -126,3 +157,58 @@ def generate_ai_summary(
         )
 
     return " ".join(summary)
+=======
+    # -----------------------------------------
+    # Recommendations
+    # -----------------------------------------
+
+    if pylint_score < 8:
+
+        recommendations.append(
+            "Improve code quality by resolving the reported Pylint issues."
+        )
+
+    if security_count > 0:
+
+        recommendations.append(
+            f"Resolve the {security_count} security issue(s) detected by Bandit."
+        )
+
+    if formatting_status != "Passed":
+
+        recommendations.append(
+            "Run Black to ensure consistent code formatting."
+        )
+
+    if complexity_rows:
+
+        high_complexity = [
+
+            item
+
+            for item in complexity_rows
+
+            if item["grade"] in (
+                "D",
+                "E",
+                "F"
+            )
+        ]
+
+        if high_complexity:
+
+            recommendations.append(
+                "Refactor functions with high cyclomatic complexity."
+            )
+
+    if not recommendations:
+
+        recommendations.append(
+            "Excellent work! No major improvements are currently recommended."
+        )
+
+    return (
+        " ".join(summary),
+        recommendations
+    )
+>>>>>>> origin/backend

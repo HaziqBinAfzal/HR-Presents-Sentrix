@@ -1,12 +1,19 @@
 import os
 import uuid
 import tempfile
+import time
+from flask import send_file
+from flask_login import login_required, current_user
+from flask_mail import Message
+from extensions import mail
+from helpers.analysis_service import run_project_analysis
 from analyzer.extractor import extract_project
 from analyzer.formatter import run_black
 from analyzer.lint import run_pylint
 from analyzer.security import run_bandit
 from analyzer.complexity import run_radon
 from analyzer.ai import generate_ai_summary
+from forms import ContactForm
 from flask import (
     abort,
     Blueprint,
@@ -53,7 +60,7 @@ from forms import (
     ReviewForm
 )
 from database import db
-from models import User, Project, Review
+from models import User, Project, Review, Analysis
 
 
 main = Blueprint("main", __name__)
@@ -99,6 +106,16 @@ def home():
     )
 
 
+# ============================================================
+# ABOUT
+# ============================================================
+
+@main.route("/about")
+def about():
+
+    return render_template(
+        "about.html"
+    )
 # ============================================================
 # LOGIN
 # ============================================================
@@ -259,8 +276,102 @@ def forgot_password():
 @login_required
 def dashboard():
 
+    total_projects = Project.query.filter_by(
+        user_id=current_user.id
+    ).count()
+
+    total_analyses = Analysis.query.filter_by(
+        user_id=current_user.id
+    ).count()
+
+    total_reports = Analysis.query.filter(
+        Analysis.user_id == current_user.id,
+        Analysis.report_path.isnot(None)
+    ).count()
+
+    security_issues = (
+        db.session.query(
+            db.func.sum(Analysis.security_count)
+        )
+        .filter_by(user_id=current_user.id)
+        .scalar()
+        or 0
+    )
+
+    latest_analysis = (
+        Analysis.query
+        .filter_by(user_id=current_user.id)
+        .order_by(Analysis.created_at.desc())
+        .first()
+    )
+
+    average_score = (
+        db.session.query(db.func.avg(Analysis.overall_score))
+        .filter_by(user_id=current_user.id)
+        .scalar()
+        or 0
+    )
+
+    overall_score = round(average_score, 1)
+
+    average_quality = (
+        db.session.query(db.func.avg(Analysis.pylint_score))
+        .filter_by(user_id=current_user.id)
+        .scalar()
+        or 0
+    )
+
+    quality_score = round(average_quality, 1)
+
+    total_size = (
+         db.session.query(db.func.sum(Project.file_size))
+         .filter_by(user_id=current_user.id)
+         .scalar()
+         or 0
+    )
+
+    storage_used = f"{round(total_size / (1024 * 1024), 2)} MB"
+
+    recent_analyses = (
+        Analysis.query
+        .filter_by(user_id=current_user.id)
+        .order_by(Analysis.created_at.desc())
+        .limit(5)
+        .all()
+    )
+
     return render_template(
-        "dashboard.html"
+        "dashboard.html",
+
+        total_projects=total_projects,
+        total_analyses=total_analyses,
+        total_reports=total_reports,
+
+        security_issues=security_issues,
+
+        overall_score=overall_score,
+        quality_score=quality_score,
+
+        storage_used=storage_used,
+
+        recent_analyses=recent_analyses,
+
+        security_score=100,
+        maintainability_score=100,
+        ai_score=100,
+
+        quality_chart=[],
+        security_chart=[],
+        language_chart=[],
+
+        recent_activities=[],
+
+        ai_insight=(
+            latest_analysis.ai_summary
+            if latest_analysis and latest_analysis.ai_summary
+            else "Upload a project to receive AI insights."
+
+        )
     )
 
 
@@ -423,6 +534,38 @@ try:
             f"Project {project.project_id} uploaded successfully."
         )
 
+<<<<<<< HEAD
+=======
+        print(
+            "Project Name:",
+            metadata["project_name"]
+        )
+
+        print(
+            "Original File:",
+            metadata["original_filename"]
+        )
+
+        print(
+            "Stored File:",
+            stored_filename
+        )
+
+        print(
+            "Project Path:",
+            workspace["root"]
+        )
+
+        # --------------------------------------------------
+        # Success
+        # --------------------------------------------------
+
+        analysis_result = run_project_analysis(
+            project,
+            current_user,
+        )
+
+>>>>>>> origin/backend
         flash(
             "Project uploaded successfully. Analysis is starting...",
             "success"
@@ -431,12 +574,13 @@ try:
         return redirect(
             url_for(
                 "main.results",
-                filename=stored_filename
+        analysis_id=analysis_result["analysis_id"]
             )
         )
 
     except Exception:
 
+<<<<<<< HEAD
         db.session.rollback()
 
         current_app.logger.exception(
@@ -453,34 +597,35 @@ try:
             form=form
         )
 
+=======
+    
+>>>>>>> origin/backend
 # ============================================================
 # RESULTS
 # ============================================================
 
-@main.route("/results")
+@main.route("/results/<int:analysis_id>")
 @login_required
-def results():
+def results(analysis_id):
 
-    print("=== NEW RESULTS ROUTE IS RUNNING ===")
+    analysis = Analysis.query.filter_by(
+        id=analysis_id,
+        user_id=current_user.id
+    ).first()
 
-    filename = request.args.get("filename")
+    if not analysis:
 
-    if not filename:
         flash(
-            "No uploaded project was specified.",
+            "Analysis not found.",
             "error"
         )
 
         return redirect(
-            url_for("main.upload")
+            url_for("main.dashboard")
         )
 
-    # --------------------------------------------------
-    # Find project belonging to current user
-    # --------------------------------------------------
-
     project = Project.query.filter_by(
-        stored_filename=filename,
+        id=analysis.project_id,
         user_id=current_user.id
     ).first()
 
@@ -492,128 +637,16 @@ def results():
         )
 
         return redirect(
-            url_for("main.upload")
+            url_for("main.dashboard")
         )
-
-    # --------------------------------------------------
-    # Build project source path
-    # --------------------------------------------------
-
-    project_folder = os.path.abspath(
-        project.project_path
-    )
-
-    source_folder = os.path.join(
-        project_folder,
-        "source"
-    )
-
-    upload_path = os.path.join(
-        source_folder,
-        project.stored_filename
-    )
-
-    # --------------------------------------------------
-    # Security check
-    # --------------------------------------------------
-
-    if not os.path.isfile(upload_path):
-
-        flash(
-            "Uploaded project file could not be found.",
-            "error"
-        )
-
-        return redirect(
-            url_for("main.upload")
-        )
-
-    print("=== PROJECT FOUND ===")
-    print("Project ID:", project.project_id)
-    print("Project Name:", project.project_name)
-    print("Source File:", upload_path)
-
-    extract_folder = tempfile.mkdtemp(prefix="codesentinel_")
-
-    python_files = extract_project(
-        upload_path,
-        extract_folder
-    )
-
-    formatting_status = "Passed"
-
-    pylint_scores = []
-
-    pylint_issues = []
-
-    complexity_rows = []
-
-    for file in python_files:
-
-        black = run_black(file)
-
-        if black["status"] != "Passed":
-            formatting_status = black["status"]
-
-        pylint_result = run_pylint(file)
-
-        pylint_scores.append(
-            pylint_result["score"]
-        )
-
-        pylint_issues.extend(
-            pylint_result["issues"]
-        )
-
-        complexity_rows.extend(
-            run_radon(file)
-        )
-
-    bandit_result = run_bandit(
-        extract_folder
-    )
-
-    average_score = 0
-
-    if pylint_scores:
-
-        average_score = round(
-            sum(pylint_scores) /
-            len(pylint_scores),
-            2
-        )
-
-    ai_summary = generate_ai_summary(
-        average_score,
-        bandit_result["count"],
-        formatting_status,
-        complexity_rows
-    )
 
     return render_template(
         "results.html",
 
-        filename=filename,
+        project=project,
 
-        quality=int(
-            average_score * 10
-        ),
-
-        pylint_score=average_score,
-
-        pylint_issues=pylint_issues,
-
-        formatting=formatting_status,
-
-        security_count=bandit_result["count"],
-
-        security_issues=bandit_result["issues"],
-
-        complexity=complexity_rows,
-
-        ai_summary=ai_summary
+        analysis=analysis
     )
-
 
 # ============================================================
 # HISTORY
@@ -623,8 +656,75 @@ def results():
 @login_required
 def history():
 
+    analyses = (
+        Analysis.query
+        .filter_by(user_id=current_user.id)
+        .order_by(Analysis.created_at.desc())
+        .all()
+    )
+
+    total_analyses = len(analyses)
+    
+    total_projects = Project.query.filter_by(
+        user_id=current_user.id
+    ).count()
+
+    total_security = sum(
+        analysis.security_count
+        for analysis in analyses
+    )
+
+    average_score = round(
+      db.session.query(
+          db.func.avg(Analysis.overall_score)
+      )
+      .filter_by(user_id=current_user.id)
+      .scalar()
+      or 0,
+      2
+    )
+
     return render_template(
-        "history.html"
+        "history.html",
+
+        analyses=analyses,
+        
+        total_projects=total_projects,
+
+        total_analyses=total_analyses,
+
+        total_security=total_security,
+
+        average_score=average_score
+    )
+
+
+# DELETE ANALYSIS# 
+
+
+@main.route("/delete_analysis/<int:analysis_id>", methods=["POST"])
+@login_required
+def delete_analysis(analysis_id):
+
+    analysis = Analysis.query.filter_by(
+        id=analysis_id,
+        user_id=current_user.id
+    ).first_or_404()
+
+    # Delete report file if it exists
+    if analysis.report_path and os.path.exists(analysis.report_path):
+        os.remove(analysis.report_path)
+
+    db.session.delete(analysis)
+    db.session.commit()
+
+    flash(
+        "Analysis deleted successfully.",
+        "success"
+    )
+
+    return redirect(
+        url_for("main.history")
     )
 
 
@@ -636,10 +736,41 @@ def history():
 @login_required
 def settings():
 
-    return render_template(
-        "settings.html"
+    total_projects = Project.query.filter_by(
+        user_id=current_user.id
+    ).count()
+
+    total_analyses = Analysis.query.filter_by(
+        user_id=current_user.id
+    ).count()
+
+    total_reports = Analysis.query.filter(
+        Analysis.user_id == current_user.id,
+        Analysis.report_path.isnot(None)
+    ).count()
+
+    storage_size = (
+        db.session.query(
+            db.func.sum(Project.file_size)
+        )
+        .filter_by(user_id=current_user.id)
+        .scalar()
+        or 0
     )
 
+    storage_used = round(
+        storage_size / (1024 * 1024),
+        2
+    )
+
+    return render_template(
+        "settings.html",
+
+        total_projects=total_projects,
+        total_analyses=total_analyses,
+        total_reports=total_reports,
+        storage_used=f"{storage_used} MB"
+    )
 
 # ============================================================
 # PROFILE
@@ -730,6 +861,10 @@ def profile():
         current_user.username = username
         current_user.email = email
 
+        current_user.full_name = request.form.get("full_name", "").strip()
+        current_user.organization = request.form.get("organization", "").strip()
+        current_user.bio = request.form.get("bio", "").strip()
+
         # ------------------------------------------
         # Handle profile picture
         # ------------------------------------------
@@ -741,8 +876,7 @@ def profile():
             ):
 
                 flash(
-                    "Invalid image type. "
-                    "Use PNG, JPG, JPEG, GIF, or WEBP.",
+                    "Invalid image type. Use PNG, JPG, JPEG, GIF, or WEBP.",
                     "danger"
                 )
 
@@ -750,7 +884,6 @@ def profile():
                     url_for("main.profile")
                 )
 
-            # Create profile picture directory
             profile_folder = os.path.join(
                 current_app.root_path,
                 current_app.config["UPLOAD_FOLDER"],
@@ -762,7 +895,6 @@ def profile():
                 exist_ok=True
             )
 
-            # Delete old picture if it exists
             if (
                 current_user.profile_picture
                 and current_user.profile_picture != "default.png"
@@ -774,10 +906,8 @@ def profile():
                 )
 
                 if os.path.exists(old_picture):
-
                     os.remove(old_picture)
 
-            # Create secure unique filename
             original_name = secure_filename(
                 profile_picture.filename
             )
@@ -799,13 +929,7 @@ def profile():
                 )
             )
 
-            current_user.profile_picture = (
-                new_filename
-            )
-
-        # ------------------------------------------
-        # Save everything
-        # ------------------------------------------
+            current_user.profile_picture = new_filename
 
         db.session.commit()
 
@@ -818,10 +942,49 @@ def profile():
             url_for("main.profile")
         )
 
-    return render_template(
-        "profile.html"
+    total_projects = Project.query.filter_by(
+        user_id=current_user.id
+    ).count()
+
+    total_analyses = Analysis.query.filter_by(
+        user_id=current_user.id
+    ).count()
+
+    total_reviews = Review.query.filter_by(
+        user_id=current_user.id
+    ).count()
+
+    recent_projects = (
+        Project.query
+        .filter_by(user_id=current_user.id)
+        .order_by(Project.upload_date.desc())
+        .limit(5)
+        .all()
     )
 
+    return render_template(
+        "profile.html",
+        total_projects=total_projects,
+        total_analyses=total_analyses,
+        total_reviews=total_reviews,
+        recent_projects=recent_projects
+    )
+
+
+# CHANGE PASSWORD #
+
+@main.route("/change-password", methods=["GET", "POST"])
+@login_required
+def change_password():
+
+    flash(
+        "Change Password feature is coming soon.",
+        "info"
+    )
+
+    return redirect(
+        url_for("main.profile")
+    )
 
 # ============================================================
 # PROFILE PICTURE FILE
@@ -879,11 +1042,54 @@ def page_not_found(error):
 # CONTACT
 # ============================================================
 
-@main.route("/contact")
+@main.route("/contact", methods=["GET", "POST"])
 def contact():
 
+    form = ContactForm()
+
+    if form.validate_on_submit():
+
+        try:
+            
+            print("Name:", repr(form.name.data))
+            print("Email:", repr(form.email.data))
+            print("Message:", repr(form.message.data))
+            print("Form data:", request.form)
+
+            msg = Message(
+                subject="New Contact Form Message",
+                recipients=["supportcodesentinelai@gmail.com"]
+            )
+
+            msg.body = f"""
+Name: {form.name.data}
+
+Email: {form.email.data}
+
+Message:
+
+{form.message.data}
+"""
+
+            mail.send(msg)
+
+            flash(
+                "Your message has been sent successfully.",
+                "success"
+            )
+
+            return redirect(url_for("main.contact"))
+
+        except Exception as e:
+
+            flash(
+                f"Failed to send email: {e}",
+                "danger"
+            )
+
     return render_template(
-        "contact.html"
+        "contact.html",
+        form=form
     )
 
 
@@ -918,7 +1124,10 @@ def reviews():
 
     if form.validate_on_submit():
 
+        print("FORM VALID")
+
         if not current_user.is_authenticated:
+
             flash(
                 "Please login to submit a review.",
                 "warning"
@@ -947,29 +1156,152 @@ def reviews():
             url_for("main.reviews")
         )
 
+    elif request.method == "POST":
 
-    all_reviews = Review.query.order_by(
-        Review.created_at.desc()
-    ).all()
+        print("FORM ERRORS:")
+        print(form.errors)
 
+    all_reviews = get_all_reviews()
 
-    average_rating = 0
-
-    if all_reviews:
-
-        average_rating = round(
-            sum(
-                r.rating for r in all_reviews
-            )
-            /
-            len(all_reviews),
-            1
-        )
-
+    review_stats = get_review_statistics()
 
     return render_template(
         "reviews.html",
         form=form,
         reviews=all_reviews,
-        average_rating=average_rating
+        review_stats=review_stats,
+        average_rating=review_stats["average_rating"],
+        total_reviews=review_stats["total_reviews"],
+        rating_breakdown=review_stats["rating_breakdown"],
+        recommendation_percentage=review_stats[
+            "recommendation_percentage"
+        ]
     )
+
+# REPORT DOWNLOAD #
+
+@main.route("/download_report/<int:analysis_id>")
+@login_required
+def download_report(analysis_id):
+
+    analysis = Analysis.query.filter_by(
+        id=analysis_id,
+        user_id=current_user.id
+    ).first_or_404()
+
+    if not analysis.report_path:
+        flash(
+            "Report has not been generated yet.",
+            "warning"
+        )
+        return redirect(
+            url_for(
+                "main.results",
+                analysis_id=analysis.id
+            )
+        )
+
+    if not os.path.exists(analysis.report_path):
+        flash(
+            "Report file was not found.",
+            "danger"
+        )
+        return redirect(
+            url_for(
+                "main.results",
+                analysis_id=analysis.id
+            )
+        )
+
+    return send_file(
+        analysis.report_path,
+        as_attachment=True,
+        download_name=f"{analysis.filename}_report.html",
+        mimetype="text/html"
+    )
+
+
+
+# ============================================================
+# EDIT REVIEW
+# ============================================================
+
+@main.route("/reviews/edit/<int:review_id>", methods=["GET", "POST"])
+@login_required
+def edit_review(review_id):
+
+    review = Review.query.get_or_404(review_id)
+
+    if review.user_id != current_user.id:
+
+        flash(
+            "You can only edit your own review.",
+            "danger"
+        )
+
+        return redirect(url_for("main.reviews"))
+
+    form = ReviewForm()
+
+    if form.validate_on_submit():
+
+        review.rating = form.rating.data
+        review.title = form.title.data
+        review.comment = form.comment.data
+
+        db.session.commit()
+
+        flash(
+            "Review updated successfully!",
+            "success"
+        )
+
+        return redirect(url_for("main.reviews"))
+
+    form.rating.data = review.rating
+    form.title.data = review.title
+    form.comment.data = review.comment
+
+    return render_template(
+        "edit_review.html",
+        form=form,
+        review=review
+    )
+
+
+
+
+
+# ============================================================
+# DELETE REVIEW
+# ============================================================
+
+@main.route("/reviews/delete/<int:review_id>", methods=["POST"])
+@login_required
+def delete_review(review_id):
+
+    review = Review.query.get_or_404(review_id)
+
+    if review.user_id != current_user.id:
+
+        flash(
+            "You can only delete your own review.",
+            "danger"
+        )
+
+        return redirect(url_for("main.reviews"))
+
+    db.session.delete(review)
+    db.session.commit()
+
+    flash(
+        "Review deleted successfully!",
+        "success"
+    )
+
+    return redirect(url_for("main.reviews"))
+
+
+
+
+
