@@ -1,6 +1,8 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed, FileRequired
-
+from wtforms import BooleanField
+from wtforms import StringField, TextAreaField, SubmitField
+from wtforms.validators import DataRequired, Email
 from wtforms import (
     StringField,
     PasswordField,
@@ -97,6 +99,8 @@ class RegisterForm(FlaskForm):
 
 class LoginForm(FlaskForm):
 
+    remember = BooleanField("Remember Me")
+
     email = StringField(
         "Email",
         validators=[
@@ -163,36 +167,42 @@ class ResetPasswordForm(FlaskForm):
 
 class UploadForm(FlaskForm):
 
+    project_name = StringField(
+        "Project Name",
+        validators=[
+            DataRequired()
+        ]
+    )
+
     file = FileField(
         "Upload File",
         validators=[
             FileRequired(),
-
             FileAllowed(
                 ["py", "zip"],
                 "Only Python (.py) and ZIP (.zip) files are allowed."
             ),
-
             validate_file_size
         ]
     )
 
     submit = SubmitField("Analyze Code")
 
+# REVIEW FORM#
 
 class ReviewForm(FlaskForm):
 
     rating = IntegerField(
-    "",
-    validators=[
-        DataRequired(),
-        NumberRange(min=1, max=5)
-    ],
-    render_kw={
-        "type": "hidden",
-        "id": "rating"
-    }
-)
+        "",
+        validators=[
+            DataRequired(),
+            NumberRange(min=1, max=5)
+        ],
+        render_kw={
+            "type": "hidden",
+            "id": "rating"
+        }
+    )
 
     title = StringField(
         "Title",
@@ -210,6 +220,31 @@ class ReviewForm(FlaskForm):
         ]
     )
 
-    submit = SubmitField(
-        "Submit Review"
+    submit = SubmitField("Save Changes")
+
+
+#Contact Form#
+
+class ContactForm(FlaskForm):
+
+    name = StringField(
+        "Name",
+        validators=[DataRequired()]
     )
+
+    email = StringField(
+        "Email",
+        validators=[DataRequired(), Email()]
+    )
+
+    subject = StringField(
+        "Subject",
+        validators=[DataRequired()]
+    )
+
+    message = TextAreaField(
+        "Message",
+        validators=[DataRequired()]
+    )
+
+    submit = SubmitField("Send Message")

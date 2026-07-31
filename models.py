@@ -17,13 +17,15 @@ class User(UserMixin, db.Model):
     username = db.Column(
         db.String(80),
         unique=True,
-        nullable=False
+        nullable=False,
+        index=True
     )
 
     email = db.Column(
         db.String(120),
         unique=True,
-        nullable=False
+        nullable=False,
+        index=True
     )
 
     password_hash = db.Column(
@@ -48,12 +50,19 @@ class User(UserMixin, db.Model):
         lazy=True,
         cascade="all, delete-orphan"
     )
-    
+
+    projects = db.relationship(
+        "Project",
+        backref="owner",
+        lazy=True,
+        cascade="all, delete-orphan"
+    )
+
     reviews = db.relationship(
-    "Review",
-    backref="user",
-    lazy=True,
-    cascade="all, delete-orphan"
+        "Review",
+        backref="user",
+        lazy=True,
+        cascade="all, delete-orphan"
     )
 
     def set_password(self, password):
@@ -115,7 +124,8 @@ class Project(db.Model):
 
     upload_date = db.Column(
         db.DateTime,
-        default=datetime.utcnow
+        default=datetime.utcnow,
+        index=True
     )
 
     user_id = db.Column(
@@ -125,14 +135,29 @@ class Project(db.Model):
     )
 
     def __repr__(self):
-        return f"<Project {self.project_name}>"
+        return (
+            f"<Project {self.project_id}: "
+            f"{self.project_name}>"
+    )
 
 class Analysis(db.Model):
+
     __tablename__ = "analyses"
 
-    id = db.Column(
+    id = db.Column(db.Integer, primary_key=True)
+
+    project_id = db.Column(
         db.Integer,
-        primary_key=True
+        db.ForeignKey("projects.id"),
+        nullable=False,
+        index=True
+    )
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id"),
+        nullable=False,
+        index=True
     )
 
     filename = db.Column(
@@ -140,31 +165,104 @@ class Analysis(db.Model):
         nullable=False
     )
 
-    upload_date = db.Column(
-        db.DateTime,
-        default=datetime.utcnow
+    language = db.Column(
+        db.String(50),
+        nullable=False,
+        default="Python"
     )
 
     overall_score = db.Column(
-        db.Float
+        db.Float,
+        nullable=False,
+        default=0.0
+    )
+
+    pylint_score = db.Column(
+        db.Float,
+        nullable=False,
+        default=0.0
+    )
+
+    security_count = db.Column(
+        db.Integer,
+        nullable=False,
+        default=0
+    )
+
+    formatting_status = db.Column(
+        db.String(30),
+        nullable=False,
+        default="Passed"
+    )
+
+    complexity = db.Column(
+        db.String(30),
+        nullable=False,
+        default="Low"
+    )
+
+    analysis_duration = db.Column(
+        db.Float,
+        nullable=False,
+        default=0.0
+    )
+
+    total_files = db.Column(
+        db.Integer,
+        nullable=False,
+        default=0
+    )
+
+    total_lines = db.Column(
+        db.Integer,
+        nullable=False,
+        default=0
     )
 
     ai_summary = db.Column(
-        db.Text
+        db.Text,
+        nullable=True
+    )
+
+    recommendations = db.Column(
+        db.Text,
+        nullable=True
     )
 
     report_path = db.Column(
-        db.String(255)
+        db.String(255),
+        nullable=True
     )
 
-    user_id = db.Column(
-        db.Integer,
-        db.ForeignKey("users.id"),
-        nullable=False
+    status = db.Column(
+        db.String(30),
+        nullable=False,
+        default="Completed"
     )
+
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow,
+        nullable=False,
+        index=True
+    )
+
+    project = db.relationship(
+        "Project",
+        backref=db.backref(
+            "analyses",
+            lazy=True,
+            cascade="all, delete-orphan"
+        )
+    )
+
 
     def __repr__(self):
-        return f"<Analysis {self.filename}>"
+
+        return (
+            f"<Analysis {self.id}: "
+            f"{self.filename}>"
+        )
 
 class Review(db.Model):
     __tablename__ = "reviews"
@@ -207,4 +305,8 @@ class Review(db.Model):
     )
 
     def __repr__(self):
-        return f"<Review {self.title}>"
+        return (
+            f"<Review "
+            f"{self.rating}★ "
+            f"{self.title}>"
+    )

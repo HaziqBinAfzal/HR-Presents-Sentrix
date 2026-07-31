@@ -1,5 +1,6 @@
 import os
 
+from extensions import mail
 from flask import Flask, render_template
 from models import User
 from flask_login import LoginManager
@@ -19,6 +20,7 @@ def create_app():
 
     # Load application configuration
     app.config.from_object(Config)
+    mail.init_app(app)
 
     # Initialize database
     db.init_app(app)

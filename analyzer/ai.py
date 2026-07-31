@@ -5,10 +5,16 @@ def generate_ai_summary(
     complexity_rows,
 ):
     """
-    Generate a simple AI-style summary from analysis results.
+    Generate AI summary and recommendations.
     """
 
     summary = []
+
+    recommendations = []
+
+    # -----------------------------------------
+    # Code Quality Summary
+    # -----------------------------------------
 
     if pylint_score >= 9:
         summary.append(
@@ -25,6 +31,10 @@ def generate_ai_summary(
             "The project has several code quality issues that should be addressed."
         )
 
+    # -----------------------------------------
+    # Security Summary
+    # -----------------------------------------
+
     if security_count == 0:
 
         summary.append(
@@ -37,6 +47,10 @@ def generate_ai_summary(
             f"{security_count} potential security issue(s) were detected."
         )
 
+    # -----------------------------------------
+    # Formatting Summary
+    # -----------------------------------------
+
     if formatting_status == "Passed":
 
         summary.append(
@@ -48,6 +62,10 @@ def generate_ai_summary(
         summary.append(
             "The project requires formatting with Black."
         )
+
+    # -----------------------------------------
+    # Complexity Summary
+    # -----------------------------------------
 
     if complexity_rows:
 
@@ -62,4 +80,56 @@ def generate_ai_summary(
             f'and grade {highest["grade"]}.'
         )
 
-    return " ".join(summary)
+    # -----------------------------------------
+    # Recommendations
+    # -----------------------------------------
+
+    if pylint_score < 8:
+
+        recommendations.append(
+            "Improve code quality by resolving the reported Pylint issues."
+        )
+
+    if security_count > 0:
+
+        recommendations.append(
+            f"Resolve the {security_count} security issue(s) detected by Bandit."
+        )
+
+    if formatting_status != "Passed":
+
+        recommendations.append(
+            "Run Black to ensure consistent code formatting."
+        )
+
+    if complexity_rows:
+
+        high_complexity = [
+
+            item
+
+            for item in complexity_rows
+
+            if item["grade"] in (
+                "D",
+                "E",
+                "F"
+            )
+        ]
+
+        if high_complexity:
+
+            recommendations.append(
+                "Refactor functions with high cyclomatic complexity."
+            )
+
+    if not recommendations:
+
+        recommendations.append(
+            "Excellent work! No major improvements are currently recommended."
+        )
+
+    return (
+        " ".join(summary),
+        recommendations
+    )
