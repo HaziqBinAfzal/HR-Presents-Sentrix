@@ -340,13 +340,81 @@ def dashboard():
         .all()
     )
 
+    recent_activities = []
+
+    for analysis in recent_analyses:
+
+        recent_activities.append(
+            {
+                "title": analysis.filename,
+                "status": analysis.status,
+                "score": analysis.overall_score,
+                "date": analysis.created_at.strftime("%d %b %Y")
+            }
+        )
+    
+
+    chart_analyses = list(reversed(recent_analyses))
+
+    quality_chart = {
+        "labels": [
+            analysis.created_at.strftime("%d %b")
+            for analysis in chart_analyses
+        ],
+        "datasets": [
+            {
+                "label": "Overall Score",
+                "data": [
+                    analysis.overall_score
+                    for analysis in chart_analyses
+                ],
+                "fill": False
+            }
+        ]
+    }
+
+    latest_stats = latest_analysis
+
+    secure_projects = (
+        Analysis.query
+        .filter(
+            Analysis.user_id == current_user.id,
+            Analysis.security_count == 0
+        )
+        .count()
+    )
+
+    projects_with_issues = (
+        Analysis.query
+        .filter(
+            Analysis.user_id == current_user.id,
+            Analysis.security_count > 0
+        )
+        .count()
+    )
+
+    security_chart = {
+        "labels": [
+            "Secure Projects",
+            "Projects with Issues"
+        ],
+        "datasets": [
+            {
+               "data": [
+                   secure_projects,
+                   projects_with_issues
+               ]
+            }
+        ]
+    }
+
     return render_template(
         "dashboard.html",
 
         total_projects=total_projects,
         total_analyses=total_analyses,
         total_reports=total_reports,
-
+        latest_stats=latest_stats,
         security_issues=security_issues,
 
         overall_score=overall_score,
@@ -360,11 +428,10 @@ def dashboard():
         maintainability_score=100,
         ai_score=100,
 
-        quality_chart=[],
-        security_chart=[],
-        language_chart=[],
+        quality_chart=quality_chart,
+        security_chart=security_chart,
 
-        recent_activities=[],
+        recent_activities=recent_activities,
 
         ai_insight=(
             latest_analysis.ai_summary
@@ -651,12 +718,101 @@ def results(analysis_id):
 @login_required
 def history():
 
-    analyses = (
-        Analysis.query
-        .filter_by(user_id=current_user.id)
-        .order_by(Analysis.created_at.desc())
-        .all()
+    search = request.args.get(
+        "search",
+        ""
+    ).strip()
+
+    status = request.args.get(
+        "status",
+        ""
+    ).strip()
+
+    risk = request.args.get(
+        "risk",
+        ""
+    ).strip()
+
+    sort = request.args.get(
+        "sort",
+        "latest"
+    ).strip()
+
+    query = Analysis.query.filter_by(
+    user_id=current_user.id
+)
+
+# -------------------------
+# Search
+# -------------------------
+
+if search:
+
+    query = query.filter(
+
+        db.or_(
+
+            Analysis.filename.ilike(
+                f"%{search}%"
+            ),
+
+            Analysis.language.ilike(
+                f"%{search}%"
+            )
+
+        )
+
     )
+
+# -------------------------
+# Status
+# -------------------------
+
+if status and status != "All Status":
+
+    query = query.filter(
+        Analysis.status == status
+    )
+
+# -------------------------
+# Risk
+# -------------------------
+
+if risk and risk != "All Levels":
+
+    query = query.filter(
+        Analysis.complexity == risk
+    )
+
+# -------------------------
+# Sorting
+# -------------------------
+
+if sort == "oldest":
+
+    query = query.order_by(
+        Analysis.created_at.asc()
+    )
+
+elif sort == "highest":
+
+    query = query.order_by(
+        Analysis.overall_score.desc()
+    )
+
+elif sort == "lowest":
+
+    query = query.order_by(
+        Analysis.overall_score.asc()
+    )
+
+else:
+
+    query = query.order_by(
+        Analysis.created_at.desc()
+    )
+
+    analyses = query.all()
 
     total_analyses = len(analyses)
     
@@ -690,7 +846,15 @@ def history():
 
         total_security=total_security,
 
-        average_score=average_score
+        average_score=average_score,
+
+        search=search,
+
+        status=status,
+
+        risk=risk,
+
+        sort=sort,
     )
 
 
