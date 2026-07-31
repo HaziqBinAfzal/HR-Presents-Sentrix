@@ -1,32 +1,172 @@
 {% extends "base.html" %}
 
-{% block title %}Register | CodeSentinel AI{% endblock %}
+{% block title %}Create Account | CodeSentinel AI{% endblock %}
 
 {% block content %}
 
-<section class="py-5 min-vh-100 d-flex align-items-center">
+<section class="py-5">
 
     <div class="container">
 
-        <div class="row justify-content-center align-items-center">
+        <div class="row align-items-center g-5">
 
-            <div class="col-lg-6 col-md-8">
+            <!-- Left Information Panel -->
 
-                <div class="card shadow-lg border-0 rounded-4">
+            <div class="col-lg-6">
+
+                <span class="badge bg-primary px-3 py-2 mb-3">
+
+                    Join CodeSentinel AI
+
+                </span>
+
+                <h1 class="display-5 fw-bold mb-4">
+
+                    Create Your
+
+                    <span class="text-primary">
+
+                        Free Account
+
+                    </span>
+
+                </h1>
+
+                <p class="lead text-muted mb-4">
+
+                    Join developers, students, and software teams using
+                    CodeSentinel AI to analyze code quality, detect security
+                    issues, and generate AI-powered reports.
+
+                </p>
+
+                <div class="card border-0 shadow-sm mb-4">
+
+                    <div class="card-body">
+
+                        <div class="d-flex mb-4">
+
+                            <i class="fa-solid fa-cloud-arrow-up fa-2x text-primary me-3"></i>
+
+                            <div>
+
+                                <h5 class="fw-bold">
+
+                                    Easy Project Upload
+
+                                </h5>
+
+                                <p class="text-muted mb-0">
+
+                                    Upload ZIP projects and begin analysis
+                                    within seconds.
+
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <div class="d-flex mb-4">
+
+                            <i class="fa-solid fa-robot fa-2x text-success me-3"></i>
+
+                            <div>
+
+                                <h5 class="fw-bold">
+
+                                    AI Code Review
+
+                                </h5>
+
+                                <p class="text-muted mb-0">
+
+                                    Receive intelligent recommendations,
+                                    quality analysis, and security insights.
+
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <div class="d-flex">
+
+                            <i class="fa-solid fa-file-lines fa-2x text-warning me-3"></i>
+
+                            <div>
+
+                                <h5 class="fw-bold">
+
+                                    Professional Reports
+
+                                </h5>
+
+                                <p class="text-muted mb-0">
+
+                                    Download comprehensive reports with
+                                    metrics, charts, and AI summaries.
+
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="d-flex flex-wrap gap-3">
+
+                    <span class="badge bg-success px-3 py-2">
+
+                        AI Analysis
+
+                    </span>
+
+                    <span class="badge bg-danger px-3 py-2">
+
+                        Security Scan
+
+                    </span>
+
+                    <span class="badge bg-warning text-dark px-3 py-2">
+
+                        BYOK Ready
+
+                    </span>
+
+                    <span class="badge bg-info px-3 py-2">
+
+                        PDF Reports
+
+                    </span>
+
+                </div>
+
+            </div>
+
+            <!-- Registration Form -->
+
+            <div class="col-lg-6">
+
+                <div class="card border-0 shadow-lg">
 
                     <div class="card-body p-5">
 
                         <div class="text-center mb-4">
 
-                            <i class="fa-solid fa-user-plus fa-4x text-primary mb-3"></i>
-
                             <h2 class="fw-bold">
-                                Create Your Account
+
+                                Create Account
+
                             </h2>
 
                             <p class="text-muted">
-                                Join CodeSentinel AI and start analyzing,
-                                formatting, and securing your Python projects.
+
+                                Start using CodeSentinel AI today.
+
                             </p>
 
                         </div>
@@ -35,195 +175,235 @@
 
                             {{ form.hidden_tag() }}
 
-                            <!-- Username -->
 
-                            <div class="mb-3">
+<div class="mb-4">
 
-                                {{ form.username.label(
-                                    class="form-label fw-semibold"
-                                ) }}
+                                <label class="form-label fw-semibold">
 
-                                <div class="input-group">
-
-                                    <span class="input-group-text">
-                                        <i class="fa-solid fa-at"></i>
-                                    </span>
-
-                                    {{ form.username(
-                                        class="form-control",
-                                        placeholder="Choose a username"
-                                    ) }}
-
-                                </div>
-
-                                {% for error in form.username.errors %}
-
-                                    <div class="text-danger small mt-1">
-                                        {{ error }}
-                                    </div>
-
-                                {% endfor %}
-
-                            </div>
-
-
-                            <!-- Email -->
-
-                            <div class="mb-3">
-
-                                {{ form.email.label(
-                                    class="form-label fw-semibold"
-                                ) }}
-
-                                <div class="input-group">
-
-                                    <span class="input-group-text">
-                                        <i class="fa-solid fa-envelope"></i>
-                                    </span>
-
-                                    {{ form.email(
-                                        class="form-control",
-                                        placeholder="Enter your email"
-                                    ) }}
-
-                                </div>
-
-                                {% for error in form.email.errors %}
-
-                                    <div class="text-danger small mt-1">
-                                        {{ error }}
-                                    </div>
-
-                                {% endfor %}
-
-                            </div>
-
-
-                            <!-- Password -->
-
-                            <div class="mb-3">
-
-                                {{ form.password.label(
-                                    class="form-label fw-semibold"
-                                ) }}
-
-                                <div class="input-group">
-
-                                    <span class="input-group-text">
-                                        <i class="fa-solid fa-lock"></i>
-                                    </span>
-
-                                    {{ form.password(
-                                        class="form-control",
-                                        placeholder="Create a password"
-                                    ) }}
-
-                                </div>
-
-                                {% for error in form.password.errors %}
-
-                                    <div class="text-danger small mt-1">
-                                        {{ error }}
-                                    </div>
-
-                                {% endfor %}
-
-                            </div>
-
-
-                            <!-- Confirm Password -->
-
-                            <div class="mb-4">
-
-                                {{ form.confirm_password.label(
-                                    class="form-label fw-semibold"
-                                ) }}
-
-                                <div class="input-group">
-
-                                    <span class="input-group-text">
-                                        <i class="fa-solid fa-lock"></i>
-                                    </span>
-
-                                    {{ form.confirm_password(
-                                        class="form-control",
-                                        placeholder="Confirm your password"
-                                    ) }}
-
-                                </div>
-
-                                {% for error in form.confirm_password.errors %}
-
-                                    <div class="text-danger small mt-1">
-                                        {{ error }}
-                                    </div>
-
-                                {% endfor %}
-
-                            </div>
-
-
-                            <!-- Terms -->
-
-                            <div class="form-check mb-4">
-
-                                <input
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    id="terms"
-                                    required>
-
-                                <label
-                                    class="form-check-label"
-                                    for="terms">
-
-                                    I agree to the
-                                    <a href="#" class="text-decoration-none">
-                                        Terms & Conditions
-                                    </a>
+                                    Username
 
                                 </label>
 
+                                {{ form.username(
+                                    class="form-control form-control-lg",
+                                    placeholder="Choose a username"
+                                ) }}
+
                             </div>
 
+                            <div class="mb-4">
 
-                            <!-- Submit -->
+                                <label class="form-label fw-semibold">
 
-                            <div class="d-grid">
+                                    Email Address
+
+                                </label>
+
+                                {{ form.email(
+                                    class="form-control form-control-lg",
+                                    placeholder="Enter your email"
+                                ) }}
+
+                            </div>
+
+                            <div class="mb-4">
+
+                                <label class="form-label fw-semibold">
+
+                                    Password
+
+                                </label>
+
+                                {{ form.password(
+                                    class="form-control form-control-lg",
+                                    placeholder="Create a strong password"
+                                ) }}
+
+                            </div>
+
+                            <div class="mb-4">
+
+                                <label class="form-label fw-semibold">
+
+                                    Confirm Password
+
+                                </label>
+
+                                {{ form.confirm_password(
+                                    class="form-control form-control-lg",
+                                    placeholder="Re-enter your password"
+                                ) }}
+
+                            </div>
+
+                            <div class="d-grid mb-4">
 
                                 {{ form.submit(
-                                    class="btn btn-primary btn-lg"
+                                    class="btn btn-primary btn-lg",
+                                    value="Create Account"
                                 ) }}
+
+                            </div>
+
+                            <div class="text-center">
+
+                                <span class="text-muted">
+
+                                    Already have an account?
+
+                                </span>
+
+                                <a href="{{ url_for('main.login') }}"
+                                   class="text-decoration-none fw-semibold">
+
+                                    Sign In
+
+                                </a>
 
                             </div>
 
                         </form>
-
-                        <hr class="my-4">
-
-                        <div class="text-center">
-
-                            <p class="mb-0">
-
-                                Already have an account?
-
-                                <a
-                                    href="{{ url_for('main.login') }}"
-                                    class="fw-bold text-decoration-none">
-
-                                    Login Here
-
-                                </a>
-
-                            </p>
-
-                        </div>
 
                     </div>
 
                 </div>
 
             </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- Platform Benefits -->
+
+<section class="py-5 bg-light">
+
+    <div class="container">
+
+        <div class="text-center mb-5">
+
+            <h2 class="fw-bold">
+
+                Why Join CodeSentinel AI?
+
+            </h2>
+
+            <p class="text-muted">
+
+                Build better software with AI-powered code analysis, security scanning, and professional reporting.
+
+            </p>
+
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-md-4">
+
+                <div class="card border-0 shadow-sm h-100 text-center">
+
+                    <div class="card-body">
+
+                        <i class="fa-solid fa-shield-halved fa-3x text-primary mb-3"></i>
+
+                        <h4 class="fw-bold">
+
+                            Secure by Design
+
+                        </h4>
+
+                        <p class="text-muted mb-0">
+
+                            Your projects and API keys are protected with secure authentication and encrypted communication.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <div class="card border-0 shadow-sm h-100 text-center">
+
+                    <div class="card-body">
+
+                        <i class="fa-solid fa-microchip fa-3x text-success mb-3"></i>
+
+                        <h4 class="fw-bold">
+
+                            Intelligent AI Analysis
+
+                        </h4>
+
+                        <p class="text-muted mb-0">
+
+                            Receive automated code reviews, vulnerability detection, quality metrics, and actionable recommendations.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <div class="card border-0 shadow-sm h-100 text-center">
+
+                    <div class="card-body">
+
+                        <i class="fa-solid fa-chart-pie fa-3x text-warning mb-3"></i>
+
+                        <h4 class="fw-bold">
+
+                            Insightful Reports
+
+                        </h4>
+
+                        <p class="text-muted mb-0">
+
+                            Generate professional reports with charts, AI summaries, maintainability scores, and security findings.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="row mt-5">
+
+            <div class="col-lg-8 mx-auto text-center">
+
+                <div class="alert alert-primary border-0 shadow-sm">
+
+                    <i class="fa-solid fa-circle-info me-2"></i>
+
+                    Creating an account is free. You can start analyzing projects immediately and configure your preferred AI provider anytime from your account settings.
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="text-center mt-4">
+
+            <small class="text-muted">
+
+                © {{ current_year or 2026 }} CodeSentinel AI. All Rights Reserved.
+
+            </small>
 
         </div>
 

@@ -184,23 +184,20 @@
 
                         </label>
 
-                        <div
-                            id="starRating"
-                            class="fs-2 mb-3">
+                        <div id="starRating" class="fs-2 mb-3">
 
-                            <i class="fa-regular fa-star rating-star" data-value="1"></i>
+    <i class="fa-regular fa-star rating-star" data-value="1"></i>
+    <i class="fa-regular fa-star rating-star" data-value="2"></i>
+    <i class="fa-regular fa-star rating-star" data-value="3"></i>
+    <i class="fa-regular fa-star rating-star" data-value="4"></i>
+    <i class="fa-regular fa-star rating-star" data-value="5"></i>
 
-                            <i class="fa-regular fa-star rating-star" data-value="2"></i>
-
-                            <i class="fa-regular fa-star rating-star" data-value="3"></i>
-
-                            <i class="fa-regular fa-star rating-star" data-value="4"></i>
-
-                            <i class="fa-regular fa-star rating-star" data-value="5"></i>
-
-                        </div>
-
-                        {{ form.rating() }}
+</div>
+                        <input
+    type="hidden"
+    id="rating"
+    name="rating"
+    value="">
 
                         <small class="text-muted">
 
@@ -574,38 +571,34 @@
 
 document.addEventListener("DOMContentLoaded", function () {
 
-    const ratingInput = document.getElementById("rating");
+    const input = document.getElementById("rating");
+    const stars = document.querySelectorAll(".rating-star");
 
-    if (!ratingInput) return;
+    stars.forEach(function(star){
 
-    ratingInput.setAttribute("min", "1");
-    ratingInput.setAttribute("max", "5");
+        star.style.cursor = "pointer";
 
-    const reviewCards = document.querySelectorAll(".review-card");
+        star.onclick = function(){
 
-    reviewCards.forEach(function(card){
+            const value = Number(this.dataset.value);
 
-        card.style.transition =
-            "all .3s ease";
+            input.value = value;
 
-        card.addEventListener("mouseenter", function(){
+            stars.forEach(function(s){
 
-            card.style.transform =
-                "translateY(-8px)";
+                if(Number(s.dataset.value) <= value){
 
-            card.style.boxShadow =
-                "0 18px 40px rgba(0,0,0,.12)";
+                    s.className = "fa-solid fa-star rating-star text-warning";
 
-        });
+                }else{
 
-        card.addEventListener("mouseleave", function(){
+                    s.className = "fa-regular fa-star rating-star";
 
-            card.style.transform =
-                "translateY(0px)";
+                }
 
-            card.style.boxShadow = "";
+            });
 
-        });
+        };
 
     });
 
