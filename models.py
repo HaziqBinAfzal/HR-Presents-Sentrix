@@ -278,6 +278,11 @@ class Analysis(db.Model):
         db.String(255),
         nullable=True
     )
+    
+    syntax_output = db.Column(
+        db.Text,
+        nullable=True
+    )
 
     status = db.Column(
         db.String(30),
