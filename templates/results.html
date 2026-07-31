@@ -435,6 +435,154 @@
         </div>
 
 
+{% if analysis.syntax_output %}
+
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-header bg-white">
+
+        <h4 class="mb-0">
+
+            <i class="fa-solid fa-code text-danger me-2"></i>
+
+            Syntax Errors
+
+        </h4>
+
+    </div>
+
+    <div class="card-body">
+
+        <pre class="mb-0">{{ analysis.syntax_output }}</pre>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+{% if analysis.pylint_output %}
+
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-header bg-white">
+
+        <h4 class="mb-0">
+
+            <i class="fa-solid fa-list-check text-warning me-2"></i>
+
+            Detailed Pylint Findings
+
+        </h4>
+
+    </div>
+
+    <div class="card-body">
+
+        <pre class="mb-0">{{ analysis.pylint_output }}</pre>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+
+{% if analysis.bandit_output %}
+
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-header bg-white">
+
+        <h4 class="mb-0">
+
+            <i class="fa-solid fa-shield-halved text-danger me-2"></i>
+
+            Security Findings
+
+        </h4>
+
+    </div>
+
+    <div class="card-body">
+
+        <pre class="mb-0">{{ analysis.bandit_output }}</pre>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+
+{% if analysis.radon_output %}
+
+<div class="card border-0 shadow-sm mb-5">
+
+    <div class="card-header bg-white">
+
+        <h4 class="mb-0">
+
+            <i class="fa-solid fa-chart-simple text-primary me-2"></i>
+
+            Cyclomatic Complexity
+
+        </h4>
+
+    </div>
+
+    <div class="card-body">
+
+        <pre class="mb-0">{{ analysis.radon_output }}</pre>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+
+<hr>
+
+<div class="d-flex justify-content-between">
+
+    <span>Functions</span>
+
+    <strong>{{ analysis.functions_count }}</strong>
+
+</div>
+
+<hr>
+
+<div class="d-flex justify-content-between">
+
+    <span>Classes</span>
+
+    <strong>{{ analysis.classes_count }}</strong>
+
+</div>
+
+<hr>
+
+<div class="d-flex justify-content-between">
+
+    <span>Comments</span>
+
+    <strong>{{ analysis.comments_count }}</strong>
+
+</div>
+
+<hr>
+
+<div class="d-flex justify-content-between">
+
+    <span>Blank Lines</span>
+
+    <strong>{{ analysis.blank_lines }}</strong>
+
+</div>
+
+
 
 <!-- Security Findings & Quality Analysis -->
 
