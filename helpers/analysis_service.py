@@ -327,11 +327,29 @@ def run_project_analysis(
     # -----------------------------------------
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+
+>>>>>>> frontend
+>>>>>>> backend
     if complexity_rows:
         max_complexity = max(
             row["complexity"] for row in complexity_rows
         )
+<<<<<<< HEAD
 =======
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> main
+=======
+
+>>>>>>> frontend
+>>>>>>> backend
     highest_grade = "A"
 
     for row in complexity_rows:
@@ -351,6 +369,13 @@ def run_project_analysis(
         complexity_level = "Medium"
 >>>>>>> c93460b (Complete Milestone 1 analysis engine)
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+
+>>>>>>> frontend
+>>>>>>> backend
         if max_complexity <= 5:
             complexity_level = "Low"
         elif max_complexity <= 10:
@@ -359,11 +384,27 @@ def run_project_analysis(
             complexity_level = "High"
     else:
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+        complexity_level = "Low"
+
+
+        complexity_level = "High"
+>>>>>>> frontend
+
+        complexity_level = "High"
+=======
+>>>>>>> backend
+<<<<<<< HEAD
         complexity_level = "Low"
 =======
 
         complexity_level = "High"
 >>>>>>> c93460b (Complete Milestone 1 analysis engine)
+>>>>>>> main
     # -----------------------------------------
     # Overall Score
     # -----------------------------------------

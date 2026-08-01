@@ -342,7 +342,18 @@ def dashboard():
     )
 
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
 
+<<<<<<< HEAD
+=======
+>>>>>>> main
+=======
+
+
+>>>>>>> frontend
+>>>>>>> backend
         # -----------------------------------------
     # Quality Trend
     # -----------------------------------------
@@ -379,11 +390,23 @@ def dashboard():
     # Recent Activities
     # -----------------------------------------
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
 
+>>>>>>> main
+=======
+
+>>>>>>> frontend
     recent_activities = []
 
     for analysis in recent_analyses:
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> frontend
 
         recent_activities.append(
             {
@@ -449,6 +472,10 @@ def dashboard():
         ]
     }
 
+<<<<<<< HEAD
+>>>>>>> main
+=======
+>>>>>>> frontend
         recent_activities.append({
 
             "project": analysis.filename,
@@ -461,7 +488,17 @@ def dashboard():
 
         })
 
+<<<<<<< HEAD
 
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+>>>>>>> main
+=======
+>>>>>>> frontend
+>>>>>>> backend
     return render_template(
         "dashboard.html",
 
@@ -484,10 +521,24 @@ def dashboard():
 
         quality_chart=quality_chart,
         security_chart=security_chart,
+<<<<<<< HEAD
+<<<<<<< HEAD
+        language_chart=None,
+
+=======
 
         language_chart=None,
 
 
+<<<<<<< HEAD
+=======
+>>>>>>> main
+=======
+
+        language_chart=None,
+
+>>>>>>> frontend
+>>>>>>> backend
         recent_activities=recent_activities,
 
         ai_insight=(
