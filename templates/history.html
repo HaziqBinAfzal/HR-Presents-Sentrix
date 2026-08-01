@@ -230,19 +230,30 @@
 
                     <div class="card-body">
 
-                        <div class="row g-3 align-items-end">
+       
 
-                            <div class="col-lg-5">
+<form method="GET" action="{{ url_for('main.history') }}">
 
-                                <label class="form-label fw-semibold">
+<div class="row g-3 align-items-end">
 
-                                    Search Projects
+    <div class="col-lg-5">
 
-                                </label>
+        <label class="form-label fw-semibold">Search Projects</label>
 
-                                <div class="input-group">
+        <div class="input-group">
 
-                                    <span class="input-group-text bg-white">
+            <span class="input-group-text bg-white">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </span>
+
+
+            <input
+                type="search"
+                id="historySearch"
+                name="search"
+                value="{{ search }}"
+                class="form-control"
+                placeholder="Search by project name or language">
 
                                         <i class="fa-solid fa-magnifying-glass"></i>
 
@@ -408,8 +419,75 @@
 
             </div>
 
+
         </div>
 
+    </div>
+
+
+    <div class="col-md-4 col-lg-2">
+
+        <label class="form-label fw-semibold">Risk Level</label>
+
+        <select
+    id="complexityFilter"
+    name="complexity"
+    class="form-select">
+
+            <option value="">All Levels</option>
+            <option value="Low" {% if risk=="Low" %}selected{% endif %}>Low</option>
+            <option value="Medium" {% if risk=="Medium" %}selected{% endif %}>Medium</option>
+            <option value="High" {% if risk=="High" %}selected{% endif %}>High</option>
+
+        </select>
+
+    </div>
+
+    <div class="col-md-4 col-lg-2">
+
+        <label class="form-label fw-semibold">Sort By</label>
+
+        <select
+            id="sortHistory"
+            name="sort"
+            class="form-select">
+
+            <option value="latest" {% if sort=="latest" %}selected{% endif %}>Latest</option>
+            <option value="oldest" {% if sort=="oldest" %}selected{% endif %}>Oldest</option>
+            <option value="score_desc" {% if sort=="score_desc" %}selected{% endif %}>Highest Score</option>
+            <option value="score_asc" {% if sort=="score_asc" %}selected{% endif %}>Lowest Score</option>
+
+        </select>
+
+    </div>
+
+    <div class="col-lg-1 d-grid">
+
+        <button
+            type="submit"
+            class="btn btn-primary">
+
+            <i class="fa-solid fa-filter"></i>
+
+        </button>
+
+    </div>
+
+    <div class="col-lg-1 d-grid">
+
+        <a
+            href="{{ url_for('main.history') }}"
+            class="btn btn-outline-secondary">
+
+            <i class="fa-solid fa-rotate"></i>
+
+        </a>
+
+    </div>
+
+</div>
+
+</form>
         <!-- Analysis List -->
 
         <div class="row g-4">
@@ -430,7 +508,7 @@
 
 <!-- Project Information -->
 
-                                    <div class="col-lg-4 mb-3 mb-lg-0">
+                                    <div class="col-xl-4 col-lg-12 mb-4">
 
                                         <div class="d-flex align-items-start">
 
@@ -442,13 +520,13 @@
 
                                             <div>
 
-                                                <h5 class="fw-bold mb-1">
+                                                <h5 class="fw-bold mb-2 text-break">
 
-                                                    {{ analysis.filename }}
+                                                    {{ analysis.filename|truncate(28, True) }}
 
                                                 </h5>
 
-                                                <div class="d-flex flex-wrap gap-2">
+                                                 <div class="d-flex flex-wrap gap-2 mb-2">
 
                                                     <span class="badge bg-light text-dark">
 
@@ -470,7 +548,10 @@
 
                                                     <i class="fa-regular fa-calendar me-1"></i>
 
-                                                    {{ analysis.created_at.strftime("%d %b %Y %I:%M %p") if analysis.created_at else "N/A" }}
+                                                    <span
+    class="user-local-time"
+    data-time="{{ analysis.created_at.isoformat() }}">
+</span>
 
                                                 </small>
 
@@ -482,15 +563,15 @@
 
                                     <!-- Quality -->
 
-                                    <div class="col-md-6 col-lg-2 text-center">
+                                    <div class="col-xl-2 col-lg-3 col-md-6 text-center mt-3 mt-lg-0">
 
-                                        <small class="text-muted d-block mb-2">
+                                        <small class="text-muted d-block mb-1 fw-semibold">
 
                                             Quality Score
 
                                         </small>
 
-                                        <span class="badge bg-primary fs-6 px-3 py-2">
+                                        <span class="badge bg-primary px-3 py-2 rounded-pill">
 
                                             {{ analysis.overall_score|round(1) }}%
 
@@ -500,7 +581,7 @@
 
                                     <!-- Security -->
 
-                                    <div class="col-md-6 col-lg-2 text-center">
+                                    <div class="col-xl-2 col-lg-3 col-md-6 text-center mt-3 mt-lg-0">
 
                                         <small class="text-muted d-block mb-2">
 
@@ -520,7 +601,7 @@
 
                                     <!-- Complexity -->
 
-                                    <div class="col-md-6 col-lg-2 text-center">
+                                    <div class="col-xl-2 col-lg-3 col-md-6 text-center mt-3 mt-lg-0">
 
                                         <small class="text-muted d-block mb-2">
 
@@ -572,7 +653,7 @@
 
                                 <hr>
 
-                                <div class="row align-items-center">
+                                <div class="row align-items-center g-4">
 
 
 
@@ -729,6 +810,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
+</script>
+
+<script>
+document.querySelectorAll(".local-time").forEach(function (element) {
+
+    const utcTime = new Date(element.dataset.time);
+
+    element.textContent = utcTime.toLocaleString(
+        undefined,
+        {
+            dateStyle: "medium",
+            timeStyle: "short"
+        }
+    );
+
+});
 </script>
 
 {% endblock %}

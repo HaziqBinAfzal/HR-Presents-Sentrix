@@ -4,6 +4,17 @@ import subprocess
 
 def run_bandit(path):
     """
+<<<<<<< HEAD
+=======
+    Run Bandit recursively on a file or directory.
+
+    Returns:
+        {
+            "count": int,
+            "issues": list,
+            "output": str
+        }
+>>>>>>> main
     Run Bandit recursively and return structured results.
     """
 
@@ -15,18 +26,53 @@ def run_bandit(path):
                 "-r",
                 path,
                 "-f",
+<<<<<<< HEAD
                 "json"
             ],
             capture_output=True,
             text=True
         )
 
+=======
+
+                "txt"
+            ],
+            capture_output=True,
+            text=True,
+            check=False
+        )
+
+        output = (
+            result.stdout +
+            "\n" +
+            result.stderr
+        ).strip()
+                "json"
+            ],
+            capture_output=True,
+            text=True
+        )
+
+>>>>>>> main
         data = json.loads(result.stdout)
 
         issues = []
 
         for item in data.get("results", []):
 
+<<<<<<< HEAD
+=======
+            line = line.strip()
+
+            if line.startswith(">> Issue:"):
+
+                issues.append(
+                    line.replace(
+                        ">> Issue:",
+                        ""
+                    ).strip()
+                )
+>>>>>>> main
             issues.append(
                 {
                     "file": item.get("filename"),
@@ -40,6 +86,10 @@ def run_bandit(path):
         return {
             "count": len(issues),
             "issues": issues,
+<<<<<<< HEAD
+=======
+            "output": output
+>>>>>>> main
             "output": json.dumps(data, indent=4)
         }
 
@@ -47,6 +97,11 @@ def run_bandit(path):
 
         return {
             "count": 0,
+<<<<<<< HEAD
+=======
+            "issues": [str(error)],
+            "output": ""
+>>>>>>> main
             "issues": [],
             "output": str(error)
         }

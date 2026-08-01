@@ -278,102 +278,126 @@
 
             <!-- Code Metrics -->
 
-            <div class="col-lg-4">
+            <!-- Vulnerability Details -->
 
-                <div class="card border-0 shadow-sm h-100">
+<div class="col-lg-4">
 
-                    <div class="card-header bg-white">
+    <div class="card border-0 shadow-sm h-100">
 
-                        <h4 class="mb-0">
+        <div class="card-header bg-white">
 
-                            <i class="fa-solid fa-chart-simple text-success me-2"></i>
+            <h4 class="mb-0">
 
-                            Code Metrics
+                <i class="fa-solid fa-shield-virus text-danger me-2"></i>
 
-                        </h4>
+                Vulnerability Details
 
-                    </div>
-
-                    <div class="card-body">
-
-                        <div class="d-flex justify-content-between mb-3">
-
-                            <span class="text-muted">
-
-                                Files Scanned
-
-                            </span>
-
-                            <strong>
-
-                                {{ analysis.total_files }}
-
-                            </strong>
-
-                        </div>
-
-                        <hr>
-
-                        <div class="d-flex justify-content-between mb-3">
-
-                            <span class="text-muted">
-
-                                Lines of Code
-
-                            </span>
-
-                            <strong>
-
-                                {{ analysis.total_lines }}
-
-                            </strong>
-
-                        </div>
-
-                        <hr>
-
-                        <div class="d-flex justify-content-between mb-3">
-
-                            <span class="text-muted">
-
-                                Duration
-
-                            </span>
-
-                            <strong>
-
-                                {{ analysis.analysis_duration }}
-
-                            </strong>
-
-                        </div>
-
-                        <hr>
-
-                        <div class="d-flex justify-content-between">
-
-                            <span class="text-muted">
-
-                                Language
-
-                            </span>
-
-                            <strong>
-
-                                {{ analysis.language }}
-
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
+            </h4>
 
         </div>
 
+        <div class="card-body">
+
+            {% if analysis.security_count > 0 %}
+
+                <div class="alert alert-danger">
+
+                    <strong>
+
+                        {{ analysis.security_count }}
+
+                        Vulnerabilit{{ "y" if analysis.security_count == 1 else "ies" }}
+
+                        Found
+
+                    </strong>
+
+                </div>
+
+                <table class="table table-sm">
+
+                    <tr>
+
+                        <th>Risk</th>
+
+                        <td>
+
+                            {% if analysis.security_count >= 5 %}
+
+                                High
+
+                            {% elif analysis.security_count >= 2 %}
+
+                                Medium
+
+                            {% else %}
+
+                                Low
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <th>Scanner</th>
+
+                        <td>Bandit</td>
+
+                    </tr>
+
+                    <tr>
+
+                        <th>Status</th>
+
+                        <td>Needs Review</td>
+
+                    </tr>
+
+                </table>
+
+                <hr>
+
+                <div
+                    class="small border rounded bg-light p-2"
+                    style="max-height:240px;
+                           overflow:auto;
+                           white-space:pre-wrap;
+                           font-family:monospace;">
+
+{{ analysis.bandit_output }}
+
+                </div>
+
+            {% else %}
+
+                <div class="text-center py-5">
+
+                    <i class="fa-solid fa-circle-check fa-4x text-success mb-3"></i>
+
+                    <h5 class="text-success">
+
+                        Secure Project
+
+                    </h5>
+
+                    <p class="text-muted mb-0">
+
+                        No security vulnerabilities were detected.
+
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
         <!-- AI Recommendations -->
 
         <div class="card border-0 shadow-sm mb-5">
@@ -539,204 +563,237 @@
 {% endif %}
 
 
-<!-- Security Findings & Quality Analysis -->
+{% if analysis.syntax_output %}
 
-        <div class="row g-4 mb-5">
+<!-- ======================================================= -->
+<!-- Detailed Analysis Output -->
+<!-- ======================================================= -->
 
-            <!-- Security Findings -->
+{% if analysis.syntax_output %}
 
-            <div class="col-lg-6">
+<div class="card border-0 shadow-sm mb-4">
 
-                <div class="card border-0 shadow-sm h-100">
+    <div class="card-header bg-white">
 
-                    <div class="card-header bg-white">
+        <h4 class="mb-0">
 
-                        <h4 class="mb-0">
+            <i class="fa-solid fa-code text-danger me-2"></i>
 
-                            <i class="fa-solid fa-shield-halved text-danger me-2"></i>
+            Syntax Errors
 
-                            Security Findings
+        </h4>
 
-                        </h4>
+    </div>
 
-                    </div>
+    <div class="card-body">
 
-                    <div class="card-body">
+        <pre class="mb-0">{{ analysis.syntax_output }}</pre>
 
-                        <div class="d-flex justify-content-between align-items-center mb-3">
+    </div>
 
-                            <span>
-
-                                Total Vulnerabilities
-
-                            </span>
-
-                            <span class="badge bg-danger">
-
-                                {{ analysis.security_count }}
-
-                            </span>
-
-                        </div>
-
-                        <div class="progress mb-4" style="height:10px;">
-
-                            <div class="progress-bar bg-danger"
-                                 role="progressbar"
-                                 {% if analysis.complexity == "Low" %}
-<div class="progress-bar bg-success" style="width:30%"></div>
-
-{% elif analysis.complexity == "Medium" %}
-<div class="progress-bar bg-warning" style="width:60%"></div>
-
-{% else %}
-<div class="progress-bar bg-danger" style="width:90%"></div>
+</div>
 
 {% endif %}
 
-                            </div>
 
-                        </div>
+{% if analysis.pylint_output %}
 
-                        <div class="alert alert-light border mb-0">
+<div class="card border-0 shadow-sm mb-4">
 
-                            <i class="fa-solid fa-circle-info text-primary me-2"></i>
+    <div class="card-header bg-white">
 
-                            Review detected security issues before deploying
-                            your application to production.
+        <h4 class="mb-0">
 
-                        </div>
+            <i class="fa-solid fa-list-check text-warning me-2"></i>
 
-                    </div>
+            Detailed Pylint Findings
 
-                </div>
+        </h4>
 
-            </div>
+    </div>
 
-            <!-- Code Quality -->
+    <div class="card-body">
 
-            <div class="col-lg-6">
+        <pre class="mb-0">{{ analysis.pylint_output }}</pre>
 
-                <div class="card border-0 shadow-sm h-100">
+    </div>
 
-                    <div class="card-header bg-white">
+</div>
 
-                        <h4 class="mb-0">
+{% endif %}
 
-                            <i class="fa-solid fa-code text-success me-2"></i>
 
-                            Code Quality
+{% if analysis.bandit_output %}
 
-                        </h4>
+<div class="card border-0 shadow-sm mb-4">
 
-                    </div>
+    <div class="card-header bg-white">
 
-                    <div class="card-body">
+        <h4 class="mb-0">
 
-                        <div class="mb-4">
+            <i class="fa-solid fa-shield-halved text-danger me-2"></i>
 
-                            <div class="d-flex justify-content-between mb-2">
+            Detailed Bandit Findings
 
-                                <span>
+        </h4>
 
-                                    Overall Quality
+    </div>
 
-                                </span>
+    <div class="card-body">
 
-                                <strong>
+        <pre class="mb-0">{{ analysis.bandit_output }}</pre>
 
-                                    {{ analysis.overall_score }}%
+    </div>
 
-                                </strong>
+</div>
 
-                            </div>
+{% endif %}
 
-                            <div class="progress">
 
-                                <div class="progress-bar bg-success"
-                                     style="width: {{ analysis.overall_score }}%">
+{% if analysis.radon_output %}
 
-                                </div>
+<div class="card border-0 shadow-sm mb-5">
 
-                            </div>
+    <div class="card-header bg-white">
 
-                        </div>
+        <h4 class="mb-0">
 
-                        <div class="mb-4">
+            <i class="fa-solid fa-chart-line text-primary me-2"></i>
 
-                            <div class="d-flex justify-content-between mb-2">
+            Cyclomatic Complexity
 
-                                <span>
+        </h4>
 
-                                    Pylint Score
+    </div>
 
-                                </span>
+    <div class="card-body">
 
-                                <strong>
+        <pre class="mb-0">{{ analysis.radon_output }}</pre>
 
-                                    {{ analysis.pylint_score }}/10
+    </div>
 
-                                </strong>
+</div>
 
-                            </div>
+{% endif %}
 
-                            <div class="progress">
 
-                                <div class="progress-bar bg-primary"
-                                     style="width: {{ analysis.pylint_score * 10 }}%">
+<div class="card border-0 shadow-sm mb-4">
 
-                                </div>
+    <div class="card-header bg-white">
 
-                            </div>
+        <h4 class="mb-0">
 
-                        </div>
+            <i class="fa-solid fa-code text-danger me-2"></i>
 
-                        <div>
+            Syntax Errors
 
-                            <div class="d-flex justify-content-between mb-2">
+        </h4>
 
-                                <span>
+    </div>
 
-                                    Complexity
+    <div class="card-body">
 
-                                </span>
+        <pre class="mb-0">{{ analysis.syntax_output }}</pre>
 
-                                <strong>
+    </div>
 
-                                    {{ analysis.complexity }}
+</div>
 
-                                </strong>
+{% endif %}
 
-                            </div>
+{% if analysis.pylint_output %}
 
-                            <div class="progress">
+<div class="card border-0 shadow-sm mb-4">
 
-                                <div class="progress-bar bg-warning"
-                                     style="width: {{ 25 if analysis.complexity == 'Low' else 60 if analysis.complexity == 'Medium' else 100 }}%">
+    <div class="card-header bg-white">
 
-                                </div>
+        <h4 class="mb-0">
 
-                            </div>
+            <i class="fa-solid fa-list-check text-warning me-2"></i>
 
-                        </div>
+            Detailed Pylint Findings
 
-                    </div>
+        </h4>
 
-                </div>
+    </div>
 
-            </div>
+    <div class="card-body">
 
-        </div>
+        <pre class="mb-0">{{ analysis.pylint_output }}</pre>
 
-        <!-- Analysis Summary -->
+    </div>
 
-        <div class="card border-0 shadow-sm mb-5">
+</div>
+
+{% endif %}
+
+
+{% if analysis.bandit_output %}
+
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-header bg-white">
+
+        <h4 class="mb-0">
+
+            <i class="fa-solid fa-shield-halved text-danger me-2"></i>
+
+            Security Findings
+
+        </h4>
+
+    </div>
+
+    <div class="card-body">
+
+        <pre class="mb-0">{{ analysis.bandit_output }}</pre>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+
+{% if analysis.radon_output %}
+
+<div class="card border-0 shadow-sm mb-5">
+
+    <div class="card-header bg-white">
+
+        <h4 class="mb-0">
+
+            <i class="fa-solid fa-chart-simple text-primary me-2"></i>
+
+            Cyclomatic Complexity
+
+        </h4>
+
+    </div>
+
+    <div class="card-body">
+
+        <pre class="mb-0">{{ analysis.radon_output }}</pre>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+<!-- Analysis Summary -->
+
+<div class="row g-4 mb-5">
+
+    <div class="col-12">
+
+        <div class="card border-0 shadow-sm">
 
             <div class="card-header bg-white">
 
                 <h4 class="mb-0">
 
-                    <i class="fa-solid fa-clipboard-list text-primary me-2"></i>
+                    <i class="fa-solid fa-chart-line text-primary me-2"></i>
 
                     Analysis Summary
 
@@ -744,73 +801,79 @@
 
             </div>
 
+
             <div class="card-body">
 
-                <div class="row text-center g-4">
+                <div class="row text-center">
+
 
                     <div class="col-md-3">
 
-                        <h2 class="fw-bold text-primary">
+                        <h2 class="fw-bold text-info">
 
-                            {{ analysis.total_files }}
+                            {{ analysis.functions_count }}
 
                         </h2>
 
                         <p class="text-muted mb-0">
 
-                            Files Analyzed
+                            Functions
 
                         </p>
 
                     </div>
+
+
+                    <div class="col-md-3">
+
+                        <h2 class="fw-bold text-secondary">
+
+                            {{ analysis.classes_count }}
+
+                        </h2>
+
+                        <p class="text-muted mb-0">
+
+                            Classes
+
+                        </p>
+
+                    </div>
+
 
                     <div class="col-md-3">
 
                         <h2 class="fw-bold text-success">
 
-                            {{ analysis.total_lines }}
+                            {{ analysis.comments_count }}
 
                         </h2>
 
                         <p class="text-muted mb-0">
 
-                            Lines Scanned
+                            Comments
 
                         </p>
 
                     </div>
+
 
                     <div class="col-md-3">
 
                         <h2 class="fw-bold text-warning">
 
-                            {{ analysis.analysis_duration }}
+                            {{ analysis.blank_lines }}
 
                         </h2>
 
                         <p class="text-muted mb-0">
 
-                            Processing Time
+                            Blank Lines
 
                         </p>
 
                     </div>
 
-                    <div class="col-md-3">
-
-                        <h2 class="fw-bold text-danger">
-
-                            {{ analysis.security_count }}
-
-                        </h2>
-
-                        <p class="text-muted mb-0">
-
-                            Security Findings
-
-                        </p>
-
-                    </div>
 
                 </div>
 
@@ -818,11 +881,17 @@
 
         </div>
 
+    </div>
+
+</div>
+
+
 <!-- Charts -->
 
         <div class="row g-4 mb-5">
 
             <div class="col-lg-6">
+
 
                 <div class="card border-0 shadow-sm">
 
@@ -884,15 +953,7 @@
 
                 <div class="d-flex flex-wrap justify-content-center gap-3">
 
-                    <a href="{{ url_for('main.download_report', analysis_id=analysis.id) }}"
-                       class="btn btn-success">
-
-                        <i class="fa-solid fa-file-arrow-down me-2"></i>
-
-                        Download Report
-
-                    </a>
-
+                    
                     <a href="{{ url_for('main.upload') }}"
                        class="btn btn-primary">
 

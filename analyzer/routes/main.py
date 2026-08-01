@@ -2,6 +2,7 @@ import os
 import uuid
 import tempfile
 import time
+from zoneinfo import ZoneInfo
 from flask import send_file
 from flask_login import login_required, current_user
 from flask_mail import Message
@@ -341,6 +342,10 @@ def dashboard():
     )
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> main
         # -----------------------------------------
     # Quality Trend
     # -----------------------------------------
@@ -377,10 +382,82 @@ def dashboard():
     # Recent Activities
     # -----------------------------------------
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> main
     recent_activities = []
 
     for analysis in recent_analyses:
 
+<<<<<<< HEAD
+=======
+
+        recent_activities.append(
+            {
+                "title": analysis.filename,
+                "status": analysis.status,
+                "score": analysis.overall_score,
+                "date": analysis.created_at.strftime("%d %b %Y")
+            }
+        )
+    
+
+    chart_analyses = list(reversed(recent_analyses))
+
+    quality_chart = {
+        "labels": [
+            analysis.created_at.strftime("%d %b")
+            for analysis in chart_analyses
+        ],
+        "datasets": [
+            {
+                "label": "Overall Score",
+                "data": [
+                    analysis.overall_score
+                    for analysis in chart_analyses
+                ],
+                "fill": False
+            }
+        ]
+    }
+
+    latest_stats = latest_analysis
+
+    secure_projects = (
+        Analysis.query
+        .filter(
+            Analysis.user_id == current_user.id,
+            Analysis.security_count == 0
+        )
+        .count()
+    )
+
+    projects_with_issues = (
+        Analysis.query
+        .filter(
+            Analysis.user_id == current_user.id,
+            Analysis.security_count > 0
+        )
+        .count()
+    )
+
+    security_chart = {
+        "labels": [
+            "Secure Projects",
+            "Projects with Issues"
+        ],
+        "datasets": [
+            {
+               "data": [
+                   secure_projects,
+                   projects_with_issues
+               ]
+            }
+        ]
+    }
+
+>>>>>>> main
         recent_activities.append({
 
             "project": analysis.filename,
@@ -393,13 +470,17 @@ def dashboard():
 
         })
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> main
     return render_template(
         "dashboard.html",
 
         total_projects=total_projects,
         total_analyses=total_analyses,
         total_reports=total_reports,
-
+        latest_stats=latest_stats,
         security_issues=security_issues,
 
         overall_score=overall_score,
@@ -415,8 +496,15 @@ def dashboard():
 
         quality_chart=quality_chart,
         security_chart=security_chart,
+<<<<<<< HEAD
         language_chart=None,
 
+=======
+
+        language_chart=None,
+
+
+>>>>>>> main
         recent_activities=recent_activities,
 
         ai_insight=(
@@ -438,131 +526,165 @@ def upload():
 
     form = UploadForm()
 
-    if form.validate_on_submit():
+    recent_analyses = (
+        Analysis.query
+        .filter_by(user_id=current_user.id)
+        .order_by(Analysis.created_at.desc())
+        .limit(5)
+        .all()
+    )
 
-        uploaded_file = form.file.data
-
-        # --------------------------------------------------
-        # Validate upload
-        # --------------------------------------------------
-
-        is_valid, message = validate_upload(
-            uploaded_file
+    if not form.validate_on_submit():
+    
+        return render_template(
+            "upload.html",
+            form=form,
+            recent_analyses=recent_analyses
         )
 
-        if not is_valid:
+    uploaded_file = form.file.data
 
-            flash(
-                message,
-                "error"
-            )
+    current_app.logger.info(
+        f"Upload requested by user {current_user.id}: "
+        f"{uploaded_file.filename}"
+    )
 
-            return render_template(
-                "upload.html",
-                form=form
-            )
+    # --------------------------------------------------
+    # Validate uploaded file
+    # --------------------------------------------------
 
-        # --------------------------------------------------
-        # Generate project ID
-        # --------------------------------------------------
+    is_valid, message = validate_upload(
+        uploaded_file
+    )
 
-        project_id = generate_project_id()
+    if not is_valid:
 
-        # --------------------------------------------------
-        # Create project workspace
-        # --------------------------------------------------
-
-        projects_folder = current_app.config[
-            "PROJECT_FOLDER"
-        ]
-
-        workspace = create_project_workspace(
-            projects_folder,
-            project_id
+        flash(
+            message,
+            "danger"
         )
 
-        # --------------------------------------------------
-        # Generate unique stored filename
-        # --------------------------------------------------
-
-        original_filename = uploaded_file.filename
-
-        stored_filename = generate_unique_filename(
-            original_filename
+        current_app.logger.warning(
+            f"Upload rejected: {message}"
         )
 
-        # --------------------------------------------------
-        # Source file path
-        # --------------------------------------------------
-
-        source_path = os.path.join(
-            workspace["source"],
-            stored_filename
+        return render_template(
+            "upload.html",
+            form=form,
+            recent_analyses=recent_analyses
         )
 
-        # --------------------------------------------------
-        # Save uploaded file
-        # --------------------------------------------------
+    # --------------------------------------------------
+    # Generate Project ID
+    # --------------------------------------------------
+
+    project_id = generate_project_id()
+
+    # --------------------------------------------------
+    # Create project workspace
+    # --------------------------------------------------
+
+    projects_folder = current_app.config[
+        "PROJECT_FOLDER"
+    ]
+
+    workspace = create_project_workspace(
+        projects_folder,
+        project_id
+    )
+
+    # --------------------------------------------------
+    # Generate unique filename
+    # --------------------------------------------------
+
+    original_filename = uploaded_file.filename
+
+    stored_filename = generate_unique_filename(
+        original_filename
+    )
+
+    # --------------------------------------------------
+    # Save uploaded file
+    # --------------------------------------------------
+
+    source_path = os.path.join(
+        workspace["source"],
+        stored_filename
+    )
+
+    try:
 
         uploaded_file.save(
             source_path
         )
 
-        # --------------------------------------------------
-        # Build metadata
-        # --------------------------------------------------
+    except Exception as error:
 
-        metadata = build_metadata(
-            uploaded_file,
-            stored_filename=stored_filename
+        current_app.logger.exception(
+            "Failed to save uploaded file."
         )
 
-        # --------------------------------------------------
-        # Create database project
-        # --------------------------------------------------
-
-        project = Project(
-
-            project_id=project_id,
-
-            project_name=metadata[
-                "project_name"
-            ],
-
-            original_filename=metadata[
-                "original_filename"
-            ],
-
-            stored_filename=stored_filename,
-
-            file_type=metadata[
-                "extension"
-            ],
-
-            file_size=metadata[
-                "size"
-            ],
-
-            project_path=workspace[
-                "root"
-            ],
-
-            user_id=current_user.id
+        flash(
+            "Unable to save the uploaded file.",
+            "danger"
         )
 
-        db.session.add(project)
+        return render_template(
+            "upload.html",
+            form=form,
+            recent_analyses=recent_analyses
+        )
+
+    # --------------------------------------------------
+    # Build metadata
+    # --------------------------------------------------
+
+    metadata = build_metadata(
+        uploaded_file,
+        stored_filename=stored_filename
+    )
+
+    # --------------------------------------------------
+    # Create database record
+    # --------------------------------------------------
+
+    project = Project(
+
+        project_id=project_id,
+
+        project_name=metadata[
+            "project_name"
+        ],
+
+        original_filename=metadata[
+            "original_filename"
+        ],
+
+        stored_filename=stored_filename,
+
+        file_type=metadata[
+            "extension"
+        ],
+
+        file_size=metadata[
+            "size"
+        ],
+
+        project_path=workspace[
+            "root"
+        ],
+
+        user_id=current_user.id
+    )
+
+    db.session.add(project)
+
+    try:
 
         db.session.commit()
 
-        # --------------------------------------------------
-        # Debug information
-        # --------------------------------------------------
-
-        print("=== PROJECT CREATED ===")
-
-        print(
-            "Project ID:",
-            project_id
+        current_app.logger.info(
+            f"Project {project.project_id} uploaded successfully."
         )
 
         print(
@@ -594,8 +716,9 @@ def upload():
             current_user,
         )
 
+
         flash(
-            "Project uploaded successfully!",
+            "Project uploaded successfully. Analysis is starting...",
             "success"
         )
 
@@ -606,12 +729,14 @@ def upload():
             )
         )
 
-    return render_template(
-        "upload.html",
-        form=form
-    )
+    except Exception as e:
 
-    
+        db.session.rollback()
+
+        import traceback
+        traceback.print_exc()
+
+        raise
 # ============================================================
 # RESULTS
 # ============================================================
@@ -668,18 +793,67 @@ def results(analysis_id):
 @login_required
 def history():
 
-    analyses = (
-        Analysis.query
-        .filter_by(user_id=current_user.id)
-        .order_by(Analysis.created_at.desc())
-        .all()
+    search = request.args.get("search", "").strip()
+    complexity = request.args.get("complexity", "").strip()
+    sort = request.args.get("sort", "latest").strip()
+
+    query = Analysis.query.filter_by(
+        user_id=current_user.id
     )
 
-    total_analyses = len(analyses)
-    
+    # -----------------------------
+    # Search
+    # -----------------------------
+
+    if search:
+        query = query.filter(
+            db.or_(
+                Analysis.filename.ilike(f"%{search}%"),
+                Analysis.language.ilike(f"%{search}%")
+            )
+        )
+
+
+    # -----------------------------
+    # Complexity
+    # -----------------------------
+
+    if complexity:
+        query = query.filter(
+            Analysis.complexity.ilike(complexity)
+        )
+
+    # -----------------------------
+    # Sorting
+    # -----------------------------
+
+    if sort == "oldest":
+        query = query.order_by(
+            Analysis.created_at.asc()
+        )
+
+    elif sort == "score_desc":
+        query = query.order_by(
+            Analysis.overall_score.desc()
+        )
+
+    elif sort == "score_asc":
+        query = query.order_by(
+            Analysis.overall_score.asc()
+        )
+
+    else:
+        query = query.order_by(
+            Analysis.created_at.desc()
+        )
+
+    analyses = query.all()
+
     total_projects = Project.query.filter_by(
         user_id=current_user.id
     ).count()
+
+    total_analyses = len(analyses)
 
     total_security = sum(
         analysis.security_count
@@ -687,30 +861,28 @@ def history():
     )
 
     average_score = round(
-      db.session.query(
-          db.func.avg(Analysis.overall_score)
-      )
-      .filter_by(user_id=current_user.id)
-      .scalar()
-      or 0,
-      2
+        db.session.query(
+            db.func.avg(
+                Analysis.overall_score
+            )
+        ).filter_by(
+            user_id=current_user.id
+        ).scalar() or 0,
+        2
     )
+
 
     return render_template(
         "history.html",
-
         analyses=analyses,
-        
         total_projects=total_projects,
-
         total_analyses=total_analyses,
-
         total_security=total_security,
-
-        average_score=average_score
+        average_score=average_score,
+        search=search,
+        complexity=complexity,
+        sort=sort
     )
-
-
 # DELETE ANALYSIS# 
 
 
@@ -954,24 +1126,24 @@ def profile():
             url_for("main.profile")
         )
 
-    total_projects = Project.query.filter_by(
-        user_id=current_user.id
-    ).count()
+        total_projects = Project.query.filter_by(
+           user_id=current_user.id
+        ).count()
 
-    total_analyses = Analysis.query.filter_by(
-        user_id=current_user.id
-    ).count()
+        total_analyses = Analysis.query.filter_by(
+           user_id=current_user.id
+        ).count()
 
-    total_reviews = Review.query.filter_by(
-        user_id=current_user.id
-    ).count()
+        total_reviews = Review.query.filter_by(
+           user_id=current_user.id
+        ).count()
 
-    recent_projects = (
-        Project.query
-        .filter_by(user_id=current_user.id)
-        .order_by(Project.upload_date.desc())
-        .limit(5)
-        .all()
+        recent_projects = (
+           Project.query
+           .filter_by(user_id=current_user.id)
+           .order_by(Project.upload_date.desc())
+           .limit(5)
+           .all()
     )
 
     return render_template(
@@ -1149,15 +1321,12 @@ def reviews():
                 url_for("main.login")
             )
 
-        review = Review(
+        create_review(
+            user_id=current_user.id,
             rating=form.rating.data,
             title=form.title.data,
-            comment=form.comment.data,
-            user_id=current_user.id
+            comment=form.comment.data
         )
-
-        db.session.add(review)
-        db.session.commit()
 
         flash(
             "Your review has been submitted!",
@@ -1170,8 +1339,11 @@ def reviews():
 
     elif request.method == "POST":
 
+
+
         print("FORM ERRORS:")
         print(form.errors)
+
 
     all_reviews = get_all_reviews()
 
@@ -1179,15 +1351,84 @@ def reviews():
 
     return render_template(
         "reviews.html",
-        form=form,
         reviews=all_reviews,
         review_stats=review_stats,
+
+        form=form
+    )
+
+
+
+# ============================================================
+# EDIT REVIEW
+# ============================================================
+
+@main.route("/reviews/edit/<int:review_id>", methods=["GET", "POST"])
+@login_required
+def edit_review(review_id):
+
+    review = get_review(review_id)
+
+    if review.user_id != current_user.id:
+        abort(403)
+
+    form = ReviewForm(obj=review)
+
+    if form.validate_on_submit():
+
+        update_review(
+            review,
+            form.rating.data,
+            form.title.data,
+            form.comment.data
+        )
+
+        flash(
+            "Review updated successfully!",
+            "success"
+        )
+
+        return redirect(
+            url_for("main.reviews")
+        )
+
+    return render_template(
+        "edit_review.html",
+        form=form,
+        review=review
+    )
+
+
+# ============================================================
+# DELETE REVIEW
+# ============================================================
+
+@main.route("/reviews/delete/<int:review_id>", methods=["POST"])
+@login_required
+def remove_review(review_id):
+
+    review = get_review(review_id)
+
+    if review.user_id != current_user.id:
+        abort(403)
+
+    delete_review(review)
+
+    flash(
+        "Review deleted successfully!",
+        "success"
+    )
+
+    return redirect(
+        url_for("main.reviews")
+
         average_rating=review_stats["average_rating"],
         total_reviews=review_stats["total_reviews"],
         rating_breakdown=review_stats["rating_breakdown"],
         recommendation_percentage=review_stats[
             "recommendation_percentage"
         ]
+
     )
 
 # REPORT DOWNLOAD #
@@ -1312,6 +1553,8 @@ def delete_review(review_id):
     )
 
     return redirect(url_for("main.reviews"))
+
+
 
 
 

@@ -16,7 +16,8 @@ from wtforms.validators import (
     Email,
     EqualTo,
     Length,
-    NumberRange
+    NumberRange,
+    ValidationError
 )
 
 
@@ -24,7 +25,7 @@ from wtforms.validators import (
 # UPLOAD VALIDATION
 # ============================================================
 
-MAX_UPLOAD_SIZE = 16 * 1024 * 1024  # 16 MB
+MAX_UPLOAD_SIZE = 100 * 1024 * 1024
 
 
 def validate_file_size(form, field):
@@ -175,18 +176,24 @@ class UploadForm(FlaskForm):
     )
 
     file = FileField(
-        "Upload File",
+        "Project File",
         validators=[
+
+            FileRequired(
+                message="Please select a Python or ZIP file."
+            ),
+
             FileRequired(),
+
             FileAllowed(
                 ["py", "zip"],
-                "Only Python (.py) and ZIP (.zip) files are allowed."
+                "Only .py and .zip files are allowed."
             ),
             validate_file_size
         ]
     )
 
-    submit = SubmitField("Analyze Code")
+    submit = SubmitField("Analyze Project")
 
 # REVIEW FORM#
 

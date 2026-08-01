@@ -437,44 +437,53 @@
 
                             </div>
 
+
+                           {% if current_user.is_authenticated and review.user_id == current_user.id %}
+
                         </div>
 
                         {% if current_user.is_authenticated and review.user_id == current_user.id %}
 
-                            <hr>
 
-                            <div class="d-flex justify-content-between">
+<hr>
 
-                                <a
-                                    href="{{ url_for('main.edit_review', review_id=review.id) }}"
-                                    class="btn btn-outline-primary btn-sm">
+<div class="d-flex justify-content-between">
 
-                                    <i class="fa-solid fa-pen"></i>
+    <a href="{{ url_for('main.edit_review', review_id=review.id) }}"
+       class="btn btn-outline-primary btn-sm">
 
-                                    Edit
+        <i class="fa-solid fa-pen"></i>
 
-                                </a>
+        Edit
 
-                                <form
-                                    method="POST"
-                                    action="{{ url_for('main.delete_review', review_id=review.id) }}">
+    </a>
 
-                                    <button
-                                        type="submit"
-                                        class="btn btn-outline-danger btn-sm"
-                                        onclick="return confirm('Delete this review?')">
+    <form action="{{ url_for('main.remove_review', review_id=review.id) }}"
+          method="POST">
 
-                                        <i class="fa-solid fa-trash"></i>
+        <button
+            type="submit"
+            class="btn btn-outline-danger btn-sm"
+            onclick="return confirm('Delete this review?')">
 
-                                        Delete
+            <i class="fa-solid fa-trash"></i>
 
-                                    </button>
+            Delete
 
-                                </form>
+        </button>
+
+    </form>
+
+
+</div>
+
+{% endif %}
+                        </div>
 
                             </div>
 
                         {% endif %}
+
 
                     </div>
 
@@ -610,10 +619,29 @@
 
 document.addEventListener("DOMContentLoaded", function () {
 
-<<<<<<< HEAD
+
     // Star Rating
     const hiddenRating = document.getElementById("rating");
     const stars = document.querySelectorAll(".rating-star");
+
+
+    if (ratingInput) {
+        ratingInput.setAttribute("min", "1");
+        ratingInput.setAttribute("max", "5");
+    }
+
+const stars = document.querySelectorAll(".rating-star");
+
+stars.forEach(function(star){
+
+    star.addEventListener("click", function(){
+
+        const value = this.getAttribute("data-value");
+
+        ratingInput.value = value;
+
+
+        stars.forEach(function(s){
 
     if (hiddenRating && stars.length > 0) {
 
@@ -644,7 +672,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
 
             });
-=======
+
     const input = document.getElementById("rating");
     const stars = document.querySelectorAll(".rating-star");
 
@@ -663,11 +691,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 if(Number(s.dataset.value) <= value){
 
                     s.className = "fa-solid fa-star rating-star text-warning";
->>>>>>> 9e3e93a41c20d7b6d028d963e9c0ff29f0ae99ef
+           
 
                 }else{
 
-<<<<<<< HEAD
+
     }
 
     // Review Card Hover Effect
@@ -682,19 +710,33 @@ document.addEventListener("DOMContentLoaded", function () {
             card.style.transform = "translateY(-8px)";
             card.style.boxShadow = "0 18px 40px rgba(0,0,0,.12)";
 
-        });
+
+            if (s.getAttribute("data-value") <= value){
+
+
+                s.classList.remove("fa-regular");
+                s.classList.add("fa-solid");
+
+            }
+            else{
+
+                s.classList.remove("fa-solid");
+                s.classList.add("fa-regular");
+
+            }
 
         card.addEventListener("mouseleave", function () {
 
             card.style.transform = "translateY(0)";
             card.style.boxShadow = "";
-=======
+
                     s.className = "fa-regular fa-star rating-star";
+
 
                 }
 
             });
->>>>>>> 9e3e93a41c20d7b6d028d963e9c0ff29f0ae99ef
+
 
         };
 
@@ -702,8 +744,60 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
+
+    const reviewCards = document.querySelectorAll(".review-card");
+
+    reviewCards.forEach(function(card){
+
+        card.style.transition = "all .3s ease";
+
+        card.addEventListener("mouseenter", function(){
+
+            card.style.transform = "translateY(-8px)";
+            card.style.boxShadow =
+                "0 18px 40px rgba(0,0,0,.12)";
+
+        });
+
+
+        card.addEventListener("mouseleave", function(){
+
+            card.style.transform = "translateY(0px)";
+            card.style.boxShadow = "";
+
+        });
+
+    });
+
+
+    const searchInput = document.getElementById("reviewSearch");
+
+
+    if (searchInput) {
+
+        searchInput.addEventListener("keyup", function () {
+
+            const keyword = this.value.toLowerCase();
+
+
+            document.querySelectorAll(".review-card")
+            .forEach(function(card){
+
+                card.style.display =
+                    card.innerText
+                    .toLowerCase()
+                    .includes(keyword)
+                    ? ""
+                    : "none";
+
+            });
+
+        });
+
+    }
+
+});
+
 </script>
 
 {% endblock %}
-
-
