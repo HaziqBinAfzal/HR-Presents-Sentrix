@@ -643,25 +643,14 @@ def upload():
             )
         )
 
-    except Exception:
+    except Exception as e:
 
         db.session.rollback()
 
-        current_app.logger.exception(
-            "Database error while creating project."
-        )
+        import traceback
+        traceback.print_exc()
 
-        flash(
-            "An unexpected error occurred while saving the project.",
-            "danger"
-        )
-
-        return render_template(
-            "upload.html",
-            form=form
-        )
-
-
+        raise
 # ============================================================
 # RESULTS
 # ============================================================
@@ -718,107 +707,67 @@ def results(analysis_id):
 @login_required
 def history():
 
-    search = request.args.get(
-        "search",
-        ""
-    ).strip()
-
-    status = request.args.get(
-        "status",
-        ""
-    ).strip()
-
-    risk = request.args.get(
-        "risk",
-        ""
-    ).strip()
-
-    sort = request.args.get(
-        "sort",
-        "latest"
-    ).strip()
+    search = request.args.get("search", "").strip()
+    complexity = request.args.get("complexity", "").strip()
+    sort = request.args.get("sort", "latest").strip()
 
     query = Analysis.query.filter_by(
-    user_id=current_user.id
-)
+        user_id=current_user.id
+    )
 
-# -------------------------
-# Search
-# -------------------------
+    # -----------------------------
+    # Search
+    # -----------------------------
 
-if search:
-
-    query = query.filter(
-
-        db.or_(
-
-            Analysis.filename.ilike(
-                f"%{search}%"
-            ),
-
-            Analysis.language.ilike(
-                f"%{search}%"
+    if search:
+        query = query.filter(
+            db.or_(
+                Analysis.filename.ilike(f"%{search}%"),
+                Analysis.language.ilike(f"%{search}%")
             )
-
         )
 
-    )
 
-# -------------------------
-# Status
-# -------------------------
+    # -----------------------------
+    # Complexity
+    # -----------------------------
 
-if status and status != "All Status":
+    if complexity:
+        query = query.filter(
+            Analysis.complexity.ilike(complexity)
+        )
 
-    query = query.filter(
-        Analysis.status == status
-    )
+    # -----------------------------
+    # Sorting
+    # -----------------------------
 
-# -------------------------
-# Risk
-# -------------------------
+    if sort == "oldest":
+        query = query.order_by(
+            Analysis.created_at.asc()
+        )
 
-if risk and risk != "All Levels":
+    elif sort == "score_desc":
+        query = query.order_by(
+            Analysis.overall_score.desc()
+        )
 
-    query = query.filter(
-        Analysis.complexity == risk
-    )
+    elif sort == "score_asc":
+        query = query.order_by(
+            Analysis.overall_score.asc()
+        )
 
-# -------------------------
-# Sorting
-# -------------------------
-
-if sort == "oldest":
-
-    query = query.order_by(
-        Analysis.created_at.asc()
-    )
-
-elif sort == "highest":
-
-    query = query.order_by(
-        Analysis.overall_score.desc()
-    )
-
-elif sort == "lowest":
-
-    query = query.order_by(
-        Analysis.overall_score.asc()
-    )
-
-else:
-
-    query = query.order_by(
-        Analysis.created_at.desc()
-    )
+    else:
+        query = query.order_by(
+            Analysis.created_at.desc()
+        )
 
     analyses = query.all()
 
-    total_analyses = len(analyses)
-    
     total_projects = Project.query.filter_by(
         user_id=current_user.id
     ).count()
+
+    total_analyses = len(analyses)
 
     total_security = sum(
         analysis.security_count
@@ -826,38 +775,27 @@ else:
     )
 
     average_score = round(
-      db.session.query(
-          db.func.avg(Analysis.overall_score)
-      )
-      .filter_by(user_id=current_user.id)
-      .scalar()
-      or 0,
-      2
+        db.session.query(
+            db.func.avg(
+                Analysis.overall_score
+            )
+        ).filter_by(
+            user_id=current_user.id
+        ).scalar() or 0,
+        2
     )
 
     return render_template(
         "history.html",
-
         analyses=analyses,
-        
         total_projects=total_projects,
-
         total_analyses=total_analyses,
-
         total_security=total_security,
-
         average_score=average_score,
-
         search=search,
-
-        status=status,
-
-        risk=risk,
-
-        sort=sort,
+        complexity=complexity,
+        sort=sort
     )
-
-
 # DELETE ANALYSIS# 
 
 

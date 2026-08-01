@@ -229,182 +229,98 @@
 
                     <div class="card-body">
 
-                        <div class="row g-3 align-items-end">
+       
 
-                            <div class="col-lg-5">
+<form method="GET" action="{{ url_for('main.history') }}">
 
-                                <label class="form-label fw-semibold">
+<div class="row g-3 align-items-end">
 
-                                    Search Projects
+    <div class="col-lg-5">
 
-                                </label>
+        <label class="form-label fw-semibold">Search Projects</label>
 
-                                <div class="input-group">
+        <div class="input-group">
 
-                                    <span class="input-group-text bg-white">
+            <span class="input-group-text bg-white">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </span>
 
-                                        <i class="fa-solid fa-magnifying-glass"></i>
-
-                                    </span>
-
-                                    <input
-                                        type="search"
-                                        id="historySearch"
-                                        class="form-control"
-                                        placeholder="Search by project name, language or report...">
-
-                                </div>
-
-                            </div>
-
-                            <div class="col-md-4 col-lg-2">
-
-                                <label class="form-label fw-semibold">
-
-                                    Status
-
-                                </label>
-
-                                <select
-                                    id="statusFilter"
-                                    class="form-select">
-
-                                    <option value="">
-
-                                        All Status
-
-                                    </option>
-
-                                    <option value="completed">
-
-                                        Completed
-
-                                    </option>
-
-                                    <option value="processing">
-
-                                        Processing
-
-                                    </option>
-
-                                    <option value="failed">
-
-                                        Failed
-
-                                    </option>
-
-                                </select>
-
-                            </div>
-
-                            <div class="col-md-4 col-lg-2">
-
-                                <label class="form-label fw-semibold">
-
-                                    Risk Level
-
-                                </label>
-
-                                <select
-                                    id="riskFilter"
-                                    class="form-select">
-
-                                    <option value="">
-
-                                        All Levels
-
-                                    </option>
-
-                                    <option value="critical">
-
-                                        Critical
-
-                                    </option>
-
-                                    <option value="high">
-
-                                        High
-
-                                    </option>
-
-                                    <option value="medium">
-
-                                        Medium
-
-                                    </option>
-
-                                    <option value="low">
-
-                                        Low
-
-                                    </option>
-
-                                </select>
-
-                            </div>
-
-                            <div class="col-md-4 col-lg-2">
-
-                                <label class="form-label fw-semibold">
-
-                                    Sort By
-
-                                </label>
-
-                                <select
-                                    id="sortHistory"
-                                    class="form-select">
-
-                                    <option value="latest">
-
-                                        Latest
-
-                                    </option>
-
-                                    <option value="oldest">
-
-                                        Oldest
-
-                                    </option>
-
-                                    <option value="score_desc">
-
-                                        Highest Score
-
-                                    </option>
-
-                                    <option value="score_asc">
-
-                                        Lowest Score
-
-                                    </option>
-
-                                </select>
-
-                            </div>
-
-                            <div class="col-lg-1 d-grid">
-
-                                <button
-                                    type="button"
-                                    class="btn btn-outline-secondary">
-
-                                    <i class="fa-solid fa-rotate"></i>
-
-                                </button>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
+            <input
+                type="search"
+                id="historySearch"
+                name="search"
+                value="{{ search }}"
+                class="form-control"
+                placeholder="Search by project name or language">
 
         </div>
 
+    </div>
+
+
+    <div class="col-md-4 col-lg-2">
+
+        <label class="form-label fw-semibold">Risk Level</label>
+
+        <select
+    id="complexityFilter"
+    name="complexity"
+    class="form-select">
+
+            <option value="">All Levels</option>
+            <option value="Low" {% if risk=="Low" %}selected{% endif %}>Low</option>
+            <option value="Medium" {% if risk=="Medium" %}selected{% endif %}>Medium</option>
+            <option value="High" {% if risk=="High" %}selected{% endif %}>High</option>
+
+        </select>
+
+    </div>
+
+    <div class="col-md-4 col-lg-2">
+
+        <label class="form-label fw-semibold">Sort By</label>
+
+        <select
+            id="sortHistory"
+            name="sort"
+            class="form-select">
+
+            <option value="latest" {% if sort=="latest" %}selected{% endif %}>Latest</option>
+            <option value="oldest" {% if sort=="oldest" %}selected{% endif %}>Oldest</option>
+            <option value="score_desc" {% if sort=="score_desc" %}selected{% endif %}>Highest Score</option>
+            <option value="score_asc" {% if sort=="score_asc" %}selected{% endif %}>Lowest Score</option>
+
+        </select>
+
+    </div>
+
+    <div class="col-lg-1 d-grid">
+
+        <button
+            type="submit"
+            class="btn btn-primary">
+
+            <i class="fa-solid fa-filter"></i>
+
+        </button>
+
+    </div>
+
+    <div class="col-lg-1 d-grid">
+
+        <a
+            href="{{ url_for('main.history') }}"
+            class="btn btn-outline-secondary">
+
+            <i class="fa-solid fa-rotate"></i>
+
+        </a>
+
+    </div>
+
+</div>
+
+</form>
         <!-- Analysis List -->
 
         <div class="row g-4">
@@ -465,7 +381,10 @@
 
                                                     <i class="fa-regular fa-calendar me-1"></i>
 
-                                                    {{ analysis.created_at.strftime("%d %b %Y %I:%M %p") if analysis.created_at else "N/A" }}
+                                                    <span
+    class="local-time"
+    data-time="{{ analysis.created_at.isoformat() }}">
+</span>
 
                                                 </small>
 
@@ -724,6 +643,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
+</script>
+
+<script>
+document.querySelectorAll(".local-time").forEach(function (element) {
+
+    const utcTime = new Date(element.dataset.time);
+
+    element.textContent = utcTime.toLocaleString(
+        undefined,
+        {
+            dateStyle: "medium",
+            timeStyle: "short"
+        }
+    );
+
+});
 </script>
 
 {% endblock %}
