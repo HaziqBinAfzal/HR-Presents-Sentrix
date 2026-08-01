@@ -2,6 +2,7 @@ import os
 import uuid
 import tempfile
 import time
+from zoneinfo import ZoneInfo
 from flask import send_file
 from flask_login import login_required, current_user
 from flask_mail import Message
@@ -342,7 +343,6 @@ def dashboard():
 
 
 
-
         # -----------------------------------------
     # Quality Trend
     # -----------------------------------------
@@ -461,6 +461,7 @@ def dashboard():
 
         })
 
+
     return render_template(
         "dashboard.html",
 
@@ -486,6 +487,7 @@ def dashboard():
 
         language_chart=None,
 
+
         recent_activities=recent_activities,
 
         ai_insight=(
@@ -507,10 +509,20 @@ def upload():
 
     form = UploadForm()
 
+    recent_analyses = (
+        Analysis.query
+        .filter_by(user_id=current_user.id)
+        .order_by(Analysis.created_at.desc())
+        .limit(5)
+        .all()
+    )
+
     if not form.validate_on_submit():
+    
         return render_template(
             "upload.html",
-            form=form
+            form=form,
+            recent_analyses=recent_analyses
         )
 
     uploaded_file = form.file.data
@@ -541,7 +553,8 @@ def upload():
 
         return render_template(
             "upload.html",
-            form=form
+            form=form,
+            recent_analyses=recent_analyses
         )
 
     # --------------------------------------------------
@@ -601,7 +614,8 @@ def upload():
 
         return render_template(
             "upload.html",
-            form=form
+            form=form,
+            recent_analyses=recent_analyses
         )
 
     # --------------------------------------------------
@@ -840,6 +854,7 @@ def history():
         2
     )
 
+
     return render_template(
         "history.html",
         analyses=analyses,
@@ -889,7 +904,7 @@ def delete_analysis(analysis_id):
 def settings():
 
     total_projects = Project.query.filter_by(
-W        user_id=current_user.id
+        user_id=current_user.id
     ).count()
 
     total_analyses = Analysis.query.filter_by(
@@ -1289,15 +1304,12 @@ def reviews():
                 url_for("main.login")
             )
 
-        review = Review(
+        create_review(
+            user_id=current_user.id,
             rating=form.rating.data,
             title=form.title.data,
-            comment=form.comment.data,
-            user_id=current_user.id
+            comment=form.comment.data
         )
-
-        db.session.add(review)
-        db.session.commit()
 
         flash(
             "Your review has been submitted!",
@@ -1310,8 +1322,11 @@ def reviews():
 
     elif request.method == "POST":
 
+
+
         print("FORM ERRORS:")
         print(form.errors)
+
 
     all_reviews = get_all_reviews()
 
@@ -1319,15 +1334,84 @@ def reviews():
 
     return render_template(
         "reviews.html",
-        form=form,
         reviews=all_reviews,
         review_stats=review_stats,
+
+        form=form
+    )
+
+
+
+# ============================================================
+# EDIT REVIEW
+# ============================================================
+
+@main.route("/reviews/edit/<int:review_id>", methods=["GET", "POST"])
+@login_required
+def edit_review(review_id):
+
+    review = get_review(review_id)
+
+    if review.user_id != current_user.id:
+        abort(403)
+
+    form = ReviewForm(obj=review)
+
+    if form.validate_on_submit():
+
+        update_review(
+            review,
+            form.rating.data,
+            form.title.data,
+            form.comment.data
+        )
+
+        flash(
+            "Review updated successfully!",
+            "success"
+        )
+
+        return redirect(
+            url_for("main.reviews")
+        )
+
+    return render_template(
+        "edit_review.html",
+        form=form,
+        review=review
+    )
+
+
+# ============================================================
+# DELETE REVIEW
+# ============================================================
+
+@main.route("/reviews/delete/<int:review_id>", methods=["POST"])
+@login_required
+def remove_review(review_id):
+
+    review = get_review(review_id)
+
+    if review.user_id != current_user.id:
+        abort(403)
+
+    delete_review(review)
+
+    flash(
+        "Review deleted successfully!",
+        "success"
+    )
+
+    return redirect(
+        url_for("main.reviews")
+
         average_rating=review_stats["average_rating"],
         total_reviews=review_stats["total_reviews"],
         rating_breakdown=review_stats["rating_breakdown"],
         recommendation_percentage=review_stats[
             "recommendation_percentage"
         ]
+
     )
 
 # REPORT DOWNLOAD #
@@ -1457,5 +1541,5 @@ def delete_review(review_id):
 
 
 
-o
+
 

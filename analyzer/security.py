@@ -4,7 +4,6 @@ import subprocess
 
 def run_bandit(path):
     """
-
     Run Bandit recursively on a file or directory.
 
     Returns:
@@ -13,9 +12,7 @@ def run_bandit(path):
             "issues": list,
             "output": str
         }
-
     Run Bandit recursively and return structured results.
-
     """
 
     try:
@@ -39,7 +36,6 @@ def run_bandit(path):
             "\n" +
             result.stderr
         ).strip()
-
                 "json"
             ],
             capture_output=True,
@@ -48,11 +44,9 @@ def run_bandit(path):
 
         data = json.loads(result.stdout)
 
-
         issues = []
 
         for item in data.get("results", []):
-
 
             line = line.strip()
 
@@ -64,7 +58,6 @@ def run_bandit(path):
                         ""
                     ).strip()
                 )
-
             issues.append(
                 {
                     "file": item.get("filename"),
@@ -75,26 +68,19 @@ def run_bandit(path):
                 }
             )
 
-
         return {
             "count": len(issues),
             "issues": issues,
-
-            "output": output,
-
+            "output": output
             "output": json.dumps(data, indent=4)
-
         }
 
     except Exception as error:
 
         return {
             "count": 0,
-
             "issues": [str(error)],
             "output": ""
-
             "issues": [],
             "output": str(error)
-
         }

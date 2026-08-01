@@ -13,7 +13,6 @@ SCORE_PATTERN = re.compile(
 
 def run_pylint(file_path):
     """
-
     Run Pylint on a Python file.
 
     Returns:
@@ -22,9 +21,8 @@ def run_pylint(file_path):
             "issues": list,
             "output": str
         }
-
     Run pylint and return structured results.
-
+ (Complete Milestone 1 analysis engine)
     """
 
     try:
@@ -62,7 +60,6 @@ def run_pylint(file_path):
 
             text=True
         )
-
 
         issues = []
 
@@ -119,7 +116,7 @@ def run_pylint(file_path):
                 except Exception:
 
                     pass
-
+ 
 
         return {
 
@@ -138,17 +135,14 @@ def run_pylint(file_path):
     except Exception as error:
 
         return {
-
             "score": 0.0,
             "issues": [str(error)],
             "output": ""
-
 
             "score": 0,
 
             "issues": [],
 
             "output": str(error)
-
 
         }

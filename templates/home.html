@@ -1038,7 +1038,438 @@
                 <a href="{{ url_for('main.home') }}"
                    class="btn btn-link text-decoration-none">
 
+
+                    <div class="card-body p-5">
+
+                        <h3 class="mb-4">
+
+                            Supported Analysis Tools
+
+                        </h3>
+
+                        <ul class="list-group list-group-flush">
+
+                            <li class="list-group-item">
+
+                                <strong>Black</strong>
+
+                                <br>
+
+                                Python formatter
+
+                            </li>
+
+                            <li class="list-group-item">
+
+                                <strong>isort</strong>
+
+                                <br>
+
+                                Import organizer
+
+                            </li>
+
+                            <li class="list-group-item">
+
+                                <strong>Flake8</strong>
+
+                                <br>
+
+                                Style guide checker
+
+                            </li>
+
+                            <li class="list-group-item">
+
+                                <strong>Pylint</strong>
+
+                                <br>
+
+                                Code quality analyzer
+
+                            </li>
+
+                            <li class="list-group-item">
+
+                                <strong>Bandit</strong>
+
+                                <br>
+
+                                Security scanner
+
+                            </li>
+
+                            <li class="list-group-item">
+
+                                <strong>Radon</strong>
+
+                                <br>
+
+                                Complexity metrics
+
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ================= PLATFORM STATISTICS ================= -->
+
+<section class="section bg-light-custom">
+
+    <div class="container">
+
+        <div class="row text-center g-4">
+
+            <div class="col-md-3">
+
+                <div class="stat-card">
+
+                    <i class="fa-solid fa-users"></i>
+
+                    <h2 class="counter" data-target="500">0</h2>
+
+                    <p>Developers</p>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="stat-card">
+
+                    <i class="fa-solid fa-code"></i>
+
+                    <h2 class="counter" data-target="2500">0</h2>
+
+                    <p>Projects Scanned</p>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="stat-card">
+
+                    <i class="fa-solid fa-bug"></i>
+
+                    <h2 class="counter" data-target="9800">0</h2>
+
+                    <p>Issues Found</p>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="stat-card">
+
+                    <i class="fa-solid fa-file-circle-check"></i>
+
+                    <h2 class="counter" data-target="1200">0</h2>
+
+                    <p>Reports Generated</p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ================= COMMUNITY REVIEWS ================= -->
+
+<section class="section">
+
+    <div class="container">
+
+        <div class="d-flex justify-content-between align-items-center mb-5">
+
+            <div>
+
+                <h2>Community Reviews</h2>
+
+                <p class="text-muted">
+                    See what developers think about CodeSentinel AI.
+                </p>
+
+            </div>
+
+            {% if current_user.is_authenticated %}
+
+            <a href="{{ url_for('main.reviews') }}"
+               class="btn btn-primary">
+
+                <i class="fa-solid fa-pen me-2"></i>
+
+                Write a Review
+
+            </a>
+
+            {% else %}
+
+            <a href="{{ url_for('main.login') }}"
+               class="btn btn-primary">
+
+                Login to Review
+
+            </a>
+
+            {% endif %}
+
+        </div>
+
+        {% if latest_reviews %}
+
+        <div class="row g-4">
+
+            {% for review in latest_reviews %}
+
+            <div class="col-lg-4">
+
+                <div class="card h-100 shadow-sm">
+
+                    <div class="card-body">
+
+                        <div class="mb-3 text-warning">
+
+                            {% for i in range(review.rating) %}
+                                <i class="fa-solid fa-star"></i>
+                            {% endfor %}
+
+                        </div>
+
+                        <h5>
+
+                            {{ review.title }}
+
+                        </h5>
+
+                        <p>
+
+                            "{{ review.comment }}"
+
+                        </p>
+
+                        <hr>
+
+                        <h6 class="mb-0">
+
+                            {{ review.user.username }}
+
+                        </h6>
+
+                        <small class="text-muted">
+
+                            {{ review.created_at.strftime('%d %b %Y') }}
+
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+        <div class="text-center mt-5">
+
+            <a href="{{ url_for('main.reviews') }}"
+               class="btn btn-outline-primary">
+
+                View All Reviews
+
+            </a>
+
+        </div>
+
+        {% else %}
+
+        <div class="text-center">
+
+            <h4>No Reviews Yet</h4>
+
+            <p class="text-muted">
+
+                Be the first developer to review CodeSentinel AI!
+
+            </p>
+
+            {% if current_user.is_authenticated %}
+
+            <a href="{{ url_for('main.reviews') }}"
+               class="btn btn-primary">
+
+                Write the First Review
+
+            </a>
+
+            {% endif %}
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</section>
+                 
+
+<!-- ================= FAQ ================= -->
+
+<section class="section bg-light-custom">
+
+    <div class="container">
+
+        <div class="text-center mb-5">
+
+            <h2>Frequently Asked Questions</h2>
+
+        </div>
+
+        <div class="accordion" id="faqAccordion">
+
+            <div class="accordion-item">
+
+                <h2 class="accordion-header">
+
+                    <button class="accordion-button"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#faq1">
+
+                        What programming language is supported?
+
+                    </button>
+
+                </h2>
+
+                <div id="faq1"
+                     class="accordion-collapse collapse show"
+                     data-bs-parent="#faqAccordion">
+
+                    <div class="accordion-body">
+
+                        Currently CodeSentinel AI focuses on Python projects.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="accordion-item">
+
+                <h2 class="accordion-header">
+
+                    <button class="accordion-button collapsed"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#faq2">
+
+                        Which analysis tools are included?
+
+                    </button>
+
+                </h2>
+
+                <div id="faq2"
+                     class="accordion-collapse collapse"
+                     data-bs-parent="#faqAccordion">
+
+                    <div class="accordion-body">
+
+                        Black, isort, Flake8, Pylint, Bandit and Radon.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="accordion-item">
+
+                <h2 class="accordion-header">
+
+                    <button class="accordion-button collapsed"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#faq3">
+
+                        Can I download reports?
+
+                    </button>
+
+                </h2>
+
+                <div id="faq3"
+                     class="accordion-collapse collapse"
+                     data-bs-parent="#faqAccordion">
+
+                    <div class="accordion-body">
+
+                        Yes. Reports can be exported after analysis is complete.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ================= CALL TO ACTION ================= -->
+
+<section class="section">
+
+    <div class="container">
+
+        <div class="card bg-primary text-white text-center p-5 rounded-4">
+
+            <div class="card-body">
+
+                <h2 class="mb-3">
+
+                    Ready to Analyze Your Python Code?
+
+                </h2>
+
+                <p class="lead mb-4 text-white">
+
+                    Join CodeSentinel AI and start improving your projects with AI-powered analysis.
+
+                </p>
+
+                <a href="/register"
+                   class="btn btn-light btn-lg me-2">
+
+                    Create Free Account
+
                     Home
+
 
                 </a>
 
