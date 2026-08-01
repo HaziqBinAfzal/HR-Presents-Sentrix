@@ -207,15 +207,19 @@ def run_project_analysis(
     # Complexity Level
     # -----------------------------------------
 
-    if len(complexity_rows) <= 10:
-        complexity_level = "Low"
+    if complexity_rows:
+        max_complexity = max(
+            row["complexity"] for row in complexity_rows
+        )
 
-    elif len(complexity_rows) <= 30:
-        complexity_level = "Medium"
-
+        if max_complexity <= 5:
+            complexity_level = "Low"
+        elif max_complexity <= 10:
+            complexity_level = "Medium"
+        else:
+            complexity_level = "High"
     else:
-        complexity_level = "High"
-
+        complexity_level = "Low"
     # -----------------------------------------
     # Overall Score
     # -----------------------------------------
