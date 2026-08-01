@@ -2,52 +2,74 @@ import re
 import subprocess
 
 
+ISSUE_PATTERN = re.compile(
+    r"^[CRWEFI]:\s*\d+,\d+:"
+)
+
+SCORE_PATTERN = re.compile(
+    r"rated at ([0-9]+\.[0-9]+)/10"
+)
+
+
 def run_pylint(file_path):
     """
-    Run Pylint and return the score plus all reported issues.
+    Run Pylint on a Python file.
+
+    Returns:
+        {
+            "score": float,
+            "issues": list,
+            "output": str
+        }
     """
 
     try:
+
         result = subprocess.run(
             ["pylint", file_path],
             capture_output=True,
             text=True,
+            check=False
         )
 
-        output = result.stdout
+        output = (
+            result.stdout +
+            "\n" +
+            result.stderr
+        ).strip()
 
         score = 0.0
 
-        match = re.search(
-            r"rated at ([0-9]+\.[0-9]+)/10",
-            output,
+        match = SCORE_PATTERN.search(
+            output
         )
 
         if match:
-            score = float(match.group(1))
+
+            score = float(
+                match.group(1)
+            )
 
         issues = []
 
         for line in output.splitlines():
 
-            if ":" in line and (
-                "C" in line
-                or "W" in line
-                or "E" in line
-                or "R" in line
-            ):
+            line = line.strip()
+
+            if ISSUE_PATTERN.match(line):
+
                 issues.append(line)
 
         return {
             "score": score,
             "issues": issues,
-            "output": output,
+            "output": output
         }
 
-    except Exception as e:
+    except Exception as error:
 
         return {
-            "score": 0,
-            "issues": [str(e)],
-            "output": "",
+            "score": 0.0,
+            "issues": [str(error)],
+            "output": ""
         }

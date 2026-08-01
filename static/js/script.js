@@ -685,3 +685,184 @@ Application Ready
 */
 
 console.log("CodeSentinel AI JavaScript Initialized Successfully");
+
+/* ==========================================
+   CodeSentinel AI - Upload Module
+========================================== */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const uploadForm = document.getElementById("uploadForm");
+    const fileInput = document.getElementById("fileInput");
+    const browseButton = document.getElementById("browseButton");
+    const dropArea = document.getElementById("dropArea");
+
+    const preview = document.getElementById("filePreview");
+    const previewName = document.getElementById("previewFileName");
+    const previewType = document.getElementById("previewFileType");
+    const previewSize = document.getElementById("previewFileSize");
+
+    const uploadButton = document.getElementById("uploadButton");
+    const uploadSpinner = document.getElementById("uploadSpinner");
+    const uploadIcon = document.getElementById("uploadIcon");
+
+    const progressContainer = document.getElementById("progressContainer");
+    const progressBar = document.getElementById("uploadProgress");
+    const progressPercent = document.getElementById("progressPercent");
+
+    const loadingOverlay = document.getElementById("loadingOverlay");
+
+    if (!uploadForm) return;
+
+    browseButton.addEventListener("click", () => {
+        fileInput.click();
+    });
+
+    function formatSize(bytes) {
+
+        if (bytes < 1024)
+            return bytes + " Bytes";
+
+        if (bytes < 1024 * 1024)
+            return (bytes / 1024).toFixed(2) + " KB";
+
+        return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+    }
+
+    function showPreview(file) {
+
+        preview.classList.remove("d-none");
+
+        previewName.textContent = file.name;
+
+        previewType.textContent =
+            file.name.split(".").pop().toUpperCase();
+
+        previewSize.textContent =
+            formatSize(file.size);
+
+    }
+
+    function validateFile(file) {
+
+        const allowed = ["py", "zip"];
+
+        const extension =
+            file.name.split(".").pop().toLowerCase();
+
+        if (!allowed.includes(extension)) {
+
+            alert("Only .py and .zip files are allowed.");
+
+            return false;
+
+        }
+
+        if (file.size > 100 * 1024 * 1024) {
+
+            alert("Maximum upload size is 100 MB.");
+
+            return false;
+
+        }
+
+        return true;
+
+    }
+
+    fileInput.addEventListener("change", () => {
+
+        if (!fileInput.files.length)
+            return;
+
+        const file = fileInput.files[0];
+
+        if (!validateFile(file)) {
+
+            fileInput.value = "";
+
+            return;
+
+        }
+
+        showPreview(file);
+
+    });
+
+    ["dragenter", "dragover"].forEach(event => {
+
+        dropArea.addEventListener(event, e => {
+
+            e.preventDefault();
+
+            dropArea.classList.add("border-primary");
+
+        });
+
+    });
+
+    ["dragleave", "drop"].forEach(event => {
+
+        dropArea.addEventListener(event, e => {
+
+            e.preventDefault();
+
+            dropArea.classList.remove("border-primary");
+
+        });
+
+    });
+
+    dropArea.addEventListener("drop", e => {
+
+        const files = e.dataTransfer.files;
+
+        if (!files.length)
+            return;
+
+        const file = files[0];
+
+        if (!validateFile(file))
+            return;
+
+        fileInput.files = files;
+
+        showPreview(file);
+
+    });
+
+    uploadForm.addEventListener("submit", () => {
+
+        uploadButton.disabled = true;
+
+        uploadSpinner.classList.remove("d-none");
+
+        uploadIcon.classList.add("d-none");
+
+        progressContainer.classList.remove("d-none");
+
+        loadingOverlay.classList.remove("d-none");
+
+        let progress = 0;
+
+        const timer = setInterval(() => {
+
+            progress += 4;
+
+            if (progress >= 96) {
+
+                clearInterval(timer);
+
+            }
+
+            progressBar.style.width =
+                progress + "%";
+
+            progressPercent.textContent =
+                progress + "%";
+
+        }, 180);
+
+    });
+
+});

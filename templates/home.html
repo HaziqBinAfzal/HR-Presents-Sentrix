@@ -1,54 +1,341 @@
 {% extends "base.html" %}
 
-{% block title %}Home | CodeSentinel AI{% endblock %}
+{% block title %}CodeSentinel AI | AI-Powered Code Analysis{% endblock %}
 
 {% block content %}
 
-<!-- ================= HERO SECTION ================= -->
+<!-- Hero Section -->
 
-<section class="hero">
+<section class="py-5">
 
     <div class="container">
 
-        <div class="row align-items-center">
+        <div class="row align-items-center gy-5">
 
             <div class="col-lg-6">
 
-                <span class="badge bg-primary mb-3">
-                    AI Powered Code Security
+                <span class="badge bg-primary px-3 py-2 mb-3">
+
+                    AI-Powered Code Analysis Platform
+
                 </span>
 
                 <h1 class="display-4 fw-bold mb-4">
-                    Analyze, Secure and Improve Your Python Code
+
+                    Build Secure, Cleaner & Better Software with
+
+                    <span class="text-primary">
+
+                        CodeSentinel AI
+
+                    </span>
+
                 </h1>
 
-                <p class="lead mb-4">
-                    CodeSentinel AI helps developers detect security vulnerabilities,
-                    improve code quality, format code automatically, and generate
-                    intelligent AI suggestions in seconds.
+                <p class="lead text-muted mb-4">
+
+                    Upload your source code and receive AI-powered code reviews,
+                    security vulnerability detection, quality metrics,
+                    maintainability analysis, and downloadable professional
+                    reports—all in one platform.
+
                 </p>
 
                 <div class="d-flex flex-wrap gap-3">
 
-                    <a href="/register" class="btn btn-primary btn-lg">
-                        <i class="fa-solid fa-user-plus me-2"></i>
-                        Get Started
+                    {% if current_user.is_authenticated %}
+
+                    <a href="{{ url_for('main.dashboard') }}"
+                       class="btn btn-primary btn-lg">
+
+                        <i class="fa-solid fa-gauge-high me-2"></i>
+
+                        Go to Dashboard
+
                     </a>
 
-                    <a href="#features" class="btn btn-outline-primary btn-lg">
-                        Learn More
+                    <a href="{{ url_for('main.upload') }}"
+                       class="btn btn-outline-primary btn-lg">
+
+                        <i class="fa-solid fa-cloud-arrow-up me-2"></i>
+
+                        Analyze Project
+
                     </a>
+
+                    <a href="{{ url_for('main.reviews') }}"
+   class="btn btn-outline-success btn-lg">
+
+    <i class="fa-solid fa-star me-2"></i>
+
+    Community Reviews
+
+</a>
+
+                    {% else %}
+
+                    <a href="{{ url_for('main.register') }}"
+   class="btn btn-primary btn-lg">
+
+    <i class="fa-solid fa-user-plus me-2"></i>
+
+    <a href="{{ url_for('main.reviews') }}"
+       class="btn btn-outline-success btn-lg">
+
+        <i class="fa-solid fa-star me-2"></i>
+
+        Community Reviews
+
+    </a>
+
+    Get Started
+
+</a>
+                    <a href="{{ url_for('main.login') }}"
+                       class="btn btn-outline-secondary btn-lg">
+
+                        <i class="fa-solid fa-right-to-bracket me-2"></i>
+
+                        Login
+
+                    </a>
+                    
+                    <a href="{{ url_for('main.reviews') }}"
+   class="btn btn-outline-success btn-lg">
+
+    <i class="fa-solid fa-star me-2"></i>
+
+    Reviews
+
+</a>
+
+{% endif %}
+
+                    
 
                 </div>
 
             </div>
 
-            <div class="col-lg-6 text-center mt-5 mt-lg-0">
+            <div class="col-lg-6">
 
-                <img
-                    src="{{ url_for('static', filename='images/hero.jpeg') }}"
-                    alt="Hero"
-                    class="img-fluid">
+                <div class="card border-0 shadow-lg">
+
+                    <div class="card-body p-5 text-center">
+
+                        <i class="fa-solid fa-shield-halved text-primary"
+                           style="font-size:90px;"></i>
+
+                        <h3 class="fw-bold mt-4">
+
+                            Intelligent Code Review
+
+                        </h3>
+
+                        <p class="text-muted mb-4">
+
+                            Analyze Python projects with AI-powered security,
+                            quality, complexity, and maintainability insights.
+
+                        </p>
+
+                        <div class="row g-3 text-center">
+
+                            <div class="col-6">
+
+                                <div class="border rounded p-3">
+
+                                    <h4 class="fw-bold text-primary">
+
+                                        AI
+
+                                    </h4>
+
+                                    <small class="text-muted">
+
+                                        Smart Review
+
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                            <div class="col-6">
+
+                                <div class="border rounded p-3">
+
+                                    <h4 class="fw-bold text-success">
+
+                                        PDF
+
+                                    </h4>
+
+                                    <small class="text-muted">
+
+                                        Reports
+
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                            <div class="col-6">
+
+                                <div class="border rounded p-3">
+
+                                    <h4 class="fw-bold text-danger">
+
+                                        Scan
+
+                                    </h4>
+
+                                    <small class="text-muted">
+
+                                        Security
+
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                            <div class="col-6">
+
+                                <div class="border rounded p-3">
+
+                                    <h4 class="fw-bold text-warning">
+
+                                        BYOK
+
+                                    </h4>
+
+                                    <small class="text-muted">
+
+                                        AI Models
+
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Platform Statistics -->
+
+        <div class="row g-4 mt-5">
+
+            <div class="col-md-6 col-xl-3">
+
+                <div class="card border-0 shadow-sm text-center">
+
+                    <div class="card-body">
+
+                        <i class="fa-solid fa-folder-open fa-2x text-primary mb-3"></i>
+
+                        <h2 class="fw-bold">
+
+                            {{ total_projects }}
+
+                        </h2>
+
+                        <p class="text-muted mb-0">
+
+                            Projects Analyzed
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-6 col-xl-3">
+
+                <div class="card border-0 shadow-sm text-center">
+
+                    <div class="card-body">
+
+                        <i class="fa-solid fa-magnifying-glass-chart fa-2x text-success mb-3"></i>
+
+                        <h2 class="fw-bold">
+
+                            {{ total_analyses }}
+
+                        </h2>
+
+                        <p class="text-muted mb-0">
+
+                            AI Analyses
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-6 col-xl-3">
+
+                <div class="card border-0 shadow-sm text-center">
+
+                    <div class="card-body">
+
+                        <i class="fa-solid fa-file-lines fa-2x text-warning mb-3"></i>
+
+                        <h2 class="fw-bold">
+
+                            {{ total_reports }}
+
+                        </h2>
+
+                        <p class="text-muted mb-0">
+
+                            Reports Generated
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-6 col-xl-3">
+
+                <div class="card border-0 shadow-sm text-center">
+
+                    <div class="card-body">
+
+                        <i class="fa-solid fa-code fa-2x text-info mb-3"></i>
+
+                        <h2 class="fw-bold">
+
+                            {{ supported_languages }}
+
+                        </h2>
+
+                        <p class="text-muted mb-0">
+
+                            Supported Languages
+
+                        </p>
+
+                    </div>
+
+                </div>
 
             </div>
 
@@ -58,42 +345,50 @@
 
 </section>
 
-<!-- ================= FEATURES ================= -->
 
-<section id="features" class="section">
+<!-- Features -->
+
+<section class="py-5 bg-light">
 
     <div class="container">
 
         <div class="text-center mb-5">
 
-            <h2>
+            <h2 class="fw-bold">
+
                 Powerful Features
+
             </h2>
 
-            <p>
-                Everything developers need to build secure,
-                clean and maintainable Python applications.
+            <p class="text-muted">
+
+                Everything you need to analyze, secure, and improve your codebase.
+
             </p>
 
         </div>
 
         <div class="row g-4">
 
-            <div class="col-lg-4">
+            <div class="col-md-6 col-xl-4">
 
-                <div class="card h-100">
+                <div class="card border-0 shadow-sm h-100">
 
                     <div class="card-body text-center">
 
-                        <i class="fa-solid fa-shield-halved fa-3x text-primary mb-4"></i>
+                        <i class="fa-solid fa-robot fa-3x text-primary mb-3"></i>
 
-                        <h4>
-                            Security Analysis
+                        <h4 class="fw-bold">
+
+                            AI Code Review
+
                         </h4>
 
-                        <p>
-                            Scan Python code for security
-                            vulnerabilities using Bandit.
+                        <p class="text-muted">
+
+                            Receive intelligent code reviews with actionable
+                            recommendations powered by advanced AI models.
+
                         </p>
 
                     </div>
@@ -102,21 +397,25 @@
 
             </div>
 
-            <div class="col-lg-4">
+            <div class="col-md-6 col-xl-4">
 
-                <div class="card h-100">
+                <div class="card border-0 shadow-sm h-100">
 
                     <div class="card-body text-center">
 
-                        <i class="fa-solid fa-code fa-3x text-primary mb-4"></i>
+                        <i class="fa-solid fa-shield-halved fa-3x text-danger mb-3"></i>
 
-                        <h4>
-                            Code Formatting
+                        <h4 class="fw-bold">
+
+                            Security Scanning
+
                         </h4>
 
-                        <p>
-                            Automatically format Python
-                            code using Black and isort.
+                        <p class="text-muted">
+
+                            Detect vulnerabilities, insecure coding patterns,
+                            and potential risks before deployment.
+
                         </p>
 
                     </div>
@@ -125,22 +424,25 @@
 
             </div>
 
-            <div class="col-lg-4">
+            <div class="col-md-6 col-xl-4">
 
-                <div class="card h-100">
+                <div class="card border-0 shadow-sm h-100">
 
                     <div class="card-body text-center">
 
-                        <i class="fa-solid fa-robot fa-3x text-primary mb-4"></i>
+                        <i class="fa-solid fa-chart-line fa-3x text-success mb-3"></i>
 
-                        <h4>
-                            AI Suggestions
+                        <h4 class="fw-bold">
+
+                            Quality Metrics
+
                         </h4>
 
-                        <p>
-                            Receive intelligent recommendations
-                            to improve readability,
-                            maintainability and performance.
+                        <p class="text-muted">
+
+                            Measure maintainability, readability,
+                            code quality, and overall project health.
+
                         </p>
 
                     </div>
@@ -149,22 +451,25 @@
 
             </div>
 
-            <div class="col-lg-4">
+            <div class="col-md-6 col-xl-4">
 
-                <div class="card h-100">
+                <div class="card border-0 shadow-sm h-100">
 
                     <div class="card-body text-center">
 
-                        <i class="fa-solid fa-chart-line fa-3x text-primary mb-4"></i>
+                        <i class="fa-solid fa-code-branch fa-3x text-warning mb-3"></i>
 
-                        <h4>
-                            Code Metrics
+                        <h4 class="fw-bold">
+
+                            Complexity Analysis
+
                         </h4>
 
-                        <p>
-                            Measure complexity,
-                            maintainability,
-                            and quality using Radon.
+                        <p class="text-muted">
+
+                            Analyze cyclomatic complexity and identify
+                            functions that need optimization.
+
                         </p>
 
                     </div>
@@ -173,22 +478,25 @@
 
             </div>
 
-            <div class="col-lg-4">
+            <div class="col-md-6 col-xl-4">
 
-                <div class="card h-100">
+                <div class="card border-0 shadow-sm h-100">
 
                     <div class="card-body text-center">
 
-                        <i class="fa-solid fa-file-arrow-up fa-3x text-primary mb-4"></i>
+                        <i class="fa-solid fa-file-pdf fa-3x text-danger mb-3"></i>
 
-                        <h4>
-                            Upload Projects
+                        <h4 class="fw-bold">
+
+                            Professional Reports
+
                         </h4>
 
-                        <p>
-                            Upload individual Python files
-                            or complete projects
-                            for instant analysis.
+                        <p class="text-muted">
+
+                            Generate detailed PDF reports suitable for
+                            teams, audits, and project documentation.
+
                         </p>
 
                     </div>
@@ -197,22 +505,25 @@
 
             </div>
 
-            <div class="col-lg-4">
+            <div class="col-md-6 col-xl-4">
 
-                <div class="card h-100">
+                <div class="card border-0 shadow-sm h-100">
 
                     <div class="card-body text-center">
 
-                        <i class="fa-solid fa-download fa-3x text-primary mb-4"></i>
+                        <i class="fa-solid fa-key fa-3x text-info mb-3"></i>
 
-                        <h4>
-                            Export Reports
+                        <h4 class="fw-bold">
+
+                            Bring Your Own AI
+
                         </h4>
 
-                        <p>
-                            Download detailed reports
-                            with findings and
-                            improvement suggestions.
+                        <p class="text-muted">
+
+                            Connect your preferred AI provider and API key
+                            while keeping complete control of your usage.
+
                         </p>
 
                     </div>
@@ -227,18 +538,24 @@
 
 </section>
 
-<!-- ================= HOW IT WORKS ================= -->
+<!-- How It Works -->
 
-<section class="section bg-light-custom">
+<section class="py-5">
 
     <div class="container">
 
         <div class="text-center mb-5">
 
-            <h2>How CodeSentinel AI Works</h2>
+            <h2 class="fw-bold">
 
-            <p>
-                Analyze your Python code in four simple steps.
+                How It Works
+
+            </h2>
+
+            <p class="text-muted">
+
+                Analyze your project in four simple steps.
+
             </p>
 
         </div>
@@ -247,18 +564,26 @@
 
             <div class="col-md-3">
 
-                <div class="card text-center h-100">
+                <div class="card border-0 shadow-sm h-100 text-center">
 
                     <div class="card-body">
 
-                        <div class="display-5 text-primary mb-3">
-                            <i class="fa-solid fa-file-arrow-up"></i>
+                        <div class="display-5 fw-bold text-primary mb-3">
+
+                            1
+
                         </div>
 
-                        <h4>Upload</h4>
+                        <h5 class="fw-bold">
 
-                        <p>
-                            Upload your Python file or project securely.
+                            Upload Project
+
+                        </h5>
+
+                        <p class="text-muted">
+
+                            Upload your ZIP project securely for analysis.
+
                         </p>
 
                     </div>
@@ -269,18 +594,27 @@
 
             <div class="col-md-3">
 
-                <div class="card text-center h-100">
+                <div class="card border-0 shadow-sm h-100 text-center">
 
                     <div class="card-body">
 
-                        <div class="display-5 text-primary mb-3">
-                            <i class="fa-solid fa-magnifying-glass"></i>
+                        <div class="display-5 fw-bold text-success mb-3">
+
+                            2
+
                         </div>
 
-                        <h4>Analyze</h4>
+                        <h5 class="fw-bold">
 
-                        <p>
-                            Security, quality, formatting and complexity checks begin automatically.
+                            AI Analysis
+
+                        </h5>
+
+                        <p class="text-muted">
+
+                            CodeSentinel AI scans your code for quality,
+                            security, and complexity.
+
                         </p>
 
                     </div>
@@ -291,18 +625,27 @@
 
             <div class="col-md-3">
 
-                <div class="card text-center h-100">
+                <div class="card border-0 shadow-sm h-100 text-center">
 
                     <div class="card-body">
 
-                        <div class="display-5 text-primary mb-3">
-                            <i class="fa-solid fa-robot"></i>
+                        <div class="display-5 fw-bold text-warning mb-3">
+
+                            3
+
                         </div>
 
-                        <h4>AI Review</h4>
+                        <h5 class="fw-bold">
 
-                        <p>
-                            AI explains issues and recommends practical improvements.
+                            Review Results
+
+                        </h5>
+
+                        <p class="text-muted">
+
+                            Explore AI insights, charts, metrics,
+                            and recommendations.
+
                         </p>
 
                     </div>
@@ -313,18 +656,27 @@
 
             <div class="col-md-3">
 
-                <div class="card text-center h-100">
+                <div class="card border-0 shadow-sm h-100 text-center">
 
                     <div class="card-body">
 
-                        <div class="display-5 text-primary mb-3">
-                            <i class="fa-solid fa-file-pdf"></i>
+                        <div class="display-5 fw-bold text-danger mb-3">
+
+                            4
+
                         </div>
 
-                        <h4>Download Report</h4>
+                        <h5 class="fw-bold">
 
-                        <p>
-                            Export a detailed analysis report for future reference.
+                            Download Report
+
+                        </h5>
+
+                        <p class="text-muted">
+
+                            Export professional reports for documentation
+                            and team collaboration.
+
                         </p>
 
                     </div>
@@ -339,73 +691,353 @@
 
 </section>
 
-<!-- ================= WHY CHOOSE US ================= -->
 
-<section class="section">
+<!-- Why Choose CodeSentinel AI -->
+
+<section class="py-5 bg-light">
+
+    <div class="container">
+
+        <div class="text-center mb-5">
+
+            <h2 class="fw-bold">
+
+                Why Choose CodeSentinel AI?
+
+            </h2>
+
+            <p class="text-muted">
+
+                Built for developers, teams, educators, and organizations that
+                want faster and smarter code reviews.
+
+            </p>
+
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-md-6">
+
+                <div class="card border-0 shadow-sm h-100">
+
+                    <div class="card-body">
+
+                        <h4 class="fw-bold mb-3">
+
+                            <i class="fa-solid fa-gauge-high text-primary me-2"></i>
+
+                            Fast Analysis
+
+                        </h4>
+
+                        <p class="text-muted">
+
+                            Upload your project and receive comprehensive code
+                            quality, security, and maintainability analysis in
+                            just a few moments.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <div class="card border-0 shadow-sm h-100">
+
+                    <div class="card-body">
+
+                        <h4 class="fw-bold mb-3">
+
+                            <i class="fa-solid fa-lock text-success me-2"></i>
+
+                            Secure Processing
+
+                        </h4>
+
+                        <p class="text-muted">
+
+                            Your project is processed securely with support for
+                            Bring Your Own AI (BYOK), allowing you to use your
+                            preferred AI provider.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <div class="card border-0 shadow-sm h-100">
+
+                    <div class="card-body">
+
+                        <h4 class="fw-bold mb-3">
+
+                            <i class="fa-solid fa-chart-column text-warning me-2"></i>
+
+                            Detailed Metrics
+
+                        </h4>
+
+                        <p class="text-muted">
+
+                            View code quality scores, security findings,
+                            complexity metrics, AI recommendations, and visual
+                            dashboards in one place.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <div class="card border-0 shadow-sm h-100">
+
+                    <div class="card-body">
+
+                        <h4 class="fw-bold mb-3">
+
+                            <i class="fa-solid fa-users text-danger me-2"></i>
+
+                            Team Ready
+
+                        </h4>
+
+                        <p class="text-muted">
+
+                            Generate professional reports suitable for
+                            developers, instructors, software teams, and code
+                            review workflows.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- Community Reviews -->
+
+<section class="py-5">
+
+    <div class="container">
+
+        <div class="d-flex justify-content-between align-items-center mb-5">
+
+            <div>
+
+                <h2 class="fw-bold">
+
+                    Community Reviews
+
+                </h2>
+
+                <p class="text-muted">
+
+                    Average Rating:
+                    <strong>{{ review_stats.average_rating }}/5</strong>
+
+                    •
+
+                    {{ review_stats.total_reviews }} Reviews
+
+                </p>
+
+            </div>
+
+            <a href="{{ url_for('main.reviews') }}"
+               class="btn btn-primary">
+
+                View All Reviews
+
+            </a>
+
+        </div>
+
+        <div class="row g-4">
+
+            {% for review in latest_reviews %}
+
+            <div class="col-lg-4">
+
+                <div class="card border-0 shadow-sm h-100">
+
+                    <div class="card-body">
+
+                        <div class="mb-3">
+
+                            {% for i in range(review.rating) %}
+                                <i class="fa-solid fa-star text-warning"></i>
+                            {% endfor %}
+
+                            {% for i in range(5-review.rating) %}
+                                <i class="fa-regular fa-star text-warning"></i>
+                            {% endfor %}
+
+                        </div>
+
+                        <h5 class="fw-bold">
+
+                            {{ review.title }}
+
+                        </h5>
+
+                        <p class="text-muted">
+
+                            {{ review.comment[:140] }}...
+
+                        </p>
+
+                    </div>
+
+                    <div class="card-footer bg-white">
+
+                        <strong>
+
+                            {{ review.user.username }}
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- Call To Action -->
+
+<section class="py-5">
+
+    <div class="container">
+
+        <div class="card border-0 bg-primary text-white shadow-lg">
+
+            <div class="card-body text-center py-5 px-4">
+
+                <h2 class="fw-bold mb-3">
+
+                    Ready to Improve Your Code?
+
+                </h2>
+
+                <p class="lead mb-4">
+
+                    Start analyzing your projects with AI-powered code review,
+                    security scanning, quality metrics, and professional reports.
+
+                </p>
+
+                <div class="d-flex justify-content-center flex-wrap gap-3">
+
+                    {% if current_user.is_authenticated %}
+
+                    <a href="{{ url_for('main.upload') }}"
+                       class="btn btn-light btn-lg">
+
+                        <i class="fa-solid fa-cloud-arrow-up me-2"></i>
+
+                        Analyze a Project
+
+                    </a>
+
+                    <a href="{{ url_for('main.dashboard') }}"
+                       class="btn btn-outline-light btn-lg">
+
+                        <i class="fa-solid fa-gauge-high me-2"></i>
+
+                        Dashboard
+
+                    </a>
+
+                    {% else %}
+
+                    <a href="{{ url_for('main.register') }}"
+                       class="btn btn-light btn-lg">
+
+                        <i class="fa-solid fa-user-plus me-2"></i>
+
+                        Create Free Account
+
+                    </a>
+
+                    <a href="{{ url_for('main.login') }}"
+                       class="btn btn-outline-light btn-lg">
+
+                        <i class="fa-solid fa-right-to-bracket me-2"></i>
+
+                        Sign In
+
+                    </a>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- Footer Information -->
+
+<section class="py-4 border-top">
 
     <div class="container">
 
         <div class="row align-items-center">
 
-            <div class="col-lg-6">
+            <div class="col-md-6 text-center text-md-start">
 
-                <h2 class="mb-4">
-                    Why Choose CodeSentinel AI?
-                </h2>
+                <h5 class="fw-bold mb-2">
 
-                <p class="mb-4">
+                    CodeSentinel AI
 
-                    CodeSentinel AI combines industry-standard Python analysis
-                    tools with AI assistance to help developers write cleaner,
-                    safer and more maintainable code.
+                </h5>
+
+                <p class="text-muted mb-0">
+
+                    AI-powered code analysis platform focused on improving
+                    software quality, security, and maintainability.
 
                 </p>
 
-                <div class="mb-3">
-
-                    <i class="fa-solid fa-check text-success me-2"></i>
-
-                    AI-powered recommendations
-
-                </div>
-
-                <div class="mb-3">
-
-                    <i class="fa-solid fa-check text-success me-2"></i>
-
-                    Security vulnerability detection
-
-                </div>
-
-                <div class="mb-3">
-
-                    <i class="fa-solid fa-check text-success me-2"></i>
-
-                    Automatic code formatting
-
-                </div>
-
-                <div class="mb-3">
-
-                    <i class="fa-solid fa-check text-success me-2"></i>
-
-                    Maintainability and complexity analysis
-
-                </div>
-
-                <div class="mb-3">
-
-                    <i class="fa-solid fa-check text-success me-2"></i>
-
-                    Downloadable professional reports
-
-                </div>
-
             </div>
 
-            <div class="col-lg-6">
+            <div class="col-md-6 text-center text-md-end mt-4 mt-md-0">
 
-                <div class="card shadow-lg">
+                <a href="{{ url_for('main.home') }}"
+                   class="btn btn-link text-decoration-none">
+
 
                     <div class="card-body p-5">
 
@@ -836,16 +1468,52 @@
 
                     Create Free Account
 
+                    Home
+
+
                 </a>
 
-                <a href="/login"
-                   class="btn btn-outline-light btn-lg">
+                <a href="{{ url_for('main.dashboard') }}"
+                   class="btn btn-link text-decoration-none">
 
-                    Sign In
+                    Dashboard
+
+                </a>
+
+                <a href="{{ url_for('main.upload') }}"
+                   class="btn btn-link text-decoration-none">
+
+                    Upload
+
+                </a>
+
+                <a href="{{ url_for('main.history') }}"
+                   class="btn btn-link text-decoration-none">
+
+                    History
+
+                </a>
+
+                <a href="{{ url_for('main.settings') }}"
+                   class="btn btn-link text-decoration-none">
+
+                    Settings
 
                 </a>
 
             </div>
+
+        </div>
+
+        <hr>
+
+        <div class="text-center">
+
+            <small class="text-muted">
+
+                © {{ current_year or 2026 }} CodeSentinel AI. All Rights Reserved.
+
+            </small>
 
         </div>
 

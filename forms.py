@@ -1,6 +1,8 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed, FileRequired
-
+from wtforms import BooleanField
+from wtforms import StringField, TextAreaField, SubmitField
+from wtforms.validators import DataRequired, Email
 from wtforms import (
     StringField,
     PasswordField,
@@ -14,7 +16,8 @@ from wtforms.validators import (
     Email,
     EqualTo,
     Length,
-    NumberRange
+    NumberRange,
+    ValidationError
 )
 
 
@@ -22,7 +25,7 @@ from wtforms.validators import (
 # UPLOAD VALIDATION
 # ============================================================
 
-MAX_UPLOAD_SIZE = 16 * 1024 * 1024  # 16 MB
+MAX_UPLOAD_SIZE = 100 * 1024 * 1024
 
 
 def validate_file_size(form, field):
@@ -97,6 +100,8 @@ class RegisterForm(FlaskForm):
 
 class LoginForm(FlaskForm):
 
+    remember = BooleanField("Remember Me")
+
     email = StringField(
         "Email",
         validators=[
@@ -163,36 +168,48 @@ class ResetPasswordForm(FlaskForm):
 
 class UploadForm(FlaskForm):
 
-    file = FileField(
-        "Upload File",
+    project_name = StringField(
+        "Project Name",
         validators=[
+            DataRequired()
+        ]
+    )
+
+    file = FileField(
+        "Project File",
+        validators=[
+
+            FileRequired(
+                message="Please select a Python or ZIP file."
+            ),
+
             FileRequired(),
 
             FileAllowed(
                 ["py", "zip"],
-                "Only Python (.py) and ZIP (.zip) files are allowed."
+                "Only .py and .zip files are allowed."
             ),
-
             validate_file_size
         ]
     )
 
-    submit = SubmitField("Analyze Code")
+    submit = SubmitField("Analyze Project")
 
+# REVIEW FORM#
 
 class ReviewForm(FlaskForm):
 
     rating = IntegerField(
-    "",
-    validators=[
-        DataRequired(),
-        NumberRange(min=1, max=5)
-    ],
-    render_kw={
-        "type": "hidden",
-        "id": "rating"
-    }
-)
+        "",
+        validators=[
+            DataRequired(),
+            NumberRange(min=1, max=5)
+        ],
+        render_kw={
+            "type": "hidden",
+            "id": "rating"
+        }
+    )
 
     title = StringField(
         "Title",
@@ -210,6 +227,31 @@ class ReviewForm(FlaskForm):
         ]
     )
 
-    submit = SubmitField(
-        "Submit Review"
+    submit = SubmitField("Save Changes")
+
+
+#Contact Form#
+
+class ContactForm(FlaskForm):
+
+    name = StringField(
+        "Name",
+        validators=[DataRequired()]
     )
+
+    email = StringField(
+        "Email",
+        validators=[DataRequired(), Email()]
+    )
+
+    subject = StringField(
+        "Subject",
+        validators=[DataRequired()]
+    )
+
+    message = TextAreaField(
+        "Message",
+        validators=[DataRequired()]
+    )
+
+    submit = SubmitField("Send Message")

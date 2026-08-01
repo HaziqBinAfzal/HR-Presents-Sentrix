@@ -184,23 +184,20 @@
 
                         </label>
 
-                        <div
-                            id="starRating"
-                            class="fs-2 mb-3">
+                        <div id="starRating" class="fs-2 mb-3">
 
-                            <i class="fa-regular fa-star rating-star" data-value="1"></i>
+    <i class="fa-regular fa-star rating-star" data-value="1"></i>
+    <i class="fa-regular fa-star rating-star" data-value="2"></i>
+    <i class="fa-regular fa-star rating-star" data-value="3"></i>
+    <i class="fa-regular fa-star rating-star" data-value="4"></i>
+    <i class="fa-regular fa-star rating-star" data-value="5"></i>
 
-                            <i class="fa-regular fa-star rating-star" data-value="2"></i>
-
-                            <i class="fa-regular fa-star rating-star" data-value="3"></i>
-
-                            <i class="fa-regular fa-star rating-star" data-value="4"></i>
-
-                            <i class="fa-regular fa-star rating-star" data-value="5"></i>
-
-                        </div>
-
-                        {{ form.rating() }}
+</div>
+                        <input
+    type="hidden"
+    id="rating"
+    name="rating"
+    value="">
 
                         <small class="text-muted">
 
@@ -280,110 +277,141 @@
 
         {% endif %}
 
-<!-- ===================================== -->
-        <!-- COMMUNITY REVIEWS -->
         <!-- ===================================== -->
+<!-- COMMUNITY REVIEWS -->
+<!-- ===================================== -->
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-4">
 
-            <div>
+    <div>
 
-                <h2 class="fw-bold mb-1">
+        <h2 class="fw-bold mb-1">
+            Latest Community Reviews
+        </h2>
 
-                    Latest Community Reviews
+        <p class="text-muted mb-0">
+            Honest feedback from developers using CodeSentinel AI.
+        </p>
 
-                </h2>
+    </div>
 
-                <p class="text-muted mb-0">
+</div>
 
-                    Honest feedback from developers using CodeSentinel AI.
+<!-- Search & Filter -->
 
-                </p>
+<div class="row mb-4">
 
-            </div>
+    <div class="col-lg-8 mb-3 mb-lg-0">
 
-        </div>
+        <input
+            id="reviewSearch"
+            type="text"
+            class="form-control"
+            placeholder="Search reviews...">
 
-        <div class="row g-4">
+    </div>
 
-            {% if reviews %}
+    <div class="col-lg-4">
 
-                {% for review in reviews %}
+        <select
+            id="ratingFilter"
+            class="form-select">
 
-                <div class="col-lg-4 col-md-6">
+            <option value="0">All Ratings</option>
+            <option value="5">★★★★★</option>
+            <option value="4">★★★★☆</option>
+            <option value="3">★★★☆☆</option>
+            <option value="2">★★☆☆☆</option>
+            <option value="1">★☆☆☆☆</option>
 
-                    <div class="card border-0 shadow-sm h-100 review-card">
+        </select>
 
-                        <div class="card-body">
+    </div>
 
-                            <!-- Rating -->
+</div>
 
-                            <div class="mb-3">
+<div class="row g-4">
 
-                                {% for i in range(review.rating) %}
+    {% if reviews %}
 
-                                    <i class="fa-solid fa-star text-warning"></i>
+        {% for review in reviews %}
 
-                                {% endfor %}
+            <div class="col-lg-4 col-md-6">
 
-                                {% for i in range(5 - review.rating) %}
+                <div
+                    class="card border-0 shadow-sm h-100 review-card"
+                    data-rating="{{ review.rating }}">
 
-                                    <i class="fa-regular fa-star text-warning"></i>
+                    <div class="card-body">
 
-                                {% endfor %}
+                        <!-- Rating -->
 
-                            </div>
+                        <div class="mb-3">
 
-                            <!-- Title -->
+                            {% for i in range(review.rating) %}
 
-                            <h5 class="fw-bold">
+                                <i class="fa-solid fa-star text-warning"></i>
 
-                                {{ review.title }}
+                            {% endfor %}
 
-                            </h5>
+                            {% for i in range(5 - review.rating) %}
 
-                            <!-- Comment -->
+                                <i class="fa-regular fa-star text-warning"></i>
 
-                            <p class="text-muted">
-
-                                {{ review.comment }}
-
-                            </p>
+                            {% endfor %}
 
                         </div>
 
-                        <div class="card-footer bg-white border-0">
+                        <!-- Title -->
 
-                            <div class="d-flex align-items-center">
+                        <h5 class="fw-bold">
 
-                                <!-- Avatar -->
+                            {{ review.title }}
 
-                                {% if review.user.profile_picture %}
+                        </h5>
 
-                                    <img
-                                        src="{{ url_for('static', filename='uploads/profile_pics/' ~ review.user.profile_picture) }}"
-                                        class="rounded-circle me-3"
-                                        width="55"
-                                        height="55"
-                                        alt="Profile">
+                        <!-- Comment -->
 
-                                {% else %}
+                        <p class="text-muted">
 
-                                    <div
-                                        class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center me-3"
-                                        style="width:55px;height:55px;">
+                            {{ review.comment }}
 
-                                        <strong>
+                        </p>
 
-                                            {{ review.user.username[:1]|upper }}
+                    </div>
 
-                                        </strong>
+                    <div class="card-footer bg-white border-0">
 
-                                    </div>
+                        <div class="d-flex align-items-center">
 
-                                {% endif %}
+                            {% if review.user.profile_picture %}
 
-                                <div class="flex-grow-1">
+                                <img
+                                    src="{{ url_for('static', filename='uploads/profile_pics/' ~ review.user.profile_picture) }}"
+                                    class="rounded-circle me-3"
+                                    width="55"
+                                    height="55"
+                                    alt="Profile">
+
+                            {% else %}
+
+                                <div
+                                    class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center me-3"
+                                    style="width:55px;height:55px;">
+
+                                    <strong>
+
+                                        {{ review.user.username[:1]|upper }}
+
+                                    </strong>
+
+                                </div>
+
+                            {% endif %}
+
+                            <div class="flex-grow-1">
+
+                                <div class="d-flex align-items-center">
 
                                     <strong>
 
@@ -391,19 +419,31 @@
 
                                     </strong>
 
-                                    <br>
+                                    <span class="badge bg-success ms-2">
 
-                                    <small class="text-muted">
+                                        <i class="fa-solid fa-circle-check"></i>
 
-                                        {{ review.created_at.strftime("%d %b %Y") }}
+                                        Verified
 
-                                    </small>
+                                    </span>
 
                                 </div>
 
+                                <small class="text-muted">
+
+                                    {{ review.created_at.strftime("%d %b %Y") }}
+
+                                </small>
+
                             </div>
 
+
                            {% if current_user.is_authenticated and review.user_id == current_user.id %}
+
+                        </div>
+
+                        {% if current_user.is_authenticated and review.user_id == current_user.id %}
+
 
 <hr>
 
@@ -434,72 +474,80 @@
 
     </form>
 
+
 </div>
 
 {% endif %}
                         </div>
 
-                    </div>
+                            </div>
 
-                </div>
+                        {% endif %}
 
-                {% endfor %}
-
-            {% else %}
-
-                <div class="col-12">
-
-                    <div class="card border-0 shadow-sm">
-
-                        <div class="card-body text-center py-5">
-
-                            <i class="fa-solid fa-comments fa-4x text-secondary mb-4"></i>
-
-                            <h3>
-
-                                No Reviews Yet
-
-                            </h3>
-
-                            <p class="text-muted">
-
-                                Be the first developer to share your experience with CodeSentinel AI.
-
-                            </p>
-
-                            {% if current_user.is_authenticated %}
-
-                            <a
-                                href="#"
-                                class="btn btn-primary">
-
-                                Write the First Review
-
-                            </a>
-
-                            {% else %}
-
-                            <a
-                                href="{{ url_for('main.login') }}"
-                                class="btn btn-primary">
-
-                                Login to Review
-
-                            </a>
-
-                            {% endif %}
-
-                        </div>
 
                     </div>
 
                 </div>
 
-            {% endif %}
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <div class="col-12">
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-body text-center py-5">
+
+                    <i class="fa-solid fa-comments fa-4x text-secondary mb-4"></i>
+
+                    <h3>
+
+                        No Reviews Yet
+
+                    </h3>
+
+                    <p class="text-muted">
+
+                        Be the first developer to share your experience with CodeSentinel AI.
+
+                    </p>
+
+                    {% if current_user.is_authenticated %}
+
+                        <a
+                            href="#"
+                            class="btn btn-primary">
+
+                            Write the First Review
+
+                        </a>
+
+                    {% else %}
+
+                        <a
+                            href="{{ url_for('main.login') }}"
+                            class="btn btn-primary">
+
+                            Login to Review
+
+                        </a>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
 
         </div>
 
-<!-- ===================================== -->
+    {% endif %}
+
+</div>
+
+        <!-- ===================================== -->
         <!-- CALL TO ACTION -->
         <!-- ===================================== -->
 
@@ -571,7 +619,11 @@
 
 document.addEventListener("DOMContentLoaded", function () {
 
-    const ratingInput = document.getElementById("rating");
+
+    // Star Rating
+    const hiddenRating = document.getElementById("rating");
+    const stars = document.querySelectorAll(".rating-star");
+
 
     if (ratingInput) {
         ratingInput.setAttribute("min", "1");
@@ -591,7 +643,76 @@ stars.forEach(function(star){
 
         stars.forEach(function(s){
 
+    if (hiddenRating && stars.length > 0) {
+
+        stars.forEach(function (star) {
+
+            star.addEventListener("click", function () {
+
+                const value = parseInt(star.dataset.value);
+
+                hiddenRating.value = value;
+
+                stars.forEach(function (s, index) {
+
+                    if (index < value) {
+
+                        s.classList.remove("fa-regular");
+                        s.classList.add("fa-solid");
+                        s.style.color = "#ffc107";
+
+                    } else {
+
+                        s.classList.remove("fa-solid");
+                        s.classList.add("fa-regular");
+                        s.style.color = "";
+
+                    }
+
+                });
+
+            });
+
+    const input = document.getElementById("rating");
+    const stars = document.querySelectorAll(".rating-star");
+
+    stars.forEach(function(star){
+
+        star.style.cursor = "pointer";
+
+        star.onclick = function(){
+
+            const value = Number(this.dataset.value);
+
+            input.value = value;
+
+            stars.forEach(function(s){
+
+                if(Number(s.dataset.value) <= value){
+
+                    s.className = "fa-solid fa-star rating-star text-warning";
+           
+
+                }else{
+
+
+    }
+
+    // Review Card Hover Effect
+    const reviewCards = document.querySelectorAll(".review-card");
+
+    reviewCards.forEach(function (card) {
+
+        card.style.transition = "all .3s ease";
+
+        card.addEventListener("mouseenter", function () {
+
+            card.style.transform = "translateY(-8px)";
+            card.style.boxShadow = "0 18px 40px rgba(0,0,0,.12)";
+
+
             if (s.getAttribute("data-value") <= value){
+
 
                 s.classList.remove("fa-regular");
                 s.classList.add("fa-solid");
@@ -604,7 +725,20 @@ stars.forEach(function(star){
 
             }
 
-        });
+        card.addEventListener("mouseleave", function () {
+
+            card.style.transform = "translateY(0)";
+            card.style.boxShadow = "";
+
+                    s.className = "fa-regular fa-star rating-star";
+
+
+                }
+
+            });
+
+
+        };
 
     });
 
