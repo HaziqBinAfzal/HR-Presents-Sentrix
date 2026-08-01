@@ -2,6 +2,7 @@ import os
 import uuid
 import tempfile
 import time
+from zoneinfo import ZoneInfo
 from flask import send_file
 from flask_login import login_required, current_user
 from flask_mail import Message
@@ -452,10 +453,20 @@ def upload():
 
     form = UploadForm()
 
+    recent_analyses = (
+        Analysis.query
+        .filter_by(user_id=current_user.id)
+        .order_by(Analysis.created_at.desc())
+        .limit(5)
+        .all()
+    )
+
     if not form.validate_on_submit():
+    
         return render_template(
             "upload.html",
-            form=form
+            form=form,
+            recent_analyses=recent_analyses
         )
 
     uploaded_file = form.file.data
@@ -486,7 +497,8 @@ def upload():
 
         return render_template(
             "upload.html",
-            form=form
+            form=form,
+            recent_analyses=recent_analyses
         )
 
     # --------------------------------------------------
@@ -546,7 +558,8 @@ def upload():
 
         return render_template(
             "upload.html",
-            form=form
+            form=form,
+            recent_analyses=recent_analyses
         )
 
     # --------------------------------------------------
@@ -784,6 +797,7 @@ def history():
         ).scalar() or 0,
         2
     )
+
 
     return render_template(
         "history.html",

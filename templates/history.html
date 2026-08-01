@@ -341,7 +341,7 @@
 
 <!-- Project Information -->
 
-                                    <div class="col-lg-4 mb-3 mb-lg-0">
+                                    <div class="col-xl-4 col-lg-12 mb-4">
 
                                         <div class="d-flex align-items-start">
 
@@ -353,13 +353,13 @@
 
                                             <div>
 
-                                                <h5 class="fw-bold mb-1">
+                                                <h5 class="fw-bold mb-2 text-break">
 
-                                                    {{ analysis.filename }}
+                                                    {{ analysis.filename|truncate(28, True) }}
 
                                                 </h5>
 
-                                                <div class="d-flex flex-wrap gap-2">
+                                                 <div class="d-flex flex-wrap gap-2 mb-2">
 
                                                     <span class="badge bg-light text-dark">
 
@@ -382,7 +382,7 @@
                                                     <i class="fa-regular fa-calendar me-1"></i>
 
                                                     <span
-    class="local-time"
+    class="user-local-time"
     data-time="{{ analysis.created_at.isoformat() }}">
 </span>
 
@@ -396,15 +396,15 @@
 
                                     <!-- Quality -->
 
-                                    <div class="col-md-6 col-lg-2 text-center">
+                                    <div class="col-xl-2 col-lg-3 col-md-6 text-center mt-3 mt-lg-0">
 
-                                        <small class="text-muted d-block mb-2">
+                                        <small class="text-muted d-block mb-1 fw-semibold">
 
                                             Quality Score
 
                                         </small>
 
-                                        <span class="badge bg-primary fs-6 px-3 py-2">
+                                        <span class="badge bg-primary px-3 py-2 rounded-pill">
 
                                             {{ analysis.overall_score|round(1) }}%
 
@@ -414,7 +414,7 @@
 
                                     <!-- Security -->
 
-                                    <div class="col-md-6 col-lg-2 text-center">
+                                    <div class="col-xl-2 col-lg-3 col-md-6 text-center mt-3 mt-lg-0">
 
                                         <small class="text-muted d-block mb-2">
 
@@ -434,7 +434,7 @@
 
                                     <!-- Complexity -->
 
-                                    <div class="col-md-6 col-lg-2 text-center">
+                                    <div class="col-xl-2 col-lg-3 col-md-6 text-center mt-3 mt-lg-0">
 
                                         <small class="text-muted d-block mb-2">
 
@@ -486,7 +486,7 @@
 
                                 <hr>
 
-                                <div class="row align-items-center">
+                                <div class="row align-items-center g-4">
 
 
 

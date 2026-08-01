@@ -602,65 +602,61 @@
 
                                 </h4>
 
-                            </div>
+                                 <div class="card-body">
 
-                            <div class="card-body">
+{% if recent_analyses %}
 
-                                {% if recent_uploads %}
+    {% for analysis in recent_analyses %}
 
-                                    {% for upload in recent_uploads[:5] %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
 
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
 
-                                        <div>
+            <strong>{{ analysis.filename }}</strong><br>
 
-                                            <strong>
+            <small class="text-muted">
+                {{ analysis.language }}
+                •
+                {{ analysis.created_at.strftime('%d %b %Y %I:%M %p') }}
+            </small>
 
-                                                {{ upload.filename }}
+        </div>
 
-                                            </strong>
+        <a href="{{ url_for('main.results', analysis_id=analysis.id) }}"
+           class="btn btn-sm btn-outline-primary">
 
-                                            <br>
+            View
 
-                                            <small class="text-muted">
+        </a>
 
-                                                {{ upload.created_at.strftime('%d %b %Y') }}
+    </div>
 
-                                            </small>
+    {% if not loop.last %}
+    <hr>
+    {% endif %}
 
-                                        </div>
+    {% endfor %}
 
-                                        <span class="badge bg-primary">
+{% else %}
 
-                                            {{ upload.status }}
+<div class="text-center py-4">
 
-                                        </span>
+    <i class="fa-solid fa-folder-open fa-3x text-secondary mb-3"></i>
 
-                                    </div>
+    <h6>No analyses yet</h6>
 
-                                    {% if not loop.last %}
+    <p class="text-muted mb-0">
 
-                                    <hr>
+        Upload your first project to receive AI-powered code quality,
+        security and complexity analysis.
 
-                                    {% endif %}
+    </p>
 
-                                    {% endfor %}
+</div>
 
-                                {% else %}
+{% endif %}
 
-                                <div class="text-center py-3">
-
-                                    <i class="fa-solid fa-folder-open fa-2x text-secondary mb-3"></i>
-
-                                    <p class="text-muted mb-0">
-
-                                        No recent uploads found.
-
-                                    </p>
-
-                                </div>
-
-                                {% endif %}
+</div>                       
 
                             </div>
 
