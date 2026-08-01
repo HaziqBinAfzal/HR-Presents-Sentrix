@@ -451,10 +451,19 @@
         </div>
 
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> frontend
 <!-- ======================================================= -->
 <!-- Detailed Analysis Output -->
 <!-- ======================================================= -->
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> frontend
 {% if analysis.syntax_output %}
 
 <div class="card border-0 shadow-sm mb-4">
@@ -482,6 +491,7 @@
 {% endif %}
 
 
+<<<<<<< HEAD
 {% if analysis.pylint_output %}
 
 <div class="card border-0 shadow-sm mb-4">
@@ -701,6 +711,8 @@
 
 {% endif %}
 
+=======
+>>>>>>> frontend
 {% if analysis.pylint_output %}
 
 <div class="card border-0 shadow-sm mb-4">
@@ -737,9 +749,13 @@
         <h4 class="mb-0">
 
             <i class="fa-solid fa-shield-halved text-danger me-2"></i>
+
 
             Security Findings
 
+            Detailed Bandit Findings
+
+
         </h4>
 
     </div>
@@ -763,7 +779,11 @@
 
         <h4 class="mb-0">
 
+
             <i class="fa-solid fa-chart-simple text-primary me-2"></i>
+
+            <i class="fa-solid fa-chart-line text-primary me-2"></i>
+
 
             Cyclomatic Complexity
 
@@ -783,11 +803,248 @@
 
 <!-- Analysis Summary -->
 
+<<<<<<< HEAD
 <div class="row g-4 mb-5">
+=======
+
+<hr>
+>>>>>>> frontend
 
     <div class="col-12">
 
+<<<<<<< HEAD
         <div class="card border-0 shadow-sm">
+=======
+    <span>Functions</span>
+
+    <strong>{{ analysis.functions_count }}</strong>
+
+</div>
+
+<hr>
+
+<div class="d-flex justify-content-between">
+
+    <span>Classes</span>
+
+    <strong>{{ analysis.classes_count }}</strong>
+
+</div>
+
+<hr>
+
+<div class="d-flex justify-content-between">
+
+    <span>Comments</span>
+
+    <strong>{{ analysis.comments_count }}</strong>
+
+</div>
+
+<hr>
+
+<div class="d-flex justify-content-between">
+
+    <span>Blank Lines</span>
+
+    <strong>{{ analysis.blank_lines }}</strong>
+
+</div>
+
+
+<!-- Security Findings & Quality Analysis -->
+
+        <div class="row g-4 mb-5">
+
+            <!-- Security Findings -->
+
+            <div class="col-lg-6">
+
+                <div class="card border-0 shadow-sm h-100">
+
+                    <div class="card-header bg-white">
+
+                        <h4 class="mb-0">
+
+                            <i class="fa-solid fa-shield-halved text-danger me-2"></i>
+
+                            Security Findings
+
+                        </h4>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+
+                            <span>
+
+                                Total Vulnerabilities
+
+                            </span>
+
+                            <span class="badge bg-danger">
+
+                                {{ analysis.security_count }}
+
+                            </span>
+
+                        </div>
+
+                        <div class="progress mb-4" style="height:10px;">
+
+                            <div class="progress-bar bg-danger"
+                                 role="progressbar"
+                                 {% if analysis.complexity == "Low" %}
+<div class="progress-bar bg-success" style="width:30%"></div>
+
+{% elif analysis.complexity == "Medium" %}
+<div class="progress-bar bg-warning" style="width:60%"></div>
+
+{% else %}
+<div class="progress-bar bg-danger" style="width:90%"></div>
+
+{% endif %}
+
+                            </div>
+
+                        </div>
+
+                        <div class="alert alert-light border mb-0">
+
+                            <i class="fa-solid fa-circle-info text-primary me-2"></i>
+
+                            Review detected security issues before deploying
+                            your application to production.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Code Quality -->
+
+            <div class="col-lg-6">
+
+                <div class="card border-0 shadow-sm h-100">
+
+                    <div class="card-header bg-white">
+
+                        <h4 class="mb-0">
+
+                            <i class="fa-solid fa-code text-success me-2"></i>
+
+                            Code Quality
+
+                        </h4>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="mb-4">
+
+                            <div class="d-flex justify-content-between mb-2">
+
+                                <span>
+
+                                    Overall Quality
+
+                                </span>
+
+                                <strong>
+
+                                    {{ analysis.overall_score }}%
+
+                                </strong>
+
+                            </div>
+
+                            <div class="progress">
+
+                                <div class="progress-bar bg-success"
+                                     style="width: {{ analysis.overall_score }}%">
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="mb-4">
+
+                            <div class="d-flex justify-content-between mb-2">
+
+                                <span>
+
+                                    Pylint Score
+
+                                </span>
+
+                                <strong>
+
+                                    {{ analysis.pylint_score }}/10
+
+                                </strong>
+
+                            </div>
+
+                            <div class="progress">
+
+                                <div class="progress-bar bg-primary"
+                                     style="width: {{ analysis.pylint_score * 10 }}%">
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div>
+
+                            <div class="d-flex justify-content-between mb-2">
+
+                                <span>
+
+                                    Complexity
+
+                                </span>
+
+                                <strong>
+
+                                    {{ analysis.complexity }}
+
+                                </strong>
+
+                            </div>
+
+                            <div class="progress">
+
+                                <div class="progress-bar bg-warning"
+                                     style="width: {{ 25 if analysis.complexity == 'Low' else 60 if analysis.complexity == 'Medium' else 100 }}%">
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Analysis Summary -->
+
+        <div class="card border-0 shadow-sm mb-5">
+>>>>>>> frontend
 
             <div class="card-header bg-white">
 
