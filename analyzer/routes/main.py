@@ -342,20 +342,9 @@ def dashboard():
     )
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 
->>>>>>> main
-=======
-
-
->>>>>>> frontend
-        # -----------------------------------------
-=======
+ 
     # -----------------------------------------
->>>>>>> f3e1deb (Configure Flask-Migrate)
     # Quality Trend
     # -----------------------------------------
 
@@ -460,11 +449,11 @@ def dashboard():
         ]
     }
 
-        recent_activities.append({
+    recent_activities.append({
 
-            "status": analysis.status,
+        "status": analysis.status,
 
-            "date": analysis.created_at.strftime("%d %b %Y")
+        "date": analysis.created_at.strftime("%d %b %Y")
 
         })
 
@@ -871,6 +860,7 @@ def history():
         complexity=complexity,
         sort=sort
     )
+
 # DELETE ANALYSIS# 
 
 
