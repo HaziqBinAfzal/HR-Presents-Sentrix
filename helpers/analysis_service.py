@@ -357,6 +357,7 @@ def run_project_analysis(
             complexity_level = "High"
     else:
 
+
         complexity_level = "Low"
 
 
@@ -366,7 +367,6 @@ def run_project_analysis(
         complexity_level = "High"
 
         complexity_level = "Low"
-
 
         complexity_level = "High"
 

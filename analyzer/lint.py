@@ -2,12 +2,14 @@ import json
 import re
 import subprocess
 
-SCORE_PATTERN = re.compile(r"rated at ([0-9]+\.[0-9]+)/10")
+SCORE_PATTERN = re.compile(
+    r"rated at ([0-9]+\.[0-9]+)/10"
+)
 
 
 def run_pylint(file_path):
     """
-    Run pylint on a Python file.
+    Run pylint and return structured results.
 
     Returns:
         {
@@ -18,7 +20,7 @@ def run_pylint(file_path):
     """
 
     try:
-        result = subprocess.run(
+        json_result = subprocess.run(
             [
                 "pylint",
                 file_path,
@@ -32,7 +34,7 @@ def run_pylint(file_path):
         issues = []
 
         try:
-            data = json.loads(result.stdout)
+            data = json.loads(json_result.stdout)
 
             for item in data:
                 issues.append(
@@ -60,9 +62,15 @@ def run_pylint(file_path):
             check=False
         )
 
+        output = (
+            text_result.stdout +
+            "\n" +
+            text_result.stderr
+        ).strip()
+
         score = 0.0
 
-        match = SCORE_PATTERN.search(text_result.stdout)
+        match = SCORE_PATTERN.search(output)
 
         if match:
             score = float(match.group(1))
@@ -70,7 +78,7 @@ def run_pylint(file_path):
         return {
             "score": score,
             "issues": issues,
-            "output": text_result.stdout
+            "output": output
         }
 
     except Exception as error:

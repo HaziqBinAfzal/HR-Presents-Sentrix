@@ -4,7 +4,7 @@ from extensions import mail
 from flask import Flask, render_template
 from models import User
 from flask_login import LoginManager
-
+from flask_migrate import Migrate
 from analyzer.routes.main import main
 from config import Config
 from database import db
@@ -27,6 +27,9 @@ def create_app():
 
     # Initialize database
     db.init_app(app)
+
+
+    migrate = Migrate(app, db)
 
     # Initialize Flask-Login
     login_manager.init_app(app)

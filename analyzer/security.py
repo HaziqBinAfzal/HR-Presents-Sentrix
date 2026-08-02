@@ -28,6 +28,12 @@ def run_bandit(path):
             check=False
         )
 
+        output = (
+            result.stdout +
+            "\n" +
+            result.stderr
+        ).strip()
+
         issues = []
 
         try:
@@ -45,12 +51,12 @@ def run_bandit(path):
                 )
 
         except Exception:
-            data = {}
+            pass
 
         return {
             "count": len(issues),
             "issues": issues,
-            "output": result.stdout
+            "output": output
         }
 
     except Exception as error:
