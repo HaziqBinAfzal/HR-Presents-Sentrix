@@ -344,6 +344,7 @@ def dashboard():
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> main
@@ -352,6 +353,9 @@ def dashboard():
 
 >>>>>>> frontend
         # -----------------------------------------
+=======
+    # -----------------------------------------
+>>>>>>> f3e1deb (Configure Flask-Migrate)
     # Quality Trend
     # -----------------------------------------
 
@@ -387,23 +391,10 @@ def dashboard():
     # Recent Activities
     # -----------------------------------------
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-
->>>>>>> main
-=======
-
->>>>>>> frontend
     recent_activities = []
 
     for analysis in recent_analyses:
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> frontend
 
         recent_activities.append(
             {
@@ -469,15 +460,7 @@ def dashboard():
         ]
     }
 
-<<<<<<< HEAD
->>>>>>> main
-=======
->>>>>>> frontend
         recent_activities.append({
-
-            "project": analysis.filename,
-
-            "score": analysis.overall_score,
 
             "status": analysis.status,
 
@@ -485,13 +468,6 @@ def dashboard():
 
         })
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-
->>>>>>> main
-=======
->>>>>>> frontend
     return render_template(
         "dashboard.html",
 
@@ -514,21 +490,9 @@ def dashboard():
 
         quality_chart=quality_chart,
         security_chart=security_chart,
-<<<<<<< HEAD
-<<<<<<< HEAD
-        language_chart=None,
-
-=======
 
         language_chart=None,
 
-
->>>>>>> main
-=======
-
-        language_chart=None,
-
->>>>>>> frontend
         recent_activities=recent_activities,
 
         ai_insight=(
@@ -1384,46 +1348,6 @@ def reviews():
 
 
 # ============================================================
-# EDIT REVIEW
-# ============================================================
-
-@main.route("/reviews/edit/<int:review_id>", methods=["GET", "POST"])
-@login_required
-def edit_review(review_id):
-
-    review = get_review(review_id)
-
-    if review.user_id != current_user.id:
-        abort(403)
-
-    form = ReviewForm(obj=review)
-
-    if form.validate_on_submit():
-
-        update_review(
-            review,
-            form.rating.data,
-            form.title.data,
-            form.comment.data
-        )
-
-        flash(
-            "Review updated successfully!",
-            "success"
-        )
-
-        return redirect(
-            url_for("main.reviews")
-        )
-
-    return render_template(
-        "edit_review.html",
-        form=form,
-        review=review
-    )
-
-
-# ============================================================
 # DELETE REVIEW
 # ============================================================
 
@@ -1445,14 +1369,6 @@ def remove_review(review_id):
 
     return redirect(
         url_for("main.reviews")
-
-        average_rating=review_stats["average_rating"],
-        total_reviews=review_stats["total_reviews"],
-        rating_breakdown=review_stats["rating_breakdown"],
-        recommendation_percentage=review_stats[
-            "recommendation_percentage"
-        ]
-
     )
 
 # REPORT DOWNLOAD #
