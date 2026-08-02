@@ -838,6 +838,8 @@
 
 {% block scripts %}
 
+<script>
+
 const tools = [
     "pylint",
     "bandit",
@@ -909,8 +911,6 @@ tools.forEach(function(tool){
 });
 
 updateAnalysisCard();
-
-<script>
 
 const fileInput = document.querySelector('input[type="file"]');
 const dropZone = document.getElementById('drop-zone');
