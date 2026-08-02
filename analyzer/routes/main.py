@@ -341,19 +341,6 @@ def dashboard():
         .all()
     )
 
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-
-<<<<<<< HEAD
-=======
->>>>>>> main
-=======
-
-
->>>>>>> frontend
->>>>>>> backend
         # -----------------------------------------
     # Quality Trend
     # -----------------------------------------
@@ -389,24 +376,9 @@ def dashboard():
     # -----------------------------------------
     # Recent Activities
     # -----------------------------------------
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-
->>>>>>> main
-=======
-
->>>>>>> frontend
     recent_activities = []
 
-    for analysis in recent_analyses:
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> frontend
+    for analysis in recent_analysis:
 
         recent_activities.append(
             {
@@ -472,33 +444,19 @@ def dashboard():
         ]
     }
 
-<<<<<<< HEAD
->>>>>>> main
-=======
->>>>>>> frontend
-        recent_activities.append({
 
-            "project": analysis.filename,
+    recent_activities.append({
 
-            "score": analysis.overall_score,
+        "project": analysis.filename,
 
-            "status": analysis.status,
+        "score": analysis.overall_score,
 
-            "date": analysis.created_at.strftime("%d %b %Y")
+        "status": analysis.status,
 
-        })
+        "date": analysis.created_at.strftime("%d %b %Y")
 
-<<<<<<< HEAD
+    })
 
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-
->>>>>>> main
-=======
->>>>>>> frontend
->>>>>>> backend
     return render_template(
         "dashboard.html",
 
@@ -521,24 +479,9 @@ def dashboard():
 
         quality_chart=quality_chart,
         security_chart=security_chart,
-<<<<<<< HEAD
-<<<<<<< HEAD
-        language_chart=None,
-
-=======
 
         language_chart=None,
 
-
-<<<<<<< HEAD
-=======
->>>>>>> main
-=======
-
-        language_chart=None,
-
->>>>>>> frontend
->>>>>>> backend
         recent_activities=recent_activities,
 
         ai_insight=(
@@ -1454,7 +1397,7 @@ def remove_review(review_id):
     )
 
     return redirect(
-        url_for("main.reviews")
+        url_for("main.reviews"),
 
         average_rating=review_stats["average_rating"],
         total_reviews=review_stats["total_reviews"],
@@ -1506,91 +1449,6 @@ def download_report(analysis_id):
         download_name=f"{analysis.filename}_report.html",
         mimetype="text/html"
     )
-
-
-
-# ============================================================
-# EDIT REVIEW
-# ============================================================
-
-@main.route("/reviews/edit/<int:review_id>", methods=["GET", "POST"])
-@login_required
-def edit_review(review_id):
-
-    review = Review.query.get_or_404(review_id)
-
-    if review.user_id != current_user.id:
-
-        flash(
-            "You can only edit your own review.",
-            "danger"
-        )
-
-        return redirect(url_for("main.reviews"))
-
-    form = ReviewForm()
-
-    if form.validate_on_submit():
-
-        review.rating = form.rating.data
-        review.title = form.title.data
-        review.comment = form.comment.data
-
-        db.session.commit()
-
-        flash(
-            "Review updated successfully!",
-            "success"
-        )
-
-        return redirect(url_for("main.reviews"))
-
-    form.rating.data = review.rating
-    form.title.data = review.title
-    form.comment.data = review.comment
-
-    return render_template(
-        "edit_review.html",
-        form=form,
-        review=review
-    )
-
-
-
-
-
-# ============================================================
-# DELETE REVIEW
-# ============================================================
-
-@main.route("/reviews/delete/<int:review_id>", methods=["POST"])
-@login_required
-def delete_review(review_id):
-
-    review = Review.query.get_or_404(review_id)
-
-    if review.user_id != current_user.id:
-
-        flash(
-            "You can only delete your own review.",
-            "danger"
-        )
-
-        return redirect(url_for("main.reviews"))
-
-    db.session.delete(review)
-    db.session.commit()
-
-    flash(
-        "Review deleted successfully!",
-        "success"
-    )
-
-    return redirect(url_for("main.reviews"))
-
-
-
-
 
 
 
