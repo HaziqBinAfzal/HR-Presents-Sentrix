@@ -948,12 +948,37 @@ def settings():
 # PROFILE
 # ============================================================
 
-@main.route(
-    "/profile",
-    methods=["GET", "POST"]
-)
+@main.route("/profile", methods=["GET", "POST"])
 @login_required
 def profile():
+
+    # ------------------------------------------
+    # Load profile statistics
+    # ------------------------------------------
+
+    total_projects = Project.query.filter_by(
+        user_id=current_user.id
+    ).count()
+
+    total_analyses = Analysis.query.filter_by(
+        user_id=current_user.id
+    ).count()
+
+    total_reviews = Review.query.filter_by(
+        user_id=current_user.id
+    ).count()
+
+    recent_projects = (
+        Project.query
+        .filter_by(user_id=current_user.id)
+        .order_by(Project.upload_date.desc())
+        .limit(5)
+        .all()
+    )
+
+    # ------------------------------------------
+    # Handle profile update
+    # ------------------------------------------
 
     if request.method == "POST":
 
@@ -971,10 +996,6 @@ def profile():
             "profile_picture"
         )
 
-        # ------------------------------------------
-        # Validate username and email
-        # ------------------------------------------
-
         if not username or not email:
 
             flash(
@@ -985,10 +1006,6 @@ def profile():
             return redirect(
                 url_for("main.profile")
             )
-
-        # ------------------------------------------
-        # Check duplicate username
-        # ------------------------------------------
 
         existing_username = User.query.filter(
             User.username == username,
@@ -1006,10 +1023,6 @@ def profile():
                 url_for("main.profile")
             )
 
-        # ------------------------------------------
-        # Check duplicate email
-        # ------------------------------------------
-
         existing_email = User.query.filter(
             User.email == email,
             User.id != current_user.id
@@ -1026,20 +1039,23 @@ def profile():
                 url_for("main.profile")
             )
 
-        # ------------------------------------------
-        # Update username and email
-        # ------------------------------------------
-
         current_user.username = username
         current_user.email = email
 
-        current_user.full_name = request.form.get("full_name", "").strip()
-        current_user.organization = request.form.get("organization", "").strip()
-        current_user.bio = request.form.get("bio", "").strip()
+        current_user.full_name = request.form.get(
+            "full_name",
+            ""
+        ).strip()
 
-        # ------------------------------------------
-        # Handle profile picture
-        # ------------------------------------------
+        current_user.organization = request.form.get(
+            "organization",
+            ""
+        ).strip()
+
+        current_user.bio = request.form.get(
+            "bio",
+            ""
+        ).strip()
 
         if profile_picture and profile_picture.filename:
 
@@ -1090,8 +1106,7 @@ def profile():
             )[1].lower()
 
             new_filename = (
-                f"user_{current_user.id}_"
-                f"{uuid.uuid4().hex}.{extension}"
+                f"user_{current_user.id}_{uuid.uuid4().hex}.{extension}"
             )
 
             profile_picture.save(
@@ -1114,26 +1129,6 @@ def profile():
             url_for("main.profile")
         )
 
-        total_projects = Project.query.filter_by(
-           user_id=current_user.id
-        ).count()
-
-        total_analyses = Analysis.query.filter_by(
-           user_id=current_user.id
-        ).count()
-
-        total_reviews = Review.query.filter_by(
-           user_id=current_user.id
-        ).count()
-
-        recent_projects = (
-           Project.query
-           .filter_by(user_id=current_user.id)
-           .order_by(Project.upload_date.desc())
-           .limit(5)
-           .all()
-    )
-
     return render_template(
         "profile.html",
         total_projects=total_projects,
@@ -1141,7 +1136,6 @@ def profile():
         total_reviews=total_reviews,
         recent_projects=recent_projects
     )
-
 
 # CHANGE PASSWORD #
 
