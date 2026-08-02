@@ -8,7 +8,7 @@
 
     <div class="container">
 
-        <!-- Header -->
+        <!-- ================= HEADER ================= -->
 
         <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-5">
 
@@ -25,13 +25,13 @@
                 <p class="text-muted mb-0">
 
                     Upload your source code project for AI-powered code quality,
-                    security, and complexity analysis.
+                    security, security scanning and AI analysis.
 
                 </p>
 
             </div>
 
-            <div class="mt-4 mt-lg-0 d-flex flex-wrap gap-2">
+            <div class="mt-4 mt-lg-0 d-flex gap-2">
 
                 <a href="{{ url_for('main.dashboard') }}"
                    class="btn btn-outline-primary">
@@ -55,13 +55,13 @@
 
         </div>
 
-        <!-- Statistics -->
+        <!-- ================= TOP STATISTICS ================= -->
 
         <div class="row g-4 mb-5">
 
             <div class="col-md-6 col-xl-3">
 
-                <div class="card border-0 shadow-sm">
+                <div class="card border-0 shadow-sm h-100">
 
                     <div class="card-body text-center">
 
@@ -87,7 +87,7 @@
 
             <div class="col-md-6 col-xl-3">
 
-                <div class="card border-0 shadow-sm">
+                <div class="card border-0 shadow-sm h-100">
 
                     <div class="card-body text-center">
 
@@ -113,7 +113,7 @@
 
             <div class="col-md-6 col-xl-3">
 
-                <div class="card border-0 shadow-sm">
+                <div class="card border-0 shadow-sm h-100">
 
                     <div class="card-body text-center">
 
@@ -139,7 +139,7 @@
 
             <div class="col-md-6 col-xl-3">
 
-                <div class="card border-0 shadow-sm">
+                <div class="card border-0 shadow-sm h-100">
 
                     <div class="card-body text-center">
 
@@ -165,7 +165,7 @@
 
         </div>
 
-        <!-- Upload Form -->
+        <!-- ================= UPLOAD FORM ================= -->
 
         <form method="POST"
               enctype="multipart/form-data">
@@ -174,44 +174,11 @@
 
             <div class="row g-4">
 
-                <!-- Upload Area -->
-
-               <!-- Submit Buttons -->
-
-<div class="card border-0 shadow-sm mt-4">
-
-    <div class="card-body">
-
-        <div class="d-grid gap-2">
-
-            <button
-                type="submit"
-                id="submitBtn"
-                class="btn btn-primary btn-lg">
-
-                <i class="fa-solid fa-play me-2"></i>
-
-                Analyze Project
-
-            </button>
-
-            <button
-                type="reset"
-                class="btn btn-outline-secondary">
-
-                <i class="fa-solid fa-arrow-rotate-left me-2"></i>
-
-                Reset Form
-
-            </button>
-
-        </div>
-
-    </div>
-
-</div>
+                <!-- LEFT COLUMN -->
 
                 <div class="col-lg-7">
+
+                    <!-- Upload Area -->
 
                     <div class="card border-0 shadow-sm">
 
@@ -242,8 +209,7 @@
 
                                 <p class="text-muted">
 
-                                    Upload a ZIP archive containing your
-                                    Python project.
+                                    Upload a ZIP archive containing your Python project.
 
                                 </p>
 
@@ -265,435 +231,136 @@
 
                     </div>
 
+                    <!-- Project Details -->
 
-<!-- Project Details -->
+                    <div class="card border-0 shadow-sm mt-4">
 
-                        <div class="card border-0 shadow-sm mt-4">
+                        <div class="card-header bg-white">
 
-                            <div class="card-header bg-white">
+                            <h4 class="mb-0">
 
-                                <h4 class="mb-0">
+                                <i class="fa-solid fa-folder-tree text-success me-2"></i>
 
-                                    <i class="fa-solid fa-folder-tree text-success me-2"></i>
+                                Project Details
 
-                                    Project Details
-
-                                </h4>
-
-                            </div>
-
-                            <div class="card-body">
-
-                                <div class="row g-4">
-
-                                    <div class="col-md-6">
-
-                                        <label class="form-label fw-semibold">
-
-                                            Project Name
-
-                                        </label>
-
-                                        {{ form.project_name(
-                                            class="form-control",
-                                            placeholder="Enter project name"
-                                        ) }}
-
-                                    </div>
-
-                                    <div class="col-md-6">
-
-                                        <label class="form-label fw-semibold">
-
-                                            Programming Language
-
-                                        </label>
-
-                                        <select name="language" class="form-select">
-    <option value="python" selected>Python</option>
-</select>
-
-                                    </div>
-
-                                    <div class="col-md-6">
-
-                                        <label class="form-label fw-semibold">
-
-                                            Analysis Type
-
-                                        </label>
-
-                                        <select
-                                            class="form-select"
-                                            name="analysis_type">
-
-                                            <option value="full">
-
-                                                Full Analysis
-
-                                            </option>
-
-                                            <option value="security">
-
-                                                Security Only
-
-                                            </option>
-
-                                            <option value="quality">
-
-                                                Code Quality Only
-
-                                            </option>
-
-                                            <option value="complexity">
-
-                                                Complexity Only
-
-                                            </option>
-
-                                        </select>
-
-                                    </div>
-
-                                    <div class="col-md-6">
-
-                                        <label class="form-label fw-semibold">
-
-                                            Report Format
-
-                                        </label>
-
-                                        <select
-                                            class="form-select"
-                                            name="report_format">
-
-                                            <option value="html">
-
-                                                HTML
-
-                                            </option>
-
-                                            <option value="pdf">
-
-                                                PDF
-
-                                            </option>
-
-                                            <option value="json">
-
-                                                JSON
-
-                                            </option>
-
-                                        </select>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
+                            </h4>
 
                         </div>
 
-                    </div>
+                        <div class="card-body">
 
-                    <!-- Analysis Options -->
+                            <div class="row g-4">
 
-                    <div class="col-lg-5">
+<div class="col-md-6">
 
-                        <div class="card border-0 shadow-sm">
+                                    <label class="form-label fw-semibold">
 
-                            <div class="card-header bg-white">
-
-                                <h4 class="mb-0">
-
-                                    <i class="fa-solid fa-sliders text-primary me-2"></i>
-
-                                    Analysis Options
-
-                                </h4>
-
-                            </div>
-
-                            <div class="card-body">
-
-                                <div class="form-check form-switch mb-3">
-
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        checked
-                                        name="pylint">
-
-                                    <label class="form-check-label">
-
-                                        Run Pylint
+                                        Project Name
 
                                     </label>
 
+                                    {{ form.project_name(
+                                        class="form-control",
+                                        placeholder="Enter project name"
+                                    ) }}
+
                                 </div>
 
-                                <div class="form-check form-switch mb-3">
+                                <div class="col-md-6">
 
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        checked
-                                        name="bandit">
+                                    <label class="form-label fw-semibold">
 
-                                    <label class="form-check-label">
-
-                                        Run Bandit
+                                        Programming Language
 
                                     </label>
 
+                                    <select
+                                        class="form-select"
+                                        name="language">
+
+                                        <option value="python" selected>
+
+                                            Python
+
+                                        </option>
+
+                                    </select>
+
                                 </div>
 
-                                <div class="form-check form-switch mb-3">
+                                <div class="col-md-6">
 
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        checked
-                                        name="radon">
+                                    <label class="form-label fw-semibold">
 
-                                    <label class="form-check-label">
-
-                                        Run Radon
+                                        Analysis Type
 
                                     </label>
 
+                                    <select
+                                        class="form-select"
+                                        name="analysis_type">
+
+                                        <option value="full">
+
+                                            Full Analysis
+
+                                        </option>
+
+                                        <option value="security">
+
+                                            Security Only
+
+                                        </option>
+
+                                        <option value="quality">
+
+                                            Code Quality Only
+
+                                        </option>
+
+                                        <option value="complexity">
+
+                                            Complexity Only
+
+                                        </option>
+
+                                    </select>
+
                                 </div>
 
-                                <div class="form-check form-switch mb-3">
+                                <div class="col-md-6">
 
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        checked
-                                        name="black">
+                                    <label class="form-label fw-semibold">
 
-                                    <label class="form-check-label">
-
-                                        Check Formatting (Black)
+                                        Report Format
 
                                     </label>
 
-                                </div>
+                                    <select
+                                        class="form-select"
+                                        name="report_format">
 
-                                <div class="form-check form-switch">
+                                        <option value="html">
 
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        checked
-                                        name="ai_summary">
+                                            HTML
 
-                                    <label class="form-check-label">
+                                        </option>
 
-                                        Generate AI Summary
+                                        <option value="pdf">
 
-                                    </label>
+                                            PDF
 
-                                </div>
+                                        </option>
 
-                            </div>
+                                        <option value="json">
 
-                        </div>
+                                            JSON
 
+                                        </option>
 
-<!-- AI Provider Status -->
-
-                        <div class="card border-0 shadow-sm mt-4">
-
-                            <div class="card-header bg-white">
-
-                                <h4 class="mb-0">
-
-                                    <i class="fa-solid fa-key text-warning me-2"></i>
-
-                                    AI Provider (BYOK)
-
-                                </h4>
-
-                            </div>
-
-                            <div class="card-body">
-
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-
-                                    <span class="fw-semibold">
-
-                                        Provider
-
-                                    </span>
-
-                                    <span class="badge bg-success">
-
-                                        {{ ai_provider or "Gemini" }}
-
-                                    </span>
+                                    </select>
 
                                 </div>
-
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-
-                                    <span class="fw-semibold">
-
-                                        Model
-
-                                    </span>
-
-                                    <span>
-
-                                        {{ ai_model or "gemini-2.5-pro" }}
-
-                                    </span>
-
-                                </div>
-
-                                <div class="d-flex justify-content-between align-items-center mb-4">
-
-                                    <span class="fw-semibold">
-
-                                        Status
-
-                                    </span>
-
-                                    <span class="badge bg-success">
-
-                                        Connected
-
-                                    </span>
-
-                                </div>
-
-                                <a href="{{ url_for('main.settings') }}"
-                                   class="btn btn-outline-primary w-100">
-
-                                    <i class="fa-solid fa-gear me-2"></i>
-
-                                    Configure AI
-
-                                </a>
-
-                            </div>
-
-                        </div>
-
-                        <!-- Upload Progress -->
-
-                        <div class="card border-0 shadow-sm mt-4">
-
-                            <div class="card-header bg-white">
-
-                                <h4 class="mb-0">
-
-                                    <i class="fa-solid fa-bars-progress text-success me-2"></i>
-
-                                    Upload Progress
-
-                                </h4>
-
-                            </div>
-
-                            <div class="card-body">
-
-                                <div class="progress mb-3" style="height:12px;">
-
-                                    <div id="uploadProgress"
-                                         class="progress-bar progress-bar-striped progress-bar-animated"
-                                         role="progressbar"
-                                         style="width:0%">
-
-                                        0%
-
-                                    </div>
-
-                                </div>
-
-                                <small class="text-muted">
-
-                                    Progress will update automatically after
-                                    you start uploading your project.
-
-                                </small>
-
-                            </div>
-
-                        </div>
-
-                        <!-- Recent Uploads -->
-
-                        <div class="card border-0 shadow-sm mt-4">
-
-                            <div class="card-header bg-white">
-
-                                <h4 class="mb-0">
-
-                                    <i class="fa-solid fa-clock-rotate-left text-primary me-2"></i>
-
-                                    Recent Uploads
-
-                                </h4>
-
-                                </div>                                
-
-                                 <div class="card-body">
-
-{% if recent_analyses %}
-
-    {% for analysis in recent_analyses %}
-
-    <div class="d-flex justify-content-between align-items-center mb-3">
-
-        <div>
-
-            <strong>{{ analysis.filename }}</strong><br>
-
-            <small class="text-muted">
-                {{ analysis.language }}
-                •
-                {{ analysis.created_at.strftime('%d %b %Y %I:%M %p') }}
-            </small>
-
-        </div>
-
-        <a href="{{ url_for('main.results', analysis_id=analysis.id) }}"
-           class="btn btn-sm btn-outline-primary">
-
-            View
-
-        </a>
-
-    </div>
-
-    {% if not loop.last %}
-    <hr>
-    {% endif %}
-
-    {% endfor %}
-
-{% else %}
-
-<div class="text-center py-4">
-
-    <i class="fa-solid fa-folder-open fa-3x text-secondary mb-3"></i>
-
-    <h6>No analyses yet</h6>
-
-    <p class="text-muted mb-0">
-
-        Upload your first project to receive AI-powered code quality,
-        security and complexity analysis.
-
-    </p>
-
-</div>
-
-{% endif %}
-
-</div>                       
 
                             </div>
 
@@ -703,131 +370,348 @@
 
                 </div>
 
-         <!-- Selected Analysis -->
+                <!-- RIGHT COLUMN -->
 
-<div class="card border-0 shadow-sm mt-4">
+                <div class="col-lg-5">
 
-    <div class="card-header bg-white">
+                    <!-- Analysis Options -->
 
-        <h4 class="mb-0">
+                    <div class="card border-0 shadow-sm">
 
-            <i class="fa-solid fa-list-check text-success me-2"></i>
+                        <div class="card-header bg-white">
 
-            Selected Analysis
+                            <h4 class="mb-0">
 
-        </h4>
+                                <i class="fa-solid fa-sliders text-primary me-2"></i>
 
-    </div>
+                                Analysis Options
 
-    <div class="card-body">
+                            </h4>
 
-        <div class="mb-3">
+                        </div>
 
-            <strong>Enabled Tools</strong>
+                        <div class="card-body">
 
-            <span id="toolCount"
-                  class="badge bg-primary float-end">
+                            <div class="form-check form-switch mb-3">
 
-                5/5
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    checked
+                                    name="pylint">
 
-            </span>
+                                <label class="form-check-label">
 
-        </div>
+                                    Run Pylint
 
-        <ul class="list-group list-group-flush">
+                                </label>
 
-            <li class="list-group-item d-flex justify-content-between">
+                            </div>
 
-                <span>Pylint</span>
+                            <div class="form-check form-switch mb-3">
 
-                <span id="status-pylint"
-                      class="badge bg-success">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    checked
+                                    name="bandit">
 
-                    Enabled
+                                <label class="form-check-label">
 
-                </span>
+                                    Run Bandit
 
-            </li>
+                                </label>
 
-            <li class="list-group-item d-flex justify-content-between">
+                            </div>
 
-                <span>Bandit</span>
+                            <div class="form-check form-switch mb-3">
 
-                <span id="status-bandit"
-                      class="badge bg-success">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    checked
+                                    name="radon">
 
-                    Enabled
+                                <label class="form-check-label">
 
-                </span>
+                                    Run Radon
 
-            </li>
+                                </label>
 
-            <li class="list-group-item d-flex justify-content-between">
+                            </div>
 
-                <span>Radon</span>
+                            <div class="form-check form-switch mb-3">
 
-                <span id="status-radon"
-                      class="badge bg-success">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    checked
+                                    name="black">
 
-                    Enabled
+                                <label class="form-check-label">
 
-                </span>
+                                    Check Formatting (Black)
 
-            </li>
+                                </label>
 
-            <li class="list-group-item d-flex justify-content-between">
+                            </div>
 
-                <span>Black</span>
+                            <div class="form-check form-switch">
 
-                <span id="status-black"
-                      class="badge bg-success">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    checked
+                                    name="ai_summary">
 
-                    Enabled
+                                <label class="form-check-label">
 
-                </span>
+                                    Generate AI Summary
 
-            </li>
+                                </label>
 
-            <li class="list-group-item d-flex justify-content-between">
+                            </div>
 
-                <span>AI Summary</span>
+                        </div>
 
-                <span id="status-ai_summary"
-                      class="badge bg-success">
+                    </div>
 
-                    Enabled
+<!-- AI Provider -->
 
-                </span>
+                    <div class="card border-0 shadow-sm mt-4">
 
-            </li>
+                        <div class="card-header bg-white">
 
-        </ul>
+                            <h4 class="mb-0">
 
-        <hr>
+                                <i class="fa-solid fa-key text-warning me-2"></i>
 
-        <div class="d-flex justify-content-between">
+                                AI Provider
 
-            <span>
+                            </h4>
 
-                Estimated Time
+                        </div>
 
-            </span>
+                        <div class="card-body">
 
-            <strong id="estimatedTime">
+                            <div class="d-flex justify-content-between mb-3">
 
-                ~25 sec
+                                <span class="fw-semibold">
 
-            </strong>
+                                    Provider
 
-        </div>
+                                </span>
 
-    </div>
+                                <span class="badge bg-primary">
 
-</div>
+                                    {{ ai_provider if ai_provider else "Not Configured" }}
 
+                                </span>
 
-</div>
-            </form>
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-3">
+
+                                <span class="fw-semibold">
+
+                                    Model
+
+                                </span>
+
+                                <span>
+
+                                    {{ ai_model if ai_model else "-" }}
+
+                                </span>
+
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-4">
+
+                                <span class="fw-semibold">
+
+                                    Status
+
+                                </span>
+
+                                {% if ai_provider %}
+
+                                <span class="badge bg-success">
+
+                                    Connected
+
+                                </span>
+
+                                {% else %}
+
+                                <span class="badge bg-danger">
+
+                                    Not Configured
+
+                                </span>
+
+                                {% endif %}
+
+                            </div>
+
+                            <a href="{{ url_for('main.settings') }}"
+                               class="btn btn-outline-primary w-100">
+
+                                <i class="fa-solid fa-gear me-2"></i>
+
+                                Configure AI
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Upload Progress -->
+
+                    <div class="card border-0 shadow-sm mt-4">
+
+                        <div class="card-header bg-white">
+
+                            <h4 class="mb-0">
+
+                                <i class="fa-solid fa-bars-progress text-success me-2"></i>
+
+                                Upload Progress
+
+                            </h4>
+
+                        </div>
+
+                        <div class="card-body">
+
+                            <div class="progress mb-3"
+                                 style="height:12px;">
+
+                                <div
+                                    id="uploadProgress"
+                                    class="progress-bar progress-bar-striped progress-bar-animated"
+                                    style="width:0%">
+
+                                    0%
+
+                                </div>
+
+                            </div>
+
+                            <small class="text-muted">
+
+                                Progress updates automatically during analysis.
+
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Recent Uploads -->
+
+                    <div class="card border-0 shadow-sm mt-4">
+
+                        <div class="card-header bg-white">
+
+                            <h4 class="mb-0">
+
+                                <i class="fa-solid fa-clock-rotate-left text-primary me-2"></i>
+
+                                Recent Uploads
+
+                            </h4>
+
+                        </div>
+
+                        <div class="card-body">
+
+                            {% if recent_analyses %}
+
+                                {% for analysis in recent_analyses %}
+
+                                <div class="d-flex justify-content-between align-items-center">
+
+                                    <div>
+
+                                        <strong>
+
+                                            {{ analysis.filename|truncate(22, True) }}
+
+                                        </strong>
+
+                                        <br>
+
+                                        <small class="text-muted">
+
+                                            {{ analysis.language }}
+
+                                            •
+
+                                            {{ analysis.created_at.strftime('%d %b %Y') }}
+
+                                        </small>
+
+                                    </div>
+
+                                    <a href="{{ url_for('main.results', analysis_id=analysis.id) }}"
+                                       class="btn btn-sm btn-outline-primary">
+
+                                        View
+
+                                    </a>
+
+                                </div>
+
+                                {% if not loop.last %}
+
+                                <hr>
+
+                                {% endif %}
+
+                                {% endfor %}
+
+<!-- Submit Buttons -->
+
+                    <div class="card border-0 shadow-sm mt-4">
+
+                        <div class="card-body">
+
+                            <div class="d-grid gap-2">
+
+                                <button
+                                    type="submit"
+                                    id="submitBtn"
+                                    class="btn btn-primary btn-lg">
+
+                                    <i class="fa-solid fa-play me-2"></i>
+
+                                    Analyze Project
+
+                                </button>
+
+                                <button
+                                    type="reset"
+                                    class="btn btn-outline-secondary">
+
+                                    <i class="fa-solid fa-arrow-rotate-left me-2"></i>
+
+                                    Reset Form
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </form>
 
     </div>
 
@@ -854,49 +738,51 @@ function updateAnalysisCard() {
     tools.forEach(function(tool){
 
         const checkbox =
-            document.querySelector(
-                `input[name="${tool}"]`
-            );
+            document.querySelector(`input[name="${tool}"]`);
 
         const badge =
-            document.getElementById(
-                `status-${tool}`
-            );
+            document.getElementById(`status-${tool}`);
 
-        if(checkbox && checkbox.checked){
+        if(!checkbox || !badge){
+            return;
+        }
+
+        if(checkbox.checked){
 
             enabled++;
 
             badge.innerHTML = "Enabled";
-
-            badge.className =
-                "badge bg-success";
+            badge.className = "badge bg-success";
 
         } else {
 
             badge.innerHTML = "Disabled";
-
-            badge.className =
-                "badge bg-secondary";
+            badge.className = "badge bg-secondary";
 
         }
 
     });
 
-    document.getElementById("toolCount").innerHTML =
-        enabled + "/5";
+    const toolCount =
+        document.getElementById("toolCount");
 
-    document.getElementById("estimatedTime").innerHTML =
-        "~" + (enabled * 5) + " sec";
+    const estimated =
+        document.getElementById("estimatedTime");
+
+    if(toolCount){
+        toolCount.innerHTML = enabled + "/5";
+    }
+
+    if(estimated){
+        estimated.innerHTML = "~" + (enabled * 5) + " sec";
+    }
 
 }
 
 tools.forEach(function(tool){
 
     const checkbox =
-        document.querySelector(
-            `input[name="${tool}"]`
-        );
+        document.querySelector(`input[name="${tool}"]`);
 
     if(checkbox){
 
@@ -911,31 +797,39 @@ tools.forEach(function(tool){
 
 updateAnalysisCard();
 
-const fileInput = document.querySelector('input[type="file"]');
-const dropZone = document.getElementById('drop-zone');
-const progressBar = document.getElementById('uploadProgress');
-const submitBtn = document.getElementById('submitBtn');
+const fileInput =
+    document.querySelector('input[type="file"]');
 
-if (dropZone && fileInput) {
+const dropZone =
+    document.getElementById("drop-zone");
 
-    dropZone.addEventListener('dragover', function(e) {
+const progressBar =
+    document.getElementById("uploadProgress");
 
-        e.preventDefault();
-        dropZone.classList.add('border-success');
+const submitBtn =
+    document.getElementById("submitBtn");
 
-    });
+if(dropZone && fileInput){
 
-    dropZone.addEventListener('dragleave', function() {
-
-        dropZone.classList.remove('border-success');
-
-    });
-
-    dropZone.addEventListener('drop', function(e) {
+    dropZone.addEventListener("dragover", function(e){
 
         e.preventDefault();
 
-        dropZone.classList.remove('border-success');
+        dropZone.classList.add("border-success");
+
+    });
+
+    dropZone.addEventListener("dragleave", function(){
+
+        dropZone.classList.remove("border-success");
+
+    });
+
+    dropZone.addEventListener("drop", function(e){
+
+        e.preventDefault();
+
+        dropZone.classList.remove("border-success");
 
         fileInput.files = e.dataTransfer.files;
 
@@ -943,21 +837,21 @@ if (dropZone && fileInput) {
 
 }
 
-if (fileInput) {
+if(fileInput){
 
-    fileInput.addEventListener('change', function() {
+    fileInput.addEventListener("change", function(){
 
-        if (!this.files.length) return;
+        if(!this.files.length){
+            return;
+        }
 
         const file = this.files[0];
 
-        if (!file.name.toLowerCase().endsWith(".zip")) {
+        if(!file.name.toLowerCase().endsWith(".zip")){
 
             alert("Please upload a ZIP file.");
 
             this.value = "";
-
-            return;
 
         }
 
@@ -965,35 +859,44 @@ if (fileInput) {
 
 }
 
-document.querySelector("form").addEventListener("submit", function() {
+document.querySelector("form").addEventListener(
+    "submit",
+    function(){
 
-    submitBtn.disabled = true;
+        if(submitBtn){
 
-    submitBtn.innerHTML =
-        '<i class="fa-solid fa-spinner fa-spin me-2"></i>Analyzing...';
+            submitBtn.disabled = true;
 
-    let progress = 0;
-
-    const interval = setInterval(function() {
-
-        progress += 5;
-
-        if (progress > 95) {
-
-            clearInterval(interval);
+            submitBtn.innerHTML =
+                '<i class="fa-solid fa-spinner fa-spin me-2"></i>Analyzing...';
 
         }
 
-        progressBar.style.width = progress + "%";
+        let progress = 0;
 
-        progressBar.innerHTML = progress + "%";
+        const interval = setInterval(function(){
 
-    }, 150);
+            progress += 5;
 
-});
+            if(progress > 95){
+
+                clearInterval(interval);
+
+            }
+
+            if(progressBar){
+
+                progressBar.style.width = progress + "%";
+
+                progressBar.innerHTML = progress + "%";
+
+            }
+
+        },150);
+
+    }
+);
 
 </script>
 
 {% endblock %}
-
-
