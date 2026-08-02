@@ -100,12 +100,25 @@ def home():
 
     review_stats = get_review_statistics()
 
+    total_users = User.query.count()
+
+    total_projects = Project.query.count()
+
+    total_reports = Analysis.query.count()
+
+    total_issues = db.session.query(
+        db.func.sum(Analysis.security_count)
+    ).scalar() or 0
+
     return render_template(
         "home.html",
         latest_reviews=latest_reviews,
-        review_stats=review_stats
+        review_stats=review_stats,
+        total_users=total_users,
+        total_projects=total_projects,
+        total_reports=total_reports,
+        total_issues=total_issues
     )
-
 
 # ============================================================
 # ABOUT
