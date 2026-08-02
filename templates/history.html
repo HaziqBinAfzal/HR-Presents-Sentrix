@@ -230,9 +230,6 @@
 
                     <div class="card-body">
 
-       
-
-<form method="GET" action="{{ url_for('main.history') }}">
 
 <div class="row g-3 align-items-end">
 
@@ -425,69 +422,6 @@
     </div>
 
 
-    <div class="col-md-4 col-lg-2">
-
-        <label class="form-label fw-semibold">Risk Level</label>
-
-        <select
-    id="complexityFilter"
-    name="complexity"
-    class="form-select">
-
-            <option value="">All Levels</option>
-            <option value="Low" {% if risk=="Low" %}selected{% endif %}>Low</option>
-            <option value="Medium" {% if risk=="Medium" %}selected{% endif %}>Medium</option>
-            <option value="High" {% if risk=="High" %}selected{% endif %}>High</option>
-
-        </select>
-
-    </div>
-
-    <div class="col-md-4 col-lg-2">
-
-        <label class="form-label fw-semibold">Sort By</label>
-
-        <select
-            id="sortHistory"
-            name="sort"
-            class="form-select">
-
-            <option value="latest" {% if sort=="latest" %}selected{% endif %}>Latest</option>
-            <option value="oldest" {% if sort=="oldest" %}selected{% endif %}>Oldest</option>
-            <option value="score_desc" {% if sort=="score_desc" %}selected{% endif %}>Highest Score</option>
-            <option value="score_asc" {% if sort=="score_asc" %}selected{% endif %}>Lowest Score</option>
-
-        </select>
-
-    </div>
-
-    <div class="col-lg-1 d-grid">
-
-        <button
-            type="submit"
-            class="btn btn-primary">
-
-            <i class="fa-solid fa-filter"></i>
-
-        </button>
-
-    </div>
-
-    <div class="col-lg-1 d-grid">
-
-        <a
-            href="{{ url_for('main.history') }}"
-            class="btn btn-outline-secondary">
-
-            <i class="fa-solid fa-rotate"></i>
-
-        </a>
-
-    </div>
-
-</div>
-
-</form>
         <!-- Analysis List -->
 
         <div class="row g-4">
