@@ -1432,42 +1432,39 @@
                 </p>
 
                 <a href="/register"
-                   class="btn btn-light btn-lg me-2">
+   class="btn btn-light btn-lg me-2">
 
-                    Create Free Account
+    Create Free Account
 
-                    Home
+</a>
 
+<a href="{{ url_for('main.dashboard') }}"
+   class="btn btn-outline-light btn-lg me-2">
 
-                </a>
+    Dashboard
 
-                <a href="{{ url_for('main.dashboard') }}"
-                   class="btn btn-link text-decoration-none">
+</a>
 
-                    Dashboard
+<a href="{{ url_for('main.upload') }}"
+   class="btn btn-outline-light btn-lg me-2">
 
-                </a>
+    Upload
 
-                <a href="{{ url_for('main.upload') }}"
-                   class="btn btn-link text-decoration-none">
+</a>
 
-                    Upload
+<a href="{{ url_for('main.history') }}"
+   class="btn btn-outline-light btn-lg me-2">
 
-                </a>
+    History
 
-                <a href="{{ url_for('main.history') }}"
-                   class="btn btn-link text-decoration-none">
+</a>
 
-                    History
+<a href="{{ url_for('main.settings') }}"
+   class="btn btn-outline-light btn-lg">
 
-                </a>
+    Settings
 
-                <a href="{{ url_for('main.settings') }}"
-                   class="btn btn-link text-decoration-none">
-
-                    Settings
-
-                </a>
+</a>
 
             </div>
 
