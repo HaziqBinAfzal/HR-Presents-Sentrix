@@ -609,9 +609,92 @@
 
                     </div>
 
+                   <!-- Selected Analysis -->
+<div class="card border-0 shadow-sm h-100">
+
+    <div class="card-header bg-white">
+        <h4 class="mb-0">
+            <i class="fa-solid fa-list-check text-success me-2"></i>
+            Selected Analysis
+        </h4>
+    </div>
+
+    <div class="card-body">
+
+        <div class="mb-3">
+            <strong>Enabled Tools</strong>
+
+            <span id="toolCount"
+                  class="badge bg-primary float-end">
+                5/5
+            </span>
+        </div>
+
+        <ul class="list-group list-group-flush">
+
+            <li class="list-group-item d-flex justify-content-between">
+                <span>Pylint</span>
+                <span id="status-pylint"
+                      class="badge bg-success">
+                    Enabled
+                </span>
+            </li>
+
+            <li class="list-group-item d-flex justify-content-between">
+                <span>Bandit</span>
+                <span id="status-bandit"
+                      class="badge bg-success">
+                    Enabled
+                </span>
+            </li>
+
+            <li class="list-group-item d-flex justify-content-between">
+                <span>Radon</span>
+                <span id="status-radon"
+                      class="badge bg-success">
+                    Enabled
+                </span>
+            </li>
+
+            <li class="list-group-item d-flex justify-content-between">
+                <span>Black</span>
+                <span id="status-black"
+                      class="badge bg-success">
+                    Enabled
+                </span>
+            </li>
+
+            <li class="list-group-item d-flex justify-content-between">
+                <span>AI Summary</span>
+                <span id="status-ai_summary"
+                      class="badge bg-success">
+                    Enabled
+                </span>
+            </li>
+
+        </ul>
+
+        <hr>
+
+        <div class="d-flex justify-content-between mb-2">
+            <span>Enabled Tools</span>
+            <strong id="toolCountText">5</strong>
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <span>Estimated Time</span>
+            <strong id="estimatedTime">
+                ~25 sec
+            </strong>
+        </div>
+
+    </div>
+
+</div>
+
                     <!-- Recent Uploads -->
 
-                    <div class="card border-0 shadow-sm mt-4 d-flex flex-column" style="min-height:700px;">
+                    <div class="card border-0 shadow-sm mt-4 d-flex flex-column">
 
                         <div class="card-header bg-white">
 
@@ -690,8 +773,6 @@
 </div>
 
 {% endif %}
-
-</div>
 
 </div>
 
@@ -792,9 +873,11 @@ function updateAnalysisCard() {
     const estimated =
         document.getElementById("estimatedTime");
 
-    if(toolCount){
-        toolCount.innerHTML = enabled + "/5";
-    }
+    document.getElementById("toolCount").innerHTML =
+    enabled + "/5";
+
+    document.getElementById("toolCountText").innerHTML =
+    enabled;
 
     if(estimated){
         estimated.innerHTML = "~" + (enabled * 5) + " sec";
