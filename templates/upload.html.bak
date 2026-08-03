@@ -8,7 +8,7 @@
 
     <div class="container">
 
-        <!-- Header -->
+        <!-- ================= HEADER ================= -->
 
         <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-5">
 
@@ -25,7 +25,7 @@
                 <p class="text-muted mb-0">
 
                     Upload your source code project for AI-powered code quality,
-                    security, and complexity analysis.
+                    security, security scanning and AI analysis.
 
                 </p>
 
@@ -55,13 +55,13 @@
 
         </div>
 
-        <!-- Statistics -->
+        <!-- ================= TOP STATISTICS ================= -->
 
         <div class="row g-4 mb-5">
 
             <div class="col-md-6 col-xl-3">
 
-                <div class="card border-0 shadow-sm">
+                <div class="card border-0 shadow-sm h-100">
 
                     <div class="card-body text-center">
 
@@ -87,7 +87,7 @@
 
             <div class="col-md-6 col-xl-3">
 
-                <div class="card border-0 shadow-sm">
+                <div class="card border-0 shadow-sm h-100">
 
                     <div class="card-body text-center">
 
@@ -113,7 +113,7 @@
 
             <div class="col-md-6 col-xl-3">
 
-                <div class="card border-0 shadow-sm">
+                <div class="card border-0 shadow-sm h-100">
 
                     <div class="card-body text-center">
 
@@ -139,7 +139,7 @@
 
             <div class="col-md-6 col-xl-3">
 
-                <div class="card border-0 shadow-sm">
+                <div class="card border-0 shadow-sm h-100">
 
                     <div class="card-body text-center">
 
@@ -165,7 +165,7 @@
 
         </div>
 
-        <!-- Upload Form -->
+        <!-- ================= UPLOAD FORM ================= -->
 
         <form method="POST"
               enctype="multipart/form-data">
@@ -179,9 +179,6 @@
                 <div class="col-lg-7">
 
                     <!-- Upload Area -->
-
-
-<!-- Upload Area -->
 
                     <div class="card border-0 shadow-sm">
 
@@ -254,7 +251,7 @@
 
                             <div class="row g-4">
 
-                                <div class="col-md-6">
+<div class="col-md-6">
 
                                     <label class="form-label fw-semibold">
 
@@ -377,8 +374,7 @@
 
                 <div class="col-lg-5 d-flex flex-column">
 
-
-<!-- Analysis Options -->
+                    <!-- Analysis Options -->
 
                     <div class="card border-0 shadow-sm">
 
@@ -480,7 +476,7 @@
 
                     </div>
 
-                    <!-- AI Provider -->
+<!-- AI Provider -->
 
                     <div class="card border-0 shadow-sm mt-4">
 
@@ -490,7 +486,7 @@
 
                                 <i class="fa-solid fa-key text-warning me-2"></i>
 
-                                AI Provider (BYOK)
+                                AI Provider
 
                             </h4>
 
@@ -506,7 +502,7 @@
 
                                 </span>
 
-                                <span class="badge {{ 'bg-success' if ai_provider else 'bg-secondary' }}">
+                                <span class="badge bg-primary">
 
                                     {{ ai_provider if ai_provider else "Not Configured" }}
 
@@ -524,7 +520,7 @@
 
                                 <span>
 
-                                    {{ ai_model if ai_provider else "-" }}
+                                    {{ ai_model if ai_model else "-" }}
 
                                 </span>
 
@@ -589,12 +585,12 @@
 
                         <div class="card-body">
 
-                            <div class="progress mb-3" style="height:12px;">
+                            <div class="progress mb-3"
+                                 style="height:12px;">
 
                                 <div
                                     id="uploadProgress"
                                     class="progress-bar progress-bar-striped progress-bar-animated"
-                                    role="progressbar"
                                     style="width:0%">
 
                                     0%
@@ -605,9 +601,211 @@
 
                             <small class="text-muted">
 
-                                Progress updates automatically while your project is being analyzed.
+                                Progress updates automatically during analysis.
 
                             </small>
+
+                        </div>
+
+                    </div>
+
+                   <!-- Selected Analysis -->
+<div class="card border-0 shadow-sm h-100">
+
+    <div class="card-header bg-white">
+        <h4 class="mb-0">
+            <i class="fa-solid fa-list-check text-success me-2"></i>
+            Selected Analysis
+        </h4>
+    </div>
+
+    <div class="card-body">
+
+        <div class="mb-3">
+            <strong>Enabled Tools</strong>
+
+            <span id="toolCount"
+                  class="badge bg-primary float-end">
+                5/5
+            </span>
+        </div>
+
+        <ul class="list-group list-group-flush">
+
+            <li class="list-group-item d-flex justify-content-between">
+                <span>Pylint</span>
+                <span id="status-pylint"
+                      class="badge bg-success">
+                    Enabled
+                </span>
+            </li>
+
+            <li class="list-group-item d-flex justify-content-between">
+                <span>Bandit</span>
+                <span id="status-bandit"
+                      class="badge bg-success">
+                    Enabled
+                </span>
+            </li>
+
+            <li class="list-group-item d-flex justify-content-between">
+                <span>Radon</span>
+                <span id="status-radon"
+                      class="badge bg-success">
+                    Enabled
+                </span>
+            </li>
+
+            <li class="list-group-item d-flex justify-content-between">
+                <span>Black</span>
+                <span id="status-black"
+                      class="badge bg-success">
+                    Enabled
+                </span>
+            </li>
+
+            <li class="list-group-item d-flex justify-content-between">
+                <span>AI Summary</span>
+                <span id="status-ai_summary"
+                      class="badge bg-success">
+                    Enabled
+                </span>
+            </li>
+
+        </ul>
+
+        <hr>
+
+        <div class="d-flex justify-content-between mb-2">
+            <span>Enabled Tools</span>
+            <strong id="toolCountText">5</strong>
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <span>Estimated Time</span>
+            <strong id="estimatedTime">
+                ~25 sec
+            </strong>
+        </div>
+
+    </div>
+
+</div>
+
+                    <!-- Recent Uploads -->
+
+                    <div class="card border-0 shadow-sm mt-4 d-flex flex-column">
+
+                        <div class="card-header bg-white">
+
+                            <h4 class="mb-0">
+
+                                <i class="fa-solid fa-clock-rotate-left text-primary me-2"></i>
+
+                                Recent Uploads
+
+                            </h4>
+
+                        </div>
+
+                        <div class="card-body d-flex flex-column justify-content-between h-100">
+
+                            {% if recent_analyses %}
+
+                                {% for analysis in recent_analyses %}
+
+                                <div class="d-flex justify-content-between align-items-center">
+
+                                    <div>
+
+                                        <strong>
+
+                                            {{ analysis.filename|truncate(22, True) }}
+
+                                        </strong>
+
+                                        <br>
+
+                                        <small class="text-muted">
+
+                                            {{ analysis.language }}
+
+                                            •
+
+                                            {{ analysis.created_at.strftime('%d %b %Y') }}
+
+                                        </small>
+
+                                    </div>
+
+                                    <a href="{{ url_for('main.results', analysis_id=analysis.id) }}"
+                                       class="btn btn-sm btn-outline-primary">
+
+                                        View
+
+                                    </a>
+
+                                </div>
+
+                                {% if not loop.last %}
+
+                                <hr>
+
+                                {% endif %}
+
+                                {% endfor %}
+
+                            {% else %}
+
+<div class="text-center py-4">
+
+    <i class="fa-solid fa-folder-open fa-3x text-secondary mb-3"></i>
+
+    <h6>No analyses yet</h6>
+
+    <p class="text-muted mb-0">
+
+        Upload your first project to receive AI-powered code quality,
+        security and complexity analysis.
+
+    </p>
+
+</div>
+
+{% endif %}
+
+</div>
+
+<!-- Submit Buttons -->
+
+                    <div class="card border-0 shadow-sm mt-4">
+
+                        <div class="card-body">
+
+                            <div class="d-grid gap-2">
+
+                                <button
+                                    type="submit"
+                                    id="submitBtn"
+                                    class="btn btn-primary btn-lg">
+
+                                    <i class="fa-solid fa-play me-2"></i>
+
+                                    Analyze Project
+
+                                </button>
+
+                                <button
+                                    type="reset"
+                                    class="btn btn-outline-secondary">
+
+                                    <i class="fa-solid fa-arrow-rotate-left me-2"></i>
+
+                                    Reset Form
+
+                                </button>
+
+                            </div>
 
                         </div>
 
@@ -617,269 +815,9 @@
 
             </div>
 
-            <!-- Bottom Cards Row -->
-
-
-<div class="row mt-4">
-
-    <!-- Selected Analysis -->
-
-    <div class="col-lg-6">
-
-        <div class="card border-0 shadow-sm h-100">
-
-            <div class="card-header bg-white">
-
-                <h4 class="mb-0">
-
-                    <i class="fa-solid fa-list-check text-success me-2"></i>
-
-                    Selected Analysis
-
-                </h4>
-
-            </div>
-
-            <div class="card-body">
-
-                <div class="mb-3">
-
-                    <strong>Enabled Tools</strong>
-
-                    <span id="toolCount"
-                          class="badge bg-primary float-end">
-
-                        5 / 5
-
-                    </span>
-
-                </div>
-
-                <ul class="list-group list-group-flush">
-
-                    <li class="list-group-item d-flex justify-content-between">
-
-                        <span>Pylint</span>
-
-                        <span id="status-pylint"
-                              class="badge bg-success">
-
-                            Enabled
-
-                        </span>
-
-                    </li>
-
-                    <li class="list-group-item d-flex justify-content-between">
-
-                        <span>Bandit</span>
-
-                        <span id="status-bandit"
-                              class="badge bg-success">
-
-                            Enabled
-
-                        </span>
-
-                    </li>
-
-                    <li class="list-group-item d-flex justify-content-between">
-
-                        <span>Radon</span>
-
-                        <span id="status-radon"
-                              class="badge bg-success">
-
-                            Enabled
-
-                        </span>
-
-                    </li>
-
-                    <li class="list-group-item d-flex justify-content-between">
-
-                        <span>Black</span>
-
-                        <span id="status-black"
-                              class="badge bg-success">
-
-                            Enabled
-
-                        </span>
-
-                    </li>
-
-                    <li class="list-group-item d-flex justify-content-between">
-
-                        <span>AI Summary</span>
-
-                        <span id="status-ai_summary"
-                              class="badge bg-success">
-
-                            Enabled
-
-                        </span>
-
-                    </li>
-
-                </ul>
-
-                <hr>
-
-                <div class="d-flex justify-content-between">
-
-                    <span>
-
-                        Estimated Time
-
-                    </span>
-
-                    <strong id="estimatedTime">
-
-                        ~25 sec
-
-                    </strong>
-
-                </div>
-
-            </div>
-
-        </div>
+        </form>
 
     </div>
-
-    <!-- Recent Uploads -->
-
-    <div class="col-lg-6">
-
-
-<div class="card border-0 shadow-sm h-100 d-flex flex-column">
-
-    <div class="card-header bg-white">
-
-        <h4 class="mb-0">
-
-            <i class="fa-solid fa-clock-rotate-left text-primary me-2"></i>
-
-            Recent Uploads
-
-        </h4>
-
-    </div>
-
-    <div class="card-body d-flex flex-column">
-
-        {% if recent_analyses %}
-
-            {% for analysis in recent_analyses %}
-
-            <div class="d-flex justify-content-between align-items-center mb-3">
-
-                <div>
-
-                    <strong>
-
-                        {{ analysis.filename|truncate(22, True) }}
-
-                    </strong>
-
-                    <br>
-
-                    <small class="text-muted">
-
-                        {{ analysis.language }}
-
-                        •
-
-                        {{ analysis.created_at.strftime('%d %b %Y %I:%M %p') }}
-
-                    </small>
-
-                </div>
-
-                <a href="{{ url_for('main.results',
-                                    analysis_id=analysis.id) }}"
-                   class="btn btn-sm btn-outline-primary">
-
-                    View
-
-                </a>
-
-            </div>
-
-            {% if not loop.last %}
-
-            <hr>
-
-            {% endif %}
-
-            {% endfor %}
-
-        {% else %}
-
-        <div class="text-center flex-grow-1 d-flex flex-column justify-content-center">
-
-            <i class="fa-solid fa-folder-open fa-3x text-secondary mb-3"></i>
-
-            <h6>No analyses yet</h6>
-
-            <p class="text-muted mb-0">
-
-                Upload your first project to receive AI-powered code quality,
-                security and complexity analysis.
-
-            </p>
-
-        </div>
-
-        {% endif %}
-
-    </div>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- Submit Buttons -->
-
-<div class="card border-0 shadow-sm mt-4">
-
-    <div class="card-body">
-
-        <div class="d-grid gap-2">
-
-            <button
-                type="submit"
-                id="submitBtn"
-                class="btn btn-primary btn-lg">
-
-                <i class="fa-solid fa-play me-2"></i>
-
-                Analyze Project
-
-            </button>
-
-            <button
-                type="reset"
-                class="btn btn-outline-secondary">
-
-                <i class="fa-solid fa-arrow-rotate-left me-2"></i>
-
-                Reset Form
-
-            </button>
-
-        </div>
-
-    </div>
-
-</div>
-
-</form>
-
-</div>
 
 </section>
 
@@ -904,14 +842,10 @@ function updateAnalysisCard() {
     tools.forEach(function(tool){
 
         const checkbox =
-            document.querySelector(
-                `input[name="${tool}"]`
-            );
+            document.querySelector(`input[name="${tool}"]`);
 
         const badge =
-            document.getElementById(
-                `status-${tool}`
-            );
+            document.getElementById(`status-${tool}`);
 
         if(!checkbox || !badge){
             return;
@@ -922,45 +856,31 @@ function updateAnalysisCard() {
             enabled++;
 
             badge.innerHTML = "Enabled";
+            badge.className = "badge bg-success";
 
-            badge.className =
-                "badge bg-success";
-
-        }
-
-        else{
+        } else {
 
             badge.innerHTML = "Disabled";
-
-            badge.className =
-                "badge bg-secondary";
+            badge.className = "badge bg-secondary";
 
         }
 
     });
 
-    const counter =
-        document.getElementById(
-            "toolCount"
-        );
+    const toolCount =
+        document.getElementById("toolCount");
 
-    if(counter){
+    const estimated =
+        document.getElementById("estimatedTime");
 
-        counter.innerHTML =
-            enabled + "/5";
+    document.getElementById("toolCount").innerHTML =
+    enabled + "/5";
 
-    }
+    document.getElementById("toolCountText").innerHTML =
+    enabled;
 
-    const estimate =
-        document.getElementById(
-            "estimatedTime"
-        );
-
-    if(estimate){
-
-        estimate.innerHTML =
-            "~" + (enabled * 5) + " sec";
-
+    if(estimated){
+        estimated.innerHTML = "~" + (enabled * 5) + " sec";
     }
 
 }
@@ -968,9 +888,7 @@ function updateAnalysisCard() {
 tools.forEach(function(tool){
 
     const checkbox =
-        document.querySelector(
-            `input[name="${tool}"]`
-        );
+        document.querySelector(`input[name="${tool}"]`);
 
     if(checkbox){
 
@@ -983,15 +901,7 @@ tools.forEach(function(tool){
 
 });
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function(){
-
-        updateAnalysisCard();
-
-    }
-);
-
+updateAnalysisCard();
 
 const fileInput =
     document.querySelector('input[type="file"]');
@@ -1005,9 +915,9 @@ const progressBar =
 const submitBtn =
     document.getElementById("submitBtn");
 
-if (dropZone && fileInput) {
+if(dropZone && fileInput){
 
-    dropZone.addEventListener("dragover", function(e) {
+    dropZone.addEventListener("dragover", function(e){
 
         e.preventDefault();
 
@@ -1015,13 +925,13 @@ if (dropZone && fileInput) {
 
     });
 
-    dropZone.addEventListener("dragleave", function() {
+    dropZone.addEventListener("dragleave", function(){
 
         dropZone.classList.remove("border-success");
 
     });
 
-    dropZone.addEventListener("drop", function(e) {
+    dropZone.addEventListener("drop", function(e){
 
         e.preventDefault();
 
@@ -1033,21 +943,21 @@ if (dropZone && fileInput) {
 
 }
 
-if (fileInput) {
+if(fileInput){
 
-    fileInput.addEventListener("change", function() {
+    fileInput.addEventListener("change", function(){
 
-        if (!this.files.length) return;
+        if(!this.files.length){
+            return;
+        }
 
         const file = this.files[0];
 
-        if (!file.name.toLowerCase().endsWith(".zip")) {
+        if(!file.name.toLowerCase().endsWith(".zip")){
 
             alert("Please upload a ZIP file.");
 
             this.value = "";
-
-            return;
 
         }
 
@@ -1055,13 +965,11 @@ if (fileInput) {
 
 }
 
-const form = document.querySelector("form");
+document.querySelector("form").addEventListener(
+    "submit",
+    function(){
 
-if (form) {
-
-    form.addEventListener("submit", function() {
-
-        if (submitBtn) {
+        if(submitBtn){
 
             submitBtn.disabled = true;
 
@@ -1070,33 +978,30 @@ if (form) {
 
         }
 
-        if (progressBar) {
+        let progress = 0;
 
-            let progress = 0;
+        const interval = setInterval(function(){
 
-            const interval = setInterval(function() {
+            progress += 5;
 
-                progress += 5;
+            if(progress > 95){
 
-                if (progress >= 95) {
+                clearInterval(interval);
 
-                    clearInterval(interval);
+            }
 
-                }
+            if(progressBar){
 
-                progressBar.style.width =
-                    progress + "%";
+                progressBar.style.width = progress + "%";
 
-                progressBar.innerHTML =
-                    progress + "%";
+                progressBar.innerHTML = progress + "%";
 
-            }, 150);
+            }
 
-        }
+        },150);
 
-    });
-
-}
+    }
+);
 
 </script>
 
