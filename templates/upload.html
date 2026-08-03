@@ -8,7 +8,7 @@
 
     <div class="container">
 
-        <!-- Header -->
+        <!-- ================= HEADER ================= -->
 
         <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-5">
 
@@ -25,13 +25,13 @@
                 <p class="text-muted mb-0">
 
                     Upload your source code project for AI-powered code quality,
-                    security, and complexity analysis.
+                    security, security scanning and AI analysis.
 
                 </p>
 
             </div>
 
-            <div class="mt-4 mt-lg-0 d-flex flex-wrap gap-2">
+            <div class="mt-4 mt-lg-0 d-flex gap-2">
 
                 <a href="{{ url_for('main.dashboard') }}"
                    class="btn btn-outline-primary">
@@ -55,13 +55,13 @@
 
         </div>
 
-        <!-- Statistics -->
+        <!-- ================= TOP STATISTICS ================= -->
 
         <div class="row g-4 mb-5">
 
             <div class="col-md-6 col-xl-3">
 
-                <div class="card border-0 shadow-sm">
+                <div class="card border-0 shadow-sm h-100">
 
                     <div class="card-body text-center">
 
@@ -87,7 +87,7 @@
 
             <div class="col-md-6 col-xl-3">
 
-                <div class="card border-0 shadow-sm">
+                <div class="card border-0 shadow-sm h-100">
 
                     <div class="card-body text-center">
 
@@ -113,7 +113,7 @@
 
             <div class="col-md-6 col-xl-3">
 
-                <div class="card border-0 shadow-sm">
+                <div class="card border-0 shadow-sm h-100">
 
                     <div class="card-body text-center">
 
@@ -139,7 +139,7 @@
 
             <div class="col-md-6 col-xl-3">
 
-                <div class="card border-0 shadow-sm">
+                <div class="card border-0 shadow-sm h-100">
 
                     <div class="card-body text-center">
 
@@ -165,7 +165,7 @@
 
         </div>
 
-        <!-- Upload Form -->
+        <!-- ================= UPLOAD FORM ================= -->
 
         <form method="POST"
               enctype="multipart/form-data">
@@ -174,9 +174,11 @@
 
             <div class="row g-4">
 
-                <!-- Upload Area -->
+                <!-- LEFT COLUMN -->
 
-                <div class="col-lg-8">
+                <div class="col-lg-7">
+
+                    <!-- Upload Area -->
 
                     <div class="card border-0 shadow-sm">
 
@@ -207,8 +209,7 @@
 
                                 <p class="text-muted">
 
-                                    Upload a ZIP archive containing your
-                                    Python project.
+                                    Upload a ZIP archive containing your Python project.
 
                                 </p>
 
@@ -230,129 +231,134 @@
 
                     </div>
 
+                    <!-- Project Details -->
 
-<!-- Project Details -->
+                    <div class="card border-0 shadow-sm mt-4">
 
-                        <div class="card border-0 shadow-sm mt-4">
+                        <div class="card-header bg-white">
 
-                            <div class="card-header bg-white">
+                            <h4 class="mb-0">
 
-                                <h4 class="mb-0">
+                                <i class="fa-solid fa-folder-tree text-success me-2"></i>
 
-                                    <i class="fa-solid fa-folder-tree text-success me-2"></i>
+                                Project Details
 
-                                    Project Details
+                            </h4>
 
-                                </h4>
+                        </div>
 
-                            </div>
+                        <div class="card-body">
 
-                            <div class="card-body">
+                            <div class="row g-4">
 
-                                <div class="row g-4">
+<div class="col-md-6">
 
-                                    <div class="col-md-6">
+                                    <label class="form-label fw-semibold">
 
-                                        <label class="form-label fw-semibold">
+                                        Project Name
 
-                                            Project Name
+                                    </label>
 
-                                        </label>
+                                    {{ form.project_name(
+                                        class="form-control",
+                                        placeholder="Enter project name"
+                                    ) }}
 
-                                        {{ form.project_name(
-                                            class="form-control",
-                                            placeholder="Enter project name"
-                                        ) }}
+                                </div>
 
-                                    </div>
+                                <div class="col-md-6">
 
-                                    <div class="col-md-6">
+                                    <label class="form-label fw-semibold">
 
-                                        <label class="form-label fw-semibold">
+                                        Programming Language
 
-                                            Programming Language
+                                    </label>
 
-                                        </label>
+                                    <select
+                                        class="form-select"
+                                        name="language">
 
-                                        <select name="language" class="form-select">
-    <option value="python" selected>Python</option>
-</select>
+                                        <option value="python" selected>
 
-                                    </div>
+                                            Python
 
-                                    <div class="col-md-6">
+                                        </option>
 
-                                        <label class="form-label fw-semibold">
+                                    </select>
 
-                                            Analysis Type
+                                </div>
 
-                                        </label>
+                                <div class="col-md-6">
 
-                                        <select
-                                            class="form-select"
-                                            name="analysis_type">
+                                    <label class="form-label fw-semibold">
 
-                                            <option value="full">
+                                        Analysis Type
 
-                                                Full Analysis
+                                    </label>
 
-                                            </option>
+                                    <select
+                                        class="form-select"
+                                        name="analysis_type">
 
-                                            <option value="security">
+                                        <option value="full">
 
-                                                Security Only
+                                            Full Analysis
 
-                                            </option>
+                                        </option>
 
-                                            <option value="quality">
+                                        <option value="security">
 
-                                                Code Quality Only
+                                            Security Only
 
-                                            </option>
+                                        </option>
 
-                                            <option value="complexity">
+                                        <option value="quality">
 
-                                                Complexity Only
+                                            Code Quality Only
 
-                                            </option>
+                                        </option>
 
-                                        </select>
+                                        <option value="complexity">
 
-                                    </div>
+                                            Complexity Only
 
-                                    <div class="col-md-6">
+                                        </option>
 
-                                        <label class="form-label fw-semibold">
+                                    </select>
 
-                                            Report Format
+                                </div>
 
-                                        </label>
+                                <div class="col-md-6">
 
-                                        <select
-                                            class="form-select"
-                                            name="report_format">
+                                    <label class="form-label fw-semibold">
 
-                                            <option value="html">
+                                        Report Format
 
-                                                HTML
+                                    </label>
 
-                                            </option>
+                                    <select
+                                        class="form-select"
+                                        name="report_format">
 
-                                            <option value="pdf">
+                                        <option value="html">
 
-                                                PDF
+                                            HTML
 
-                                            </option>
+                                        </option>
 
-                                            <option value="json">
+                                        <option value="pdf">
 
-                                                JSON
+                                            PDF
 
-                                            </option>
+                                        </option>
 
-                                        </select>
+                                        <option value="json">
 
-                                    </div>
+                                            JSON
+
+                                        </option>
+
+                                    </select>
 
                                 </div>
 
@@ -362,282 +368,311 @@
 
                     </div>
 
+                </div>
+
+                <!-- RIGHT COLUMN -->
+
+                <div class="col-lg-5 d-flex flex-column">
+
                     <!-- Analysis Options -->
 
-                    <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm">
 
-                        <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white">
 
-                            <div class="card-header bg-white">
+                            <h4 class="mb-0">
 
-                                <h4 class="mb-0">
+                                <i class="fa-solid fa-sliders text-primary me-2"></i>
 
-                                    <i class="fa-solid fa-sliders text-primary me-2"></i>
+                                Analysis Options
 
-                                    Analysis Options
+                            </h4>
 
-                                </h4>
+                        </div>
+
+                        <div class="card-body">
+
+                            <div class="form-check form-switch mb-3">
+
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    checked
+                                    name="pylint">
+
+                                <label class="form-check-label">
+
+                                    Run Pylint
+
+                                </label>
 
                             </div>
 
-                            <div class="card-body">
+                            <div class="form-check form-switch mb-3">
 
-                                <div class="form-check form-switch mb-3">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    checked
+                                    name="bandit">
 
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        checked
-                                        name="pylint">
+                                <label class="form-check-label">
 
-                                    <label class="form-check-label">
+                                    Run Bandit
 
-                                        Run Pylint
+                                </label>
 
-                                    </label>
+                            </div>
 
-                                </div>
+                            <div class="form-check form-switch mb-3">
 
-                                <div class="form-check form-switch mb-3">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    checked
+                                    name="radon">
 
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        checked
-                                        name="bandit">
+                                <label class="form-check-label">
 
-                                    <label class="form-check-label">
+                                    Run Radon
 
-                                        Run Bandit
+                                </label>
 
-                                    </label>
+                            </div>
 
-                                </div>
+                            <div class="form-check form-switch mb-3">
 
-                                <div class="form-check form-switch mb-3">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    checked
+                                    name="black">
 
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        checked
-                                        name="radon">
+                                <label class="form-check-label">
 
-                                    <label class="form-check-label">
+                                    Check Formatting (Black)
 
-                                        Run Radon
+                                </label>
 
-                                    </label>
+                            </div>
 
-                                </div>
+                            <div class="form-check form-switch">
 
-                                <div class="form-check form-switch mb-3">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    checked
+                                    name="ai_summary">
 
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        checked
-                                        name="black">
+                                <label class="form-check-label">
 
-                                    <label class="form-check-label">
+                                    Generate AI Summary
 
-                                        Check Formatting (Black)
-
-                                    </label>
-
-                                </div>
-
-                                <div class="form-check form-switch">
-
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        checked
-                                        name="ai_summary">
-
-                                    <label class="form-check-label">
-
-                                        Generate AI Summary
-
-                                    </label>
-
-                                </div>
+                                </label>
 
                             </div>
 
                         </div>
 
+                    </div>
 
-<!-- AI Provider Status -->
+<!-- AI Provider -->
 
-                        <div class="card border-0 shadow-sm mt-4">
+                    <div class="card border-0 shadow-sm mt-4">
 
-                            <div class="card-header bg-white">
+                        <div class="card-header bg-white">
 
-                                <h4 class="mb-0">
+                            <h4 class="mb-0">
 
-                                    <i class="fa-solid fa-key text-warning me-2"></i>
+                                <i class="fa-solid fa-key text-warning me-2"></i>
 
-                                    AI Provider (BYOK)
+                                AI Provider
 
-                                </h4>
-
-                            </div>
-
-                            <div class="card-body">
-
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-
-                                    <span class="fw-semibold">
-
-                                        Provider
-
-                                    </span>
-
-                                    <span class="badge bg-success">
-
-                                        {{ ai_provider or "Gemini" }}
-
-                                    </span>
-
-                                </div>
-
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-
-                                    <span class="fw-semibold">
-
-                                        Model
-
-                                    </span>
-
-                                    <span>
-
-                                        {{ ai_model or "gemini-2.5-pro" }}
-
-                                    </span>
-
-                                </div>
-
-                                <div class="d-flex justify-content-between align-items-center mb-4">
-
-                                    <span class="fw-semibold">
-
-                                        Status
-
-                                    </span>
-
-                                    <span class="badge bg-success">
-
-                                        Connected
-
-                                    </span>
-
-                                </div>
-
-                                <a href="{{ url_for('main.settings') }}"
-                                   class="btn btn-outline-primary w-100">
-
-                                    <i class="fa-solid fa-gear me-2"></i>
-
-                                    Configure AI
-
-                                </a>
-
-                            </div>
+                            </h4>
 
                         </div>
 
-                        <!-- Upload Progress -->
+                        <div class="card-body">
 
-                        <div class="card border-0 shadow-sm mt-4">
+                            <div class="d-flex justify-content-between mb-3">
 
-                            <div class="card-header bg-white">
+                                <span class="fw-semibold">
 
-                                <h4 class="mb-0">
+                                    Provider
 
-                                    <i class="fa-solid fa-bars-progress text-success me-2"></i>
+                                </span>
 
-                                    Upload Progress
+                                <span class="badge bg-primary">
 
-                                </h4>
+                                    {{ ai_provider if ai_provider else "Not Configured" }}
+
+                                </span>
 
                             </div>
 
-                            <div class="card-body">
+                            <div class="d-flex justify-content-between mb-3">
 
-                                <div class="progress mb-3" style="height:12px;">
+                                <span class="fw-semibold">
 
-                                    <div id="uploadProgress"
-                                         class="progress-bar progress-bar-striped progress-bar-animated"
-                                         role="progressbar"
-                                         style="width:0%">
+                                    Model
 
-                                        0%
+                                </span>
+
+                                <span>
+
+                                    {{ ai_model if ai_model else "-" }}
+
+                                </span>
+
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-4">
+
+                                <span class="fw-semibold">
+
+                                    Status
+
+                                </span>
+
+                                {% if ai_provider %}
+
+                                <span class="badge bg-success">
+
+                                    Connected
+
+                                </span>
+
+                                {% else %}
+
+                                <span class="badge bg-danger">
+
+                                    Not Configured
+
+                                </span>
+
+                                {% endif %}
+
+                            </div>
+
+                            <a href="{{ url_for('main.settings') }}"
+                               class="btn btn-outline-primary w-100">
+
+                                <i class="fa-solid fa-gear me-2"></i>
+
+                                Configure AI
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Upload Progress -->
+
+                    <div class="card border-0 shadow-sm mt-4">
+
+                        <div class="card-header bg-white">
+
+                            <h4 class="mb-0">
+
+                                <i class="fa-solid fa-bars-progress text-success me-2"></i>
+
+                                Upload Progress
+
+                            </h4>
+
+                        </div>
+
+                        <div class="card-body">
+
+                            <div class="progress mb-3"
+                                 style="height:12px;">
+
+                                <div
+                                    id="uploadProgress"
+                                    class="progress-bar progress-bar-striped progress-bar-animated"
+                                    style="width:0%">
+
+                                    0%
+
+                                </div>
+
+                            </div>
+
+                            <small class="text-muted">
+
+                                Progress updates automatically during analysis.
+
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Recent Uploads -->
+
+                    <div class="card border-0 shadow-sm mt-4 d-flex flex-column" style="min-height:700px;">
+
+                        <div class="card-header bg-white">
+
+                            <h4 class="mb-0">
+
+                                <i class="fa-solid fa-clock-rotate-left text-primary me-2"></i>
+
+                                Recent Uploads
+
+                            </h4>
+
+                        </div>
+
+                        <div class="card-body d-flex flex-column justify-content-between h-100">
+
+                            {% if recent_analyses %}
+
+                                {% for analysis in recent_analyses %}
+
+                                <div class="d-flex justify-content-between align-items-center">
+
+                                    <div>
+
+                                        <strong>
+
+                                            {{ analysis.filename|truncate(22, True) }}
+
+                                        </strong>
+
+                                        <br>
+
+                                        <small class="text-muted">
+
+                                            {{ analysis.language }}
+
+                                            •
+
+                                            {{ analysis.created_at.strftime('%d %b %Y') }}
+
+                                        </small>
 
                                     </div>
 
+                                    <a href="{{ url_for('main.results', analysis_id=analysis.id) }}"
+                                       class="btn btn-sm btn-outline-primary">
+
+                                        View
+
+                                    </a>
+
                                 </div>
 
-                                <small class="text-muted">
+                                {% if not loop.last %}
 
-                                    Progress will update automatically after
-                                    you start uploading your project.
+                                <hr>
 
-                                </small>
+                                {% endif %}
 
-                            </div>
+                                {% endfor %}
 
-                        </div>
-
-                        <!-- Recent Uploads -->
-
-                        <div class="card border-0 shadow-sm mt-4">
-
-                            <div class="card-header bg-white">
-
-                                <h4 class="mb-0">
-
-                                    <i class="fa-solid fa-clock-rotate-left text-primary me-2"></i>
-
-                                    Recent Uploads
-
-                                </h4>
-
-                                 <div class="card-body">
-
-{% if recent_analyses %}
-
-    {% for analysis in recent_analyses %}
-
-    <div class="d-flex justify-content-between align-items-center mb-3">
-
-        <div>
-
-            <strong>{{ analysis.filename }}</strong><br>
-
-            <small class="text-muted">
-                {{ analysis.language }}
-                •
-                {{ analysis.created_at.strftime('%d %b %Y %I:%M %p') }}
-            </small>
-
-        </div>
-
-        <a href="{{ url_for('main.results', analysis_id=analysis.id) }}"
-           class="btn btn-sm btn-outline-primary">
-
-            View
-
-        </a>
-
-    </div>
-
-    {% if not loop.last %}
-    <hr>
-    {% endif %}
-
-    {% endfor %}
-
-{% else %}
+                            {% else %}
 
 <div class="text-center py-4">
 
@@ -656,7 +691,38 @@
 
 {% endif %}
 
-</div>                       
+</div>
+
+</div>
+
+<!-- Submit Buttons -->
+
+                    <div class="card border-0 shadow-sm mt-4">
+
+                        <div class="card-body">
+
+                            <div class="d-grid gap-2">
+
+                                <button
+                                    type="submit"
+                                    id="submitBtn"
+                                    class="btn btn-primary btn-lg">
+
+                                    <i class="fa-solid fa-play me-2"></i>
+
+                                    Analyze Project
+
+                                </button>
+
+                                <button
+                                    type="reset"
+                                    class="btn btn-outline-secondary">
+
+                                    <i class="fa-solid fa-arrow-rotate-left me-2"></i>
+
+                                    Reset Form
+
+                                </button>
 
                             </div>
 
@@ -666,43 +732,9 @@
 
                 </div>
 
+            </div>
 
-<!-- Submit Buttons -->
-
-                <div class="card border-0 shadow-sm mt-4">
-
-                    <div class="card-body">
-
-                        <div class="d-grid gap-2">
-
-                            <button
-                                type="submit"
-                                id="submitBtn"
-                                class="btn btn-primary btn-lg">
-
-                                <i class="fa-solid fa-play me-2"></i>
-
-                                Analyze Project
-
-                            </button>
-
-                            <button
-                                type="reset"
-                                class="btn btn-outline-secondary">
-
-                                <i class="fa-solid fa-arrow-rotate-left me-2"></i>
-
-                                Reset Form
-
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </form>
+        </form>
 
     </div>
 
@@ -714,31 +746,113 @@
 
 <script>
 
-const fileInput = document.querySelector('input[type="file"]');
-const dropZone = document.getElementById('drop-zone');
-const progressBar = document.getElementById('uploadProgress');
-const submitBtn = document.getElementById('submitBtn');
+const tools = [
+    "pylint",
+    "bandit",
+    "radon",
+    "black",
+    "ai_summary"
+];
 
-if (dropZone && fileInput) {
+function updateAnalysisCard() {
 
-    dropZone.addEventListener('dragover', function(e) {
+    let enabled = 0;
 
-        e.preventDefault();
-        dropZone.classList.add('border-success');
+    tools.forEach(function(tool){
+
+        const checkbox =
+            document.querySelector(`input[name="${tool}"]`);
+
+        const badge =
+            document.getElementById(`status-${tool}`);
+
+        if(!checkbox || !badge){
+            return;
+        }
+
+        if(checkbox.checked){
+
+            enabled++;
+
+            badge.innerHTML = "Enabled";
+            badge.className = "badge bg-success";
+
+        } else {
+
+            badge.innerHTML = "Disabled";
+            badge.className = "badge bg-secondary";
+
+        }
 
     });
 
-    dropZone.addEventListener('dragleave', function() {
+    const toolCount =
+        document.getElementById("toolCount");
 
-        dropZone.classList.remove('border-success');
+    const estimated =
+        document.getElementById("estimatedTime");
 
-    });
+    if(toolCount){
+        toolCount.innerHTML = enabled + "/5";
+    }
 
-    dropZone.addEventListener('drop', function(e) {
+    if(estimated){
+        estimated.innerHTML = "~" + (enabled * 5) + " sec";
+    }
+
+}
+
+tools.forEach(function(tool){
+
+    const checkbox =
+        document.querySelector(`input[name="${tool}"]`);
+
+    if(checkbox){
+
+        checkbox.addEventListener(
+            "change",
+            updateAnalysisCard
+        );
+
+    }
+
+});
+
+updateAnalysisCard();
+
+const fileInput =
+    document.querySelector('input[type="file"]');
+
+const dropZone =
+    document.getElementById("drop-zone");
+
+const progressBar =
+    document.getElementById("uploadProgress");
+
+const submitBtn =
+    document.getElementById("submitBtn");
+
+if(dropZone && fileInput){
+
+    dropZone.addEventListener("dragover", function(e){
 
         e.preventDefault();
 
-        dropZone.classList.remove('border-success');
+        dropZone.classList.add("border-success");
+
+    });
+
+    dropZone.addEventListener("dragleave", function(){
+
+        dropZone.classList.remove("border-success");
+
+    });
+
+    dropZone.addEventListener("drop", function(e){
+
+        e.preventDefault();
+
+        dropZone.classList.remove("border-success");
 
         fileInput.files = e.dataTransfer.files;
 
@@ -746,21 +860,21 @@ if (dropZone && fileInput) {
 
 }
 
-if (fileInput) {
+if(fileInput){
 
-    fileInput.addEventListener('change', function() {
+    fileInput.addEventListener("change", function(){
 
-        if (!this.files.length) return;
+        if(!this.files.length){
+            return;
+        }
 
         const file = this.files[0];
 
-        if (!file.name.toLowerCase().endsWith(".zip")) {
+        if(!file.name.toLowerCase().endsWith(".zip")){
 
             alert("Please upload a ZIP file.");
 
             this.value = "";
-
-            return;
 
         }
 
@@ -768,35 +882,44 @@ if (fileInput) {
 
 }
 
-document.querySelector("form").addEventListener("submit", function() {
+document.querySelector("form").addEventListener(
+    "submit",
+    function(){
 
-    submitBtn.disabled = true;
+        if(submitBtn){
 
-    submitBtn.innerHTML =
-        '<i class="fa-solid fa-spinner fa-spin me-2"></i>Analyzing...';
+            submitBtn.disabled = true;
 
-    let progress = 0;
-
-    const interval = setInterval(function() {
-
-        progress += 5;
-
-        if (progress > 95) {
-
-            clearInterval(interval);
+            submitBtn.innerHTML =
+                '<i class="fa-solid fa-spinner fa-spin me-2"></i>Analyzing...';
 
         }
 
-        progressBar.style.width = progress + "%";
+        let progress = 0;
 
-        progressBar.innerHTML = progress + "%";
+        const interval = setInterval(function(){
 
-    }, 150);
+            progress += 5;
 
-});
+            if(progress > 95){
+
+                clearInterval(interval);
+
+            }
+
+            if(progressBar){
+
+                progressBar.style.width = progress + "%";
+
+                progressBar.innerHTML = progress + "%";
+
+            }
+
+        },150);
+
+    }
+);
 
 </script>
 
 {% endblock %}
-
-

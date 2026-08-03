@@ -562,7 +562,7 @@
 
         <div class="row g-4">
 
-            <div class="col-md-3">
+            <div class="col-6 col-lg-3">
 
                 <div class="card border-0 shadow-sm h-100 text-center">
 
@@ -592,7 +592,7 @@
 
             </div>
 
-            <div class="col-md-3">
+            <div class="col-6 col-lg-3">
 
                 <div class="card border-0 shadow-sm h-100 text-center">
 
@@ -623,7 +623,7 @@
 
             </div>
 
-            <div class="col-md-3">
+            <div class="col-6 col-lg-3">
 
                 <div class="card border-0 shadow-sm h-100 text-center">
 
@@ -654,7 +654,7 @@
 
             </div>
 
-            <div class="col-md-3">
+            <div class="col-6 col-lg-3">
 
                 <div class="card border-0 shadow-sm h-100 text-center">
 
@@ -1033,87 +1033,55 @@
 
             </div>
 
-            <div class="col-md-6 text-center text-md-end mt-4 mt-md-0">
+            <div class="col-lg-6 mt-4 mt-lg-0">
 
-                <a href="{{ url_for('main.home') }}"
-                   class="btn btn-link text-decoration-none">
+    <div class="card shadow-sm h-100">
 
+        <div class="card-body p-4">
 
-                    <div class="card-body p-5">
+            <h3 class="mb-4 text-center">
+                Supported Analysis Tools
+            </h3>
 
-                        <h3 class="mb-4">
+            <ul class="list-group list-group-flush">
 
-                            Supported Analysis Tools
+                <li class="list-group-item">
+                    <strong>Black</strong><br>
+                    Python formatter
+                </li>
 
-                        </h3>
+                <li class="list-group-item">
+                    <strong>isort</strong><br>
+                    Import organizer
+                </li>
 
-                        <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <strong>Flake8</strong><br>
+                    Style guide checker
+                </li>
 
-                            <li class="list-group-item">
+                <li class="list-group-item">
+                    <strong>Pylint</strong><br>
+                    Code quality analyzer
+                </li>
 
-                                <strong>Black</strong>
+                <li class="list-group-item">
+                    <strong>Bandit</strong><br>
+                    Security scanner
+                </li>
 
-                                <br>
+                <li class="list-group-item">
+                    <strong>Radon</strong><br>
+                    Complexity metrics
+                </li>
 
-                                Python formatter
+            </ul>
 
-                            </li>
+        </div>
 
-                            <li class="list-group-item">
+    </div>
 
-                                <strong>isort</strong>
-
-                                <br>
-
-                                Import organizer
-
-                            </li>
-
-                            <li class="list-group-item">
-
-                                <strong>Flake8</strong>
-
-                                <br>
-
-                                Style guide checker
-
-                            </li>
-
-                            <li class="list-group-item">
-
-                                <strong>Pylint</strong>
-
-                                <br>
-
-                                Code quality analyzer
-
-                            </li>
-
-                            <li class="list-group-item">
-
-                                <strong>Bandit</strong>
-
-                                <br>
-
-                                Security scanner
-
-                            </li>
-
-                            <li class="list-group-item">
-
-                                <strong>Radon</strong>
-
-                                <br>
-
-                                Complexity metrics
-
-                            </li>
-
-                        </ul>
-
-                    </div>
-
-                </div>
+</div>
 
             </div>
 
@@ -1131,13 +1099,13 @@
 
         <div class="row text-center g-4">
 
-            <div class="col-md-3">
+            <div class="col-6 col-lg-3">
 
-                <div class="stat-card">
+                <div class="stat-card h-100 shadow-sm p-4">
 
                     <i class="fa-solid fa-users"></i>
 
-                    <h2 class="counter" data-target="500">0</h2>
+                    <h2 class="fw-bold">{{ total_users }}</h2>
 
                     <p>Developers</p>
 
@@ -1147,11 +1115,11 @@
 
             <div class="col-md-3">
 
-                <div class="stat-card">
+                <div class="stat-card h-100 shadow-sm p-4">
 
                     <i class="fa-solid fa-code"></i>
 
-                    <h2 class="counter" data-target="2500">0</h2>
+                    <h2 class="fw-bold">{{ total_projects }}</h2>
 
                     <p>Projects Scanned</p>
 
@@ -1159,13 +1127,13 @@
 
             </div>
 
-            <div class="col-md-3">
+            <div class="col-6 col-lg-3">
 
-                <div class="stat-card">
+                <div class="stat-card h-100 shadow-sm p-4">
 
                     <i class="fa-solid fa-bug"></i>
 
-                    <h2 class="counter" data-target="9800">0</h2>
+                    <h2 class="fw-bold">{{ total_issues }}</h2>
 
                     <p>Issues Found</p>
 
@@ -1173,13 +1141,13 @@
 
             </div>
 
-            <div class="col-md-3">
+            <div class="col-6 col-lg-3">
 
-                <div class="stat-card">
+                <div class="stat-card h-100 shadow-sm p-4">
 
                     <i class="fa-solid fa-file-circle-check"></i>
 
-                    <h2 class="counter" data-target="1200">0</h2>
+                    <h2 class="fw-bold">{{ total_reports }}</h2>
 
                     <p>Reports Generated</p>
 
