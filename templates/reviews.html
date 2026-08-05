@@ -1,803 +1,232 @@
 {% extends "base.html" %}
 
-{% block title %}Community Reviews | CodeSentinel AI{% endblock %}
+{% block title %}Community Reviews | Sentrix{% endblock %}
 
 {% block content %}
-
-<section class="py-5">
-
+<section class="py-5" id="reviews-top">
     <div class="container">
-
-        <!-- ===================================== -->
-        <!-- HERO -->
-        <!-- ===================================== -->
-
         <div class="text-center mb-5">
-
-            <span class="badge bg-primary px-3 py-2 mb-3">
-                Community Feedback
-            </span>
-
-            <h1 class="fw-bold display-5">
-
-                What Developers Say About
-                <span class="text-primary">
-                    CodeSentinel AI
-                </span>
-
-            </h1>
-
-            <p class="lead text-muted mt-3">
-
-                Real reviews from developers using
-                CodeSentinel AI to analyze Python
-                projects for quality, security,
-                complexity and best practices.
-
-            </p>
-
+            <span class="badge bg-primary px-3 py-2 mb-3">Community Feedback</span>
+            <h1 class="fw-bold display-5">What Developers Say About <span class="text-primary">Sentrix</span></h1>
+            <p class="lead text-muted mt-3">Real feedback from developers using Sentrix for Python code quality and security analysis.</p>
         </div>
-
-        <!-- ===================================== -->
-        <!-- REVIEW STATISTICS -->
-        <!-- ===================================== -->
 
         <div class="row g-4 mb-5">
-
             <div class="col-lg-3 col-md-6">
-
-                <div class="card shadow-sm border-0 h-100">
-
-                    <div class="card-body text-center">
-
-                        <i class="fa-solid fa-star text-warning fa-2x mb-3"></i>
-
-                        <h2 class="fw-bold">
-
-                            {{ review_stats.average_rating }}
-
-                        </h2>
-
-                        <p class="text-muted mb-0">
-
-                            Average Rating
-
-                        </p>
-
-                    </div>
-
-                </div>
-
+                <div class="card shadow-sm border-0 h-100"><div class="card-body text-center">
+                    <i class="fa-solid fa-star text-warning fa-2x mb-3"></i>
+                    <h2 class="fw-bold">{{ review_stats.average_rating }}</h2>
+                    <p class="text-muted mb-0">Average Rating</p>
+                </div></div>
             </div>
-
             <div class="col-lg-3 col-md-6">
-
-                <div class="card shadow-sm border-0 h-100">
-
-                    <div class="card-body text-center">
-
-                        <i class="fa-solid fa-comments text-primary fa-2x mb-3"></i>
-
-                        <h2 class="fw-bold">
-
-                            {{ review_stats.total_reviews }}
-
-                        </h2>
-
-                        <p class="text-muted mb-0">
-
-                            Total Reviews
-
-                        </p>
-
-                    </div>
-
-                </div>
-
+                <div class="card shadow-sm border-0 h-100"><div class="card-body text-center">
+                    <i class="fa-solid fa-comments text-primary fa-2x mb-3"></i>
+                    <h2 class="fw-bold">{{ review_stats.total_reviews }}</h2>
+                    <p class="text-muted mb-0">Total Reviews</p>
+                </div></div>
             </div>
-
             <div class="col-lg-3 col-md-6">
-
-                <div class="card shadow-sm border-0 h-100">
-
-                    <div class="card-body text-center">
-
-                        <i class="fa-solid fa-thumbs-up text-success fa-2x mb-3"></i>
-
-                        <h2 class="fw-bold">
-
-                            {{ review_stats.recommendation_percentage }}%
-
-                        </h2>
-
-                        <p class="text-muted mb-0">
-
-                            Recommend
-
-                        </p>
-
-                    </div>
-
-                </div>
-
+                <div class="card shadow-sm border-0 h-100"><div class="card-body text-center">
+                    <i class="fa-solid fa-thumbs-up text-success fa-2x mb-3"></i>
+                    <h2 class="fw-bold">{{ review_stats.recommendation_percentage }}%</h2>
+                    <p class="text-muted mb-0">Recommend</p>
+                </div></div>
             </div>
-
             <div class="col-lg-3 col-md-6">
-
-                <div class="card shadow-sm border-0 h-100">
-
-                    <div class="card-body text-center">
-
-                        <i class="fa-solid fa-shield-halved text-danger fa-2x mb-3"></i>
-
-                        <h2 class="fw-bold">
-
-                            Trusted
-
-                        </h2>
-
-                        <p class="text-muted mb-0">
-
-                            Community Driven
-
-                        </p>
-
-                    </div>
-
-                </div>
-
+                <div class="card shadow-sm border-0 h-100"><div class="card-body text-center">
+                    <i class="fa-solid fa-shield-halved text-danger fa-2x mb-3"></i>
+                    <h2 class="fw-bold">Trusted</h2>
+                    <p class="text-muted mb-0">Community Driven</p>
+                </div></div>
             </div>
-
         </div>
 
-        <!-- ===================================== -->
-        <!-- WRITE REVIEW -->
-        <!-- ===================================== -->
-
         {% if current_user.is_authenticated %}
-
-        <div class="card border-0 shadow-lg mb-5">
-
-            <div class="card-header bg-primary text-white">
-
-                <h4 class="mb-0">
-
-                    <i class="fa-solid fa-pen-to-square me-2"></i>
-
-                    Write Your Review
-
-                </h4>
-
+        <div class="card border-0 shadow-lg mb-5" id="write-review">
+            <div class="card-header bg-primary text-white py-3">
+                <h4 class="mb-0"><i class="fa-solid fa-pen-to-square me-2"></i>Write Your Review</h4>
             </div>
-
-            <div class="card-body">
-
-                <form method="POST">
-
+            <div class="card-body p-4">
+                <form method="POST" novalidate>
                     {{ form.hidden_tag() }}
 
                     <div class="mb-4">
-
-                        <label class="form-label fw-semibold">
-
-                            Rating
-
-                        </label>
-
-                        <div id="starRating" class="fs-2 mb-3">
-
-    <i class="fa-regular fa-star rating-star" data-value="1"></i>
-    <i class="fa-regular fa-star rating-star" data-value="2"></i>
-    <i class="fa-regular fa-star rating-star" data-value="3"></i>
-    <i class="fa-regular fa-star rating-star" data-value="4"></i>
-    <i class="fa-regular fa-star rating-star" data-value="5"></i>
-
-</div>
-                        <input
-    type="hidden"
-    id="rating"
-    name="rating"
-    value="">
-
-                        <small class="text-muted">
-
-                        Click a star to rate your experience.
-
-                        </small>
-
+                        <label class="form-label fw-semibold d-block">Rating</label>
+                        <div class="star-picker" role="radiogroup" aria-label="Choose a rating from one to five stars">
+                            {% for value in range(1, 6) %}
+                            <button type="button" class="rating-star btn p-0 border-0 bg-transparent" data-value="{{ value }}" aria-label="{{ value }} star{% if value != 1 %}s{% endif %}" aria-checked="false" role="radio">
+                                <i class="fa-regular fa-star"></i>
+                            </button>
+                            {% endfor %}
+                        </div>
+                        {{ form.rating() }}
+                        <small id="ratingHelp" class="text-muted d-block mt-2">Click a star to rate your experience.</small>
+                        {% for error in form.rating.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
                     </div>
 
                     <div class="mb-4">
-
-                        <label class="form-label fw-semibold">
-
-                            Review Title
-
-                        </label>
-
-                        {{ form.title(
-                            class="form-control",
-                            placeholder="Short summary..."
-                        ) }}
-
+                        {{ form.title.label(class="form-label fw-semibold") }}
+                        {{ form.title(class="form-control", placeholder="Short summary...", maxlength="150") }}
+                        {% for error in form.title.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
                     </div>
 
                     <div class="mb-4">
-
-                        <label class="form-label fw-semibold">
-
-                            Your Experience
-
-                        </label>
-
-                        {{ form.comment(
-                            class="form-control",
-                            rows="5",
-                            placeholder="Tell other developers about your experience..."
-                        ) }}
-
+                        {{ form.comment.label(class="form-label fw-semibold") }}
+                        {{ form.comment(class="form-control", rows="5", placeholder="Tell other developers about your experience...", maxlength="1000") }}
+                        <div class="d-flex justify-content-between mt-1">
+                            <small class="text-muted">Minimum 10 characters</small>
+                            <small class="text-muted"><span id="commentCount">0</span>/1000</small>
+                        </div>
+                        {% for error in form.comment.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
                     </div>
 
-                    <button
-                        type="submit"
-                        class="btn btn-primary btn-lg">
-
-                        <i class="fa-solid fa-paper-plane me-2"></i>
-
-                        Submit Review
-
-                    </button>
-
+                    <button type="submit" class="btn btn-primary btn-lg"><i class="fa-solid fa-paper-plane me-2"></i>Submit Review</button>
                 </form>
-
             </div>
-
         </div>
-
         {% else %}
-
         <div class="alert alert-info text-center shadow-sm mb-5">
-
-            <h5>
-
-                <i class="fa-solid fa-user-lock me-2"></i>
-
-                Login to share your experience with CodeSentinel AI.
-
-            </h5>
-
-            <a href="{{ url_for('main.login') }}"
-               class="btn btn-primary mt-3">
-
-                Login
-
-            </a>
-
+            <h5><i class="fa-solid fa-user-lock me-2"></i>Log in to share your experience with Sentrix.</h5>
+            <a href="{{ url_for('main.login') }}" class="btn btn-primary mt-3">Login</a>
         </div>
-
         {% endif %}
 
-        <!-- ===================================== -->
-<!-- COMMUNITY REVIEWS -->
-<!-- ===================================== -->
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-4">
+            <div>
+                <h2 class="fw-bold mb-1">Latest Community Reviews</h2>
+                <p class="text-muted mb-0">Search and filter verified community feedback.</p>
+            </div>
+            <div class="text-muted"><span id="visibleReviewCount">{{ reviews|length }}</span> review(s) shown</div>
+        </div>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="row mb-4 g-3">
+            <div class="col-lg-8"><input id="reviewSearch" type="search" class="form-control" placeholder="Search by title, comment, or username..."></div>
+            <div class="col-lg-4">
+                <select id="ratingFilter" class="form-select">
+                    <option value="0">All Ratings</option>
+                    <option value="5">5 Stars</option><option value="4">4 Stars</option><option value="3">3 Stars</option><option value="2">2 Stars</option><option value="1">1 Star</option>
+                </select>
+            </div>
+        </div>
 
-    <div>
-
-        <h2 class="fw-bold mb-1">
-            Latest Community Reviews
-        </h2>
-
-        <p class="text-muted mb-0">
-            Honest feedback from developers using CodeSentinel AI.
-        </p>
-
-    </div>
-
-</div>
-
-<!-- Search & Filter -->
-
-<div class="row mb-4">
-
-    <div class="col-lg-8 mb-3 mb-lg-0">
-
-        <input
-            id="reviewSearch"
-            type="text"
-            class="form-control"
-            placeholder="Search reviews...">
-
-    </div>
-
-    <div class="col-lg-4">
-
-        <select
-            id="ratingFilter"
-            class="form-select">
-
-            <option value="0">All Ratings</option>
-            <option value="5">★★★★★</option>
-            <option value="4">★★★★☆</option>
-            <option value="3">★★★☆☆</option>
-            <option value="2">★★☆☆☆</option>
-            <option value="1">★☆☆☆☆</option>
-
-        </select>
-
-    </div>
-
-</div>
-
-<div class="row g-4">
-
-    {% if reviews %}
-
-        {% for review in reviews %}
-
-            <div class="col-lg-4 col-md-6">
-
-                <div
-                    class="card border-0 shadow-sm h-100 review-card"
-                    data-rating="{{ review.rating }}">
-
+        <div class="row g-4" id="reviewsGrid">
+            {% for review in reviews %}
+            <div class="col-lg-4 col-md-6 review-item" data-rating="{{ review.rating }}" data-search="{{ (review.title ~ ' ' ~ review.comment ~ ' ' ~ review.user.username)|lower|e }}">
+                <article class="card border-0 shadow-sm h-100 review-card">
                     <div class="card-body">
-
-                        <!-- Rating -->
-
-                        <div class="mb-3">
-
-                            {% for i in range(review.rating) %}
-
-                                <i class="fa-solid fa-star text-warning"></i>
-
-                            {% endfor %}
-
-                            {% for i in range(5 - review.rating) %}
-
-                                <i class="fa-regular fa-star text-warning"></i>
-
-                            {% endfor %}
-
+                        <div class="mb-3" aria-label="{{ review.rating }} out of 5 stars">
+                            {% for value in range(1, 6) %}<i class="fa-{% if value <= review.rating %}solid{% else %}regular{% endif %} fa-star text-warning"></i>{% endfor %}
                         </div>
-
-                        <!-- Title -->
-
-                        <h5 class="fw-bold">
-
-                            {{ review.title }}
-
-                        </h5>
-
-                        <!-- Comment -->
-
-                        <p class="text-muted">
-
-                            {{ review.comment }}
-
-                        </p>
-
+                        <h5 class="fw-bold">{{ review.title }}</h5>
+                        <p class="text-muted mb-0 review-comment">{{ review.comment }}</p>
                     </div>
-
-                    <div class="card-footer bg-white border-0">
-
+                    <div class="card-footer bg-white border-0 pt-0 pb-4 px-4">
                         <div class="d-flex align-items-center">
-
-                            {% if review.user.profile_picture %}
-
-                                <img
-                                    src="{{ url_for('static', filename='uploads/profile_pics/' ~ review.user.profile_picture) }}"
-                                    class="rounded-circle me-3"
-                                    width="55"
-                                    height="55"
-                                    alt="Profile">
-
+                            {% if review.user.profile_picture and review.user.profile_picture != 'default.png' %}
+                            <img src="{{ url_for('static', filename='uploads/profile_pics/' ~ review.user.profile_picture) }}" class="rounded-circle me-3 object-fit-cover" width="52" height="52" alt="{{ review.user.username }} profile picture">
                             {% else %}
-
-                                <div
-                                    class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center me-3"
-                                    style="width:55px;height:55px;">
-
-                                    <strong>
-
-                                        {{ review.user.username[:1]|upper }}
-
-                                    </strong>
-
-                                </div>
-
+                            <div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center me-3" style="width:52px;height:52px;"><strong>{{ review.user.username[:1]|upper }}</strong></div>
                             {% endif %}
-
-                            <div class="flex-grow-1">
-
-                                <div class="d-flex align-items-center">
-
-                                    <strong>
-
-                                        {{ review.user.username }}
-
-                                    </strong>
-
-                                    <span class="badge bg-success ms-2">
-
-                                        <i class="fa-solid fa-circle-check"></i>
-
-                                        Verified
-
-                                    </span>
-
-                                </div>
-
-                                <small class="text-muted">
-
-                                    {{ review.created_at.strftime("%d %b %Y") }}
-
-                                </small>
-
+                            <div class="flex-grow-1 min-width-0">
+                                <div><strong>{{ review.user.username }}</strong> <span class="badge bg-success ms-1"><i class="fa-solid fa-circle-check"></i> Verified</span></div>
+                                <small class="text-muted">{{ review.created_at.strftime('%d %b %Y') }}</small>
                             </div>
-
-
-                           {% if current_user.is_authenticated and review.user_id == current_user.id %}
-
                         </div>
-
                         {% if current_user.is_authenticated and review.user_id == current_user.id %}
-
-
-<hr>
-
-<div class="d-flex justify-content-between">
-
-    <a href="{{ url_for('main.edit_review', review_id=review.id) }}"
-       class="btn btn-outline-primary btn-sm">
-
-        <i class="fa-solid fa-pen"></i>
-
-        Edit
-
-    </a>
-
-    <form action="{{ url_for('main.remove_review', review_id=review.id) }}"
-          method="POST">
-
-        <button
-            type="submit"
-            class="btn btn-outline-danger btn-sm"
-            onclick="return confirm('Delete this review?')">
-
-            <i class="fa-solid fa-trash"></i>
-
-            Delete
-
-        </button>
-
-    </form>
-
-
-</div>
-
-{% endif %}
+                        <hr>
+                        <div class="d-flex justify-content-between gap-2">
+                            <a href="{{ url_for('main.edit_review', review_id=review.id) }}" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-pen me-1"></i>Edit</a>
+                            <form action="{{ url_for('main.remove_review', review_id=review.id) }}" method="POST" class="m-0">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Delete this review permanently?')"><i class="fa-solid fa-trash me-1"></i>Delete</button>
+                            </form>
                         </div>
-
-                            </div>
-
                         {% endif %}
-
-
                     </div>
-
-                </div>
-
+                </article>
             </div>
-
-        {% endfor %}
-
-    {% else %}
-
-        <div class="col-12">
-
-            <div class="card border-0 shadow-sm">
-
-                <div class="card-body text-center py-5">
-
-                    <i class="fa-solid fa-comments fa-4x text-secondary mb-4"></i>
-
-                    <h3>
-
-                        No Reviews Yet
-
-                    </h3>
-
-                    <p class="text-muted">
-
-                        Be the first developer to share your experience with CodeSentinel AI.
-
-                    </p>
-
-                    {% if current_user.is_authenticated %}
-
-                        <a
-                            href="#"
-                            class="btn btn-primary">
-
-                            Write the First Review
-
-                        </a>
-
-                    {% else %}
-
-                        <a
-                            href="{{ url_for('main.login') }}"
-                            class="btn btn-primary">
-
-                            Login to Review
-
-                        </a>
-
-                    {% endif %}
-
-                </div>
-
-            </div>
-
+            {% else %}
+            <div class="col-12" id="emptyReviews"><div class="card border-0 shadow-sm"><div class="card-body text-center py-5"><i class="fa-solid fa-comments fa-4x text-secondary mb-4"></i><h3>No Reviews Yet</h3><p class="text-muted">Be the first developer to share your experience with Sentrix.</p>{% if current_user.is_authenticated %}<a href="#write-review" class="btn btn-primary">Write the First Review</a>{% else %}<a href="{{ url_for('main.login') }}" class="btn btn-primary">Login to Review</a>{% endif %}</div></div></div>
+            {% endfor %}
         </div>
 
-    {% endif %}
-
-</div>
-
-        <!-- ===================================== -->
-        <!-- CALL TO ACTION -->
-        <!-- ===================================== -->
-
-        <div class="row mt-5">
-
-            <div class="col-12">
-
-                <div class="card border-0 bg-primary text-white shadow-lg">
-
-                    <div class="card-body text-center py-5">
-
-                        <h2 class="fw-bold mb-3">
-
-                            Help Improve CodeSentinel AI
-
-                        </h2>
-
-                        <p class="lead mb-4">
-
-                            Your feedback helps us improve our AI-powered
-                            code analysis platform for developers around
-                            the world.
-
-                        </p>
-
-                        {% if current_user.is_authenticated %}
-
-                        <a
-                            href="#top"
-                            class="btn btn-light btn-lg">
-
-                            <i class="fa-solid fa-star me-2"></i>
-
-                            Write Your Review
-
-                        </a>
-
-                        {% else %}
-
-                        <a
-                            href="{{ url_for('main.register') }}"
-                            class="btn btn-light btn-lg">
-
-                            <i class="fa-solid fa-user-plus me-2"></i>
-
-                            Join the Community
-
-                        </a>
-
-                        {% endif %}
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
+        <div id="noFilteredReviews" class="card border-0 shadow-sm d-none"><div class="card-body text-center py-5"><i class="fa-solid fa-magnifying-glass fa-3x text-secondary mb-3"></i><h4>No matching reviews</h4><p class="text-muted mb-0">Try another search term or rating.</p></div></div>
     </div>
-
 </section>
-
 {% endblock %}
 
 {% block scripts %}
-
+{{ super() }}
+<style>
+.star-picker{display:flex;gap:.45rem}.rating-star{font-size:2.35rem;line-height:1;color:#adb5bd;cursor:pointer;transition:transform .15s ease,color .15s ease}.rating-star:hover,.rating-star:focus-visible{transform:scale(1.12);outline:none}.rating-star.is-active{color:#ffc107}.review-card{transition:transform .2s ease,box-shadow .2s ease}.review-card:hover{transform:translateY(-5px);box-shadow:0 1rem 2.5rem rgba(0,0,0,.12)!important}.review-comment{white-space:pre-line;overflow-wrap:anywhere}.min-width-0{min-width:0}
+</style>
 <script>
+document.addEventListener('DOMContentLoaded', () => {
+    const ratingInput = document.getElementById('rating');
+    const stars = Array.from(document.querySelectorAll('.rating-star'));
+    const ratingHelp = document.getElementById('ratingHelp');
 
-document.addEventListener("DOMContentLoaded", function () {
+    const paintStars = (value) => {
+        stars.forEach((star) => {
+            const active = Number(star.dataset.value) <= value;
+            star.classList.toggle('is-active', active);
+            star.setAttribute('aria-checked', Number(star.dataset.value) === value ? 'true' : 'false');
+            const icon = star.querySelector('i');
+            icon.classList.toggle('fa-solid', active);
+            icon.classList.toggle('fa-regular', !active);
+        });
+    };
 
+    const chooseRating = (value) => {
+        if (!ratingInput) return;
+        ratingInput.value = String(value);
+        paintStars(value);
+        if (ratingHelp) ratingHelp.textContent = `${value} out of 5 stars selected.`;
+    };
 
-    // Star Rating
-    const hiddenRating = document.getElementById("rating");
-    const stars = document.querySelectorAll(".rating-star");
-
-
-    if (ratingInput) {
-        ratingInput.setAttribute("min", "1");
-        ratingInput.setAttribute("max", "5");
-    }
-
-const stars = document.querySelectorAll(".rating-star");
-
-stars.forEach(function(star){
-
-    star.addEventListener("click", function(){
-
-        const value = this.getAttribute("data-value");
-
-        ratingInput.value = value;
-
-
-        stars.forEach(function(s){
-
-    if (hiddenRating && stars.length > 0) {
-
-        stars.forEach(function (star) {
-
-            star.addEventListener("click", function () {
-
-                const value = parseInt(star.dataset.value);
-
-                hiddenRating.value = value;
-
-                stars.forEach(function (s, index) {
-
-                    if (index < value) {
-
-                        s.classList.remove("fa-regular");
-                        s.classList.add("fa-solid");
-                        s.style.color = "#ffc107";
-
-                    } else {
-
-                        s.classList.remove("fa-solid");
-                        s.classList.add("fa-regular");
-                        s.style.color = "";
-
-                    }
-
-                });
-
-            });
-
-    const input = document.getElementById("rating");
-    const stars = document.querySelectorAll(".rating-star");
-
-    stars.forEach(function(star){
-
-        star.style.cursor = "pointer";
-
-        star.onclick = function(){
-
-            const value = Number(this.dataset.value);
-
-            input.value = value;
-
-            stars.forEach(function(s){
-
-                if(Number(s.dataset.value) <= value){
-
-                    s.className = "fa-solid fa-star rating-star text-warning";
-           
-
-                }else{
-
-
-    }
-
-    // Review Card Hover Effect
-    const reviewCards = document.querySelectorAll(".review-card");
-
-    reviewCards.forEach(function (card) {
-
-        card.style.transition = "all .3s ease";
-
-        card.addEventListener("mouseenter", function () {
-
-            card.style.transform = "translateY(-8px)";
-            card.style.boxShadow = "0 18px 40px rgba(0,0,0,.12)";
-
-
-            if (s.getAttribute("data-value") <= value){
-
-
-                s.classList.remove("fa-regular");
-                s.classList.add("fa-solid");
-
-            }
-            else{
-
-                s.classList.remove("fa-solid");
-                s.classList.add("fa-regular");
-
-            }
-
-        card.addEventListener("mouseleave", function () {
-
-            card.style.transform = "translateY(0)";
-            card.style.boxShadow = "";
-
-                    s.className = "fa-regular fa-star rating-star";
-
-
-                }
-
-            });
-
-
-        };
-
+    stars.forEach((star) => {
+        star.addEventListener('click', () => chooseRating(Number(star.dataset.value)));
+        star.addEventListener('mouseenter', () => paintStars(Number(star.dataset.value)));
+        star.addEventListener('focus', () => paintStars(Number(star.dataset.value)));
+        star.addEventListener('keydown', (event) => {
+            const current = Number(ratingInput?.value || star.dataset.value);
+            if (event.key === 'ArrowRight' || event.key === 'ArrowUp') { event.preventDefault(); chooseRating(Math.min(5, current + 1)); stars[Math.min(4, current)]?.focus(); }
+            if (event.key === 'ArrowLeft' || event.key === 'ArrowDown') { event.preventDefault(); chooseRating(Math.max(1, current - 1)); stars[Math.max(0, current - 2)]?.focus(); }
+        });
     });
 
+    document.querySelector('.star-picker')?.addEventListener('mouseleave', () => paintStars(Number(ratingInput?.value || 0)));
+    paintStars(Number(ratingInput?.value || 0));
+
+    const comment = document.getElementById('comment');
+    const commentCount = document.getElementById('commentCount');
+    const updateCount = () => { if (comment && commentCount) commentCount.textContent = String(comment.value.length); };
+    comment?.addEventListener('input', updateCount); updateCount();
+
+    const search = document.getElementById('reviewSearch');
+    const filter = document.getElementById('ratingFilter');
+    const items = Array.from(document.querySelectorAll('.review-item'));
+    const count = document.getElementById('visibleReviewCount');
+    const noResults = document.getElementById('noFilteredReviews');
+
+    const applyFilters = () => {
+        const term = (search?.value || '').trim().toLowerCase();
+        const selectedRating = Number(filter?.value || 0);
+        let visible = 0;
+        items.forEach((item) => {
+            const matchesText = !term || item.dataset.search.includes(term);
+            const matchesRating = !selectedRating || Number(item.dataset.rating) === selectedRating;
+            const show = matchesText && matchesRating;
+            item.classList.toggle('d-none', !show);
+            if (show) visible += 1;
+        });
+        if (count) count.textContent = String(visible);
+        noResults?.classList.toggle('d-none', visible !== 0 || items.length === 0);
+    };
+
+    search?.addEventListener('input', applyFilters);
+    filter?.addEventListener('change', applyFilters);
 });
-
-
-    const reviewCards = document.querySelectorAll(".review-card");
-
-    reviewCards.forEach(function(card){
-
-        card.style.transition = "all .3s ease";
-
-        card.addEventListener("mouseenter", function(){
-
-            card.style.transform = "translateY(-8px)";
-            card.style.boxShadow =
-                "0 18px 40px rgba(0,0,0,.12)";
-
-        });
-
-
-        card.addEventListener("mouseleave", function(){
-
-            card.style.transform = "translateY(0px)";
-            card.style.boxShadow = "";
-
-        });
-
-    });
-
-
-    const searchInput = document.getElementById("reviewSearch");
-
-
-    if (searchInput) {
-
-        searchInput.addEventListener("keyup", function () {
-
-            const keyword = this.value.toLowerCase();
-
-
-            document.querySelectorAll(".review-card")
-            .forEach(function(card){
-
-                card.style.display =
-                    card.innerText
-                    .toLowerCase()
-                    .includes(keyword)
-                    ? ""
-                    : "none";
-
-            });
-
-        });
-
-    }
-
-});
-
 </script>
-
 {% endblock %}

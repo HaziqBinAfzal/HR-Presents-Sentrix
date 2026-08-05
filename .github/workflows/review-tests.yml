@@ -1,0 +1,77 @@
+name: Sentrix application tests
+
+on:
+  push:
+    branches:
+      - agent/dynamic-reviews
+      - main
+      - "release/**"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Compile Python sources
+        run: python -m compileall -q app.py analyzer helpers forms.py models.py tests
+
+      - name: Run application tests with coverage
+        env:
+          APP_ENV: testing
+          SECRET_KEY: sentrix-ci-secret
+          DATABASE_URL: sqlite:///:memory:
+        run: |
+          coverage run --source=app,analyzer,helpers,models -m unittest discover -s tests -p "test_*.py" -v
+          coverage report --show-missing --fail-under=35
+          coverage xml
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sentrix-coverage
+          path: coverage.xml
+          if-no-files-found: warn
+          retention-days: 14
+
+  security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+
+      - name: Install audit tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pip-audit
+
+      - name: Audit Python dependencies
+        run: pip-audit --strict

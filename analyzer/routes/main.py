@@ -47,7 +47,7 @@ from helpers.upload_service import (
 from helpers.review_service import (
     create_review,
     update_review,
-    delete_review,
+    delete_review as delete_review_record,
     get_review,
     get_latest_reviews,
     get_all_reviews,
@@ -448,18 +448,6 @@ def dashboard():
             }
         ]
     }
-
-        recent_activities.append({
-
-            "project": analysis.filename,
-
-            "score": analysis.overall_score,
-
-            "status": analysis.status,
-
-            "date": analysis.created_at.strftime("%d %b %Y")
-
-        })
 
 
     return render_template(
@@ -1286,60 +1274,31 @@ def server_error_test():
 
 @main.route("/reviews", methods=["GET", "POST"])
 def reviews():
-
     form = ReviewForm()
 
+    if request.method == "POST" and not current_user.is_authenticated:
+        flash("Please login to submit a review.", "warning")
+        return redirect(url_for("main.login"))
+
     if form.validate_on_submit():
-
-        print("FORM VALID")
-
-        if not current_user.is_authenticated:
-
-            flash(
-                "Please login to submit a review.",
-                "warning"
-            )
-
-            return redirect(
-                url_for("main.login")
-            )
-
         create_review(
             user_id=current_user.id,
             rating=form.rating.data,
-            title=form.title.data,
-            comment=form.comment.data
+            title=form.title.data.strip(),
+            comment=form.comment.data.strip(),
         )
+        flash("Your review has been submitted!", "success")
+        return redirect(url_for("main.reviews"))
 
-        flash(
-            "Your review has been submitted!",
-            "success"
-        )
-
-        return redirect(
-            url_for("main.reviews")
-        )
-
-    elif request.method == "POST":
-
-
-
-        print("FORM ERRORS:")
-        print(form.errors)
-
-
-    all_reviews = get_all_reviews()
-
-    review_stats = get_review_statistics()
+    if request.method == "POST":
+        flash("Please correct the highlighted review fields.", "danger")
 
     return render_template(
         "reviews.html",
-        reviews=all_reviews,
-        review_stats=review_stats,
-
-        form=form
+        reviews=get_all_reviews(),
+        review_stats=get_review_statistics(),
+        form=form,
     )
-
 
 
 # ============================================================
@@ -1349,7 +1308,6 @@ def reviews():
 @main.route("/reviews/edit/<int:review_id>", methods=["GET", "POST"])
 @login_required
 def edit_review(review_id):
-
     review = get_review(review_id)
 
     if review.user_id != current_user.id:
@@ -1358,28 +1316,16 @@ def edit_review(review_id):
     form = ReviewForm(obj=review)
 
     if form.validate_on_submit():
-
         update_review(
             review,
             form.rating.data,
-            form.title.data,
-            form.comment.data
+            form.title.data.strip(),
+            form.comment.data.strip(),
         )
+        flash("Review updated successfully!", "success")
+        return redirect(url_for("main.reviews"))
 
-        flash(
-            "Review updated successfully!",
-            "success"
-        )
-
-        return redirect(
-            url_for("main.reviews")
-        )
-
-    return render_template(
-        "edit_review.html",
-        form=form,
-        review=review
-    )
+    return render_template("edit_review.html", form=form, review=review)
 
 
 # ============================================================
@@ -1389,30 +1335,15 @@ def edit_review(review_id):
 @main.route("/reviews/delete/<int:review_id>", methods=["POST"])
 @login_required
 def remove_review(review_id):
-
     review = get_review(review_id)
 
     if review.user_id != current_user.id:
         abort(403)
 
-    delete_review(review)
+    delete_review_record(review)
+    flash("Review deleted successfully!", "success")
+    return redirect(url_for("main.reviews"))
 
-    flash(
-        "Review deleted successfully!",
-        "success"
-    )
-
-    return redirect(
-        url_for("main.reviews")
-
-        average_rating=review_stats["average_rating"],
-        total_reviews=review_stats["total_reviews"],
-        rating_breakdown=review_stats["rating_breakdown"],
-        recommendation_percentage=review_stats[
-            "recommendation_percentage"
-        ]
-
-    )
 
 # REPORT DOWNLOAD #
 
@@ -1455,91 +1386,3 @@ def download_report(analysis_id):
         download_name=f"{analysis.filename}_report.html",
         mimetype="text/html"
     )
-
-
-
-# ============================================================
-# EDIT REVIEW
-# ============================================================
-
-@main.route("/reviews/edit/<int:review_id>", methods=["GET", "POST"])
-@login_required
-def edit_review(review_id):
-
-    review = Review.query.get_or_404(review_id)
-
-    if review.user_id != current_user.id:
-
-        flash(
-            "You can only edit your own review.",
-            "danger"
-        )
-
-        return redirect(url_for("main.reviews"))
-
-    form = ReviewForm()
-
-    if form.validate_on_submit():
-
-        review.rating = form.rating.data
-        review.title = form.title.data
-        review.comment = form.comment.data
-
-        db.session.commit()
-
-        flash(
-            "Review updated successfully!",
-            "success"
-        )
-
-        return redirect(url_for("main.reviews"))
-
-    form.rating.data = review.rating
-    form.title.data = review.title
-    form.comment.data = review.comment
-
-    return render_template(
-        "edit_review.html",
-        form=form,
-        review=review
-    )
-
-
-
-
-
-# ============================================================
-# DELETE REVIEW
-# ============================================================
-
-@main.route("/reviews/delete/<int:review_id>", methods=["POST"])
-@login_required
-def delete_review(review_id):
-
-    review = Review.query.get_or_404(review_id)
-
-    if review.user_id != current_user.id:
-
-        flash(
-            "You can only delete your own review.",
-            "danger"
-        )
-
-        return redirect(url_for("main.reviews"))
-
-    db.session.delete(review)
-    db.session.commit()
-
-    flash(
-        "Review deleted successfully!",
-        "success"
-    )
-
-    return redirect(url_for("main.reviews"))
-
-
-
-
-
-
-
