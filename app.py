@@ -3,7 +3,7 @@ import os
 from flask import Flask, render_template
 from flask_login import LoginManager
 
-from analyzer.routes.main import main
+from analyzer.routes.main_loader import main
 from config import Config
 from database import db
 from extensions import mail
