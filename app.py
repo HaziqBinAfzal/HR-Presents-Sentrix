@@ -50,6 +50,44 @@ def _ensure_email_verification_columns() -> None:
             )
 
 
+def _apply_security_headers(app: Flask, response):
+    """Attach baseline browser security controls to every response."""
+    if not app.config.get("SECURITY_HEADERS_ENABLED", True):
+        return response
+
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault(
+        "Referrer-Policy",
+        app.config.get("REFERRER_POLICY", "strict-origin-when-cross-origin"),
+    )
+    response.headers.setdefault(
+        "Permissions-Policy",
+        app.config.get(
+            "PERMISSIONS_POLICY",
+            "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
+        ),
+    )
+    response.headers.setdefault(
+        "Content-Security-Policy",
+        app.config.get("CONTENT_SECURITY_POLICY", "default-src 'self'"),
+    )
+    response.headers.setdefault("Cross-Origin-Opener-Policy", "same-origin")
+    response.headers.setdefault("X-Permitted-Cross-Domain-Policies", "none")
+
+    if app.config.get("HSTS_ENABLED", False):
+        max_age = int(app.config.get("HSTS_MAX_AGE", 31536000))
+        response.headers.setdefault(
+            "Strict-Transport-Security",
+            f"max-age={max_age}; includeSubDomains",
+        )
+
+    if response.mimetype == "text/html":
+        response.headers.setdefault("Cache-Control", "no-store")
+
+    return response
+
+
 def create_app(config_class=Config):
     """Create and configure the Sentrix Flask application."""
     app = Flask(__name__)
@@ -68,15 +106,16 @@ def create_app(config_class=Config):
     app.register_blueprint(main)
 
     @app.after_request
-    def apply_sentrix_branding(response):
-        """Remove legacy product naming from rendered HTML responses."""
+    def apply_sentrix_response_policies(response):
+        """Apply branding compatibility and browser security policies."""
         if response.mimetype == "text/html" and not response.direct_passthrough:
             body = response.get_data(as_text=True)
             body = body.replace("CodeSentinel AI", "Sentrix")
             body = body.replace("CodeSentinel", "Sentrix")
             response.set_data(body)
             response.headers["Content-Length"] = len(response.get_data())
-        return response
+
+        return _apply_security_headers(app, response)
 
     @app.errorhandler(403)
     def forbidden(error):
