@@ -8,6 +8,7 @@ from flask_login import LoginManager
 from analyzer.routes.exports import exports
 from analyzer.routes.main import main
 from config import Config
+from helpers.branding import register_branding
 from models import User
 
 
@@ -28,6 +29,7 @@ def create_app(config_object=Config):
     login_manager.init_app(app)
     app.register_blueprint(main)
     app.register_blueprint(exports)
+    register_branding(app)
 
     @app.errorhandler(403)
     def forbidden(error):
