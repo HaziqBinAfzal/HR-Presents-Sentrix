@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Documentation | Sentrix{% endblock %}
+{% block content %}
+<section class="py-5 bg-white border-bottom">
+    <div class="container">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-8">
+                <span class="badge text-bg-primary mb-3">Sentrix Documentation Center</span>
+                <h1 class="display-5 fw-bold">Build, analyze, and improve Python projects with confidence.</h1>
+                <p class="lead text-secondary mb-0">Technical guidance for developers using the Sentrix code intelligence, security, quality, and reporting workflows.</p>
+            </div>
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h2 class="h5 fw-bold">Need support?</h2>
+                        <p class="text-secondary">Contact the Sentrix team for installation or platform assistance.</p>
+                        <a class="btn btn-primary w-100" href="mailto:supportsentrix@gmail.com">supportsentrix@gmail.com</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="py-5">
+    <div class="container">
+        {% set sections = [
+            ('Getting Started', 'Create an account, sign in, upload a Python file or supported archive, and open the generated analysis results.'),
+            ('Installation', 'Clone the repository, create a virtual environment, install requirements, configure environment variables, and initialize the database.'),
+            ('Requirements', 'Python 3.11+, pip, a supported database, and the packages listed in requirements.txt.'),
+            ('Architecture', 'A Flask application factory, SQLAlchemy models, Jinja templates, analyzer modules, and focused helper services.'),
+            ('Folder Structure', 'Application setup lives at the repository root; analyzer, helpers, templates, and static assets remain separated by responsibility.'),
+            ('Upload Workflow', 'Uploads are validated, assigned a project ID, stored in a dedicated workspace, and associated with the authenticated developer.'),
+            ('Analysis Workflow', 'Sentrix combines syntax parsing, AST inspection, token analysis, linting, security scanning, complexity metrics, and formatting checks.'),
+            ('AI Recommendation Engine', 'The integrated engine converts deterministic findings into prioritized, plain-language explanations without requiring a user API key.'),
+            ('Security Scanner', 'Bandit and project-level checks identify insecure patterns and expose findings in results and reports.'),
+            ('Python Libraries', 'Pylint, Bandit, Radon, Black, ast, tokenize, pathlib, Flask, SQLAlchemy, and Bootstrap power the platform.'),
+            ('Database Schema', 'Users own projects, analyses, reports, and reviews. Relationships are scoped by user ID to protect tenant data.'),
+            ('Generated Reports', 'Reports summarize quality, security, maintainability, complexity, best practices, code smells, performance, architecture, and AI recommendations.'),
+            ('FAQ', 'Sentrix currently focuses on Python, requires no user-supplied AI key, and stores analysis history for authenticated users.'),
+            ('Troubleshooting', 'Check environment variables, dependency installation, database connectivity, writable upload folders, and application logs.'),
+            ('Developer Guide', 'Keep the Flask and Bootstrap architecture, write focused services, validate user input, scope database queries, and avoid hardcoded product data.'),
+            ('Contribution Guide', 'Create a focused branch, preserve working functionality, add validation, run checks, and document behavior changes.'),
+            ('Roadmap', 'Planned work includes deeper test coverage, background jobs, richer comparisons, additional exports, and more language analyzers.')
+        ] %}
+        <div class="row g-4">
+            {% for title, description in sections %}
+            <div class="col-md-6 col-xl-4">
+                <article class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <span class="d-inline-flex align-items-center justify-content-center rounded-3 bg-primary-subtle text-primary" style="width:42px;height:42px"><i class="fa-solid fa-book-open"></i></span>
+                            <h2 class="h5 fw-bold mb-0">{{ title }}</h2>
+                        </div>
+                        <p class="text-secondary mb-0">{{ description }}</p>
+                    </div>
+                </article>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
