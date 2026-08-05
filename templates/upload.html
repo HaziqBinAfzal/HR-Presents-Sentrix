@@ -1,802 +1,156 @@
 {% extends "base.html" %}
 
-{% block title %}Upload Project | CodeSentinel AI{% endblock %}
+{% block title %}Upload Project | Sentrix{% endblock %}
 
 {% block content %}
-
 <section class="py-5">
-
     <div class="container">
-
-        <!-- Header -->
-
-        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-5">
-
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-5">
             <div>
-
-                <h1 class="fw-bold mb-2">
-
-                    <i class="fa-solid fa-cloud-arrow-up text-primary me-2"></i>
-
-                    Upload Project
-
-                </h1>
-
-                <p class="text-muted mb-0">
-
-                    Upload your source code project for AI-powered code quality,
-                    security, and complexity analysis.
-
-                </p>
-
+                <span class="badge bg-primary-subtle text-primary mb-3">Sentrix AI Engine</span>
+                <h1 class="fw-bold mb-2"><i class="fa-solid fa-cloud-arrow-up text-primary me-2"></i>Upload Project</h1>
+                <p class="text-muted mb-0">Upload a Python ZIP project for automatic quality, security, complexity, maintainability, and AI review.</p>
             </div>
-
-            <div class="mt-4 mt-lg-0 d-flex flex-wrap gap-2">
-
-                <a href="{{ url_for('main.dashboard') }}"
-                   class="btn btn-outline-primary">
-
-                    <i class="fa-solid fa-gauge-high me-2"></i>
-
-                    Dashboard
-
-                </a>
-
-                <a href="{{ url_for('main.history') }}"
-                   class="btn btn-outline-secondary">
-
-                    <i class="fa-solid fa-clock-rotate-left me-2"></i>
-
-                    History
-
-                </a>
-
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-primary"><i class="fa-solid fa-gauge-high me-2"></i>Dashboard</a>
+                <a href="{{ url_for('main.history') }}" class="btn btn-outline-secondary"><i class="fa-solid fa-clock-rotate-left me-2"></i>History</a>
             </div>
-
         </div>
 
-        <!-- Statistics -->
-
-        <div class="row g-4 mb-5">
-
-            <div class="col-md-6 col-xl-3">
-
-                <div class="card border-0 shadow-sm">
-
-                    <div class="card-body text-center">
-
-                        <i class="fa-solid fa-folder-open fa-2x text-primary mb-3"></i>
-
-                        <h3 class="fw-bold">
-
-                            {{ total_projects }}
-
-                        </h3>
-
-                        <p class="text-muted mb-0">
-
-                            Projects
-
-                        </p>
-
-                    </div>
-
+        <div class="alert alert-primary border-0 shadow-sm mb-4" role="alert">
+            <div class="d-flex gap-3 align-items-start">
+                <i class="fa-solid fa-brain fa-2x mt-1"></i>
+                <div>
+                    <h5 class="alert-heading fw-bold mb-2">Integrated analysis—no API key required</h5>
+                    <p class="mb-0">Sentrix automatically combines Pylint, Bandit, Radon, Black, AST, tokenize, and pathlib to produce security findings, AI recommendations, an executive summary, complexity analysis, maintainability guidance, and a complete quality review.</p>
                 </div>
-
             </div>
-
-            <div class="col-md-6 col-xl-3">
-
-                <div class="card border-0 shadow-sm">
-
-                    <div class="card-body text-center">
-
-                        <i class="fa-solid fa-magnifying-glass-chart fa-2x text-success mb-3"></i>
-
-                        <h3 class="fw-bold">
-
-                            {{ total_analyses }}
-
-                        </h3>
-
-                        <p class="text-muted mb-0">
-
-                            Analyses
-
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="col-md-6 col-xl-3">
-
-                <div class="card border-0 shadow-sm">
-
-                    <div class="card-body text-center">
-
-                        <i class="fa-solid fa-file-lines fa-2x text-warning mb-3"></i>
-
-                        <h3 class="fw-bold">
-
-                            {{ total_reports }}
-
-                        </h3>
-
-                        <p class="text-muted mb-0">
-
-                            Reports
-
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="col-md-6 col-xl-3">
-
-                <div class="card border-0 shadow-sm">
-
-                    <div class="card-body text-center">
-
-                        <i class="fa-solid fa-hard-drive fa-2x text-danger mb-3"></i>
-
-                        <h3 class="fw-bold">
-
-                            {{ storage_used }}
-
-                        </h3>
-
-                        <p class="text-muted mb-0">
-
-                            Storage Used
-
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
         </div>
 
-        <!-- Upload Form -->
-
-        <form method="POST"
-              enctype="multipart/form-data">
-
+        <form method="POST" enctype="multipart/form-data" id="uploadForm">
             {{ form.hidden_tag() }}
-
             <div class="row g-4">
-
-                <!-- Upload Area -->
-
                 <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-white py-3"><h4 class="mb-0"><i class="fa-solid fa-upload text-primary me-2"></i>Project Upload</h4></div>
+                        <div class="card-body p-4">
+                            <div id="drop-zone" class="border border-2 border-primary rounded-4 p-4 p-md-5 text-center bg-light">
+                                <i class="fa-solid fa-file-zipper fa-4x text-primary mb-4"></i>
+                                <h4 class="fw-bold">Drag and drop your ZIP project</h4>
+                                <p class="text-muted">The archive should contain the Python source files you want Sentrix to analyze.</p>
+                                <div class="mx-auto" style="max-width: 520px;">
+                                    {{ form.file(class="form-control form-control-lg", accept=".zip") }}
+                                    {% for error in form.file.errors %}<div class="text-danger small mt-2">{{ error }}</div>{% endfor %}
+                                </div>
+                                <small class="text-muted d-block mt-3">Supported format: .zip</small>
+                            </div>
+
+                            <div class="mt-4">
+                                <label class="form-label fw-semibold">Project Name</label>
+                                {{ form.project_name(class="form-control", placeholder="Optional project name") }}
+                                {% for error in form.project_name.errors %}<div class="text-danger small mt-2">{{ error }}</div>{% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-white py-3"><h4 class="mb-0"><i class="fa-solid fa-microchip text-primary me-2"></i>Analysis Pipeline</h4></div>
+                        <div class="card-body">
+                            {% set checks = [
+                                ('shield-halved', 'Security Analysis', 'Bandit vulnerability scanning'),
+                                ('wand-magic-sparkles', 'AI Recommendations', 'Actionable improvement guidance'),
+                                ('file-lines', 'AI Summary', 'Executive project overview'),
+                                ('diagram-project', 'Complexity Analysis', 'Radon complexity metrics'),
+                                ('screwdriver-wrench', 'Maintainability', 'Structure and code-health review'),
+                                ('star', 'Quality Review', 'Pylint and formatting assessment')
+                            ] %}
+                            {% for icon, title, description in checks %}
+                            <div class="d-flex gap-3 {% if not loop.last %}mb-3{% endif %}">
+                                <span class="text-success"><i class="fa-solid fa-circle-check"></i></span>
+                                <div><div class="fw-semibold"><i class="fa-solid fa-{{ icon }} text-primary me-2"></i>{{ title }}</div><small class="text-muted">{{ description }}</small></div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
 
                     <div class="card border-0 shadow-sm">
-
-                        <div class="card-header bg-white">
-
-                            <h4 class="mb-0">
-
-                                <i class="fa-solid fa-upload text-primary me-2"></i>
-
-                                Project Upload
-
-                            </h4>
-
-                        </div>
-
+                        <div class="card-header bg-white py-3"><h4 class="mb-0"><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i>Recent Analyses</h4></div>
                         <div class="card-body">
-
-                            <div id="drop-zone"
-                                 class="border border-2 border-primary rounded-4 p-5 text-center">
-
-                                <i class="fa-solid fa-cloud-arrow-up fa-4x text-primary mb-4"></i>
-
-                                <h4>
-
-                                    Drag & Drop Your Project
-
-                                </h4>
-
-                                <p class="text-muted">
-
-                                    Upload a ZIP archive containing your
-                                    Python project.
-
-                                </p>
-
-                                <div class="mt-4">
-
-                                    {{ form.file(class="form-control") }}
-
+                            {% if recent_analyses %}
+                                {% for analysis in recent_analyses %}
+                                <div class="d-flex justify-content-between align-items-center gap-3 {% if not loop.last %}mb-3 pb-3 border-bottom{% endif %}">
+                                    <div class="overflow-hidden"><div class="fw-semibold text-truncate">{{ analysis.filename }}</div><small class="text-muted">{{ analysis.created_at.strftime('%d %b %Y') }}</small></div>
+                                    <a href="{{ url_for('main.results', analysis_id=analysis.id) }}" class="btn btn-sm btn-outline-primary">View</a>
                                 </div>
-
-                                <small class="text-muted d-block mt-3">
-
-                                    Supported format: .zip
-
-                                </small>
-
-                            </div>
-
+                                {% endfor %}
+                            {% else %}
+                                <div class="text-center py-3"><i class="fa-solid fa-folder-open fa-2x text-secondary mb-3"></i><p class="text-muted mb-0">No analyses yet.</p></div>
+                            {% endif %}
                         </div>
-
                     </div>
-
-
-<!-- Project Details -->
-
-                        <div class="card border-0 shadow-sm mt-4">
-
-                            <div class="card-header bg-white">
-
-                                <h4 class="mb-0">
-
-                                    <i class="fa-solid fa-folder-tree text-success me-2"></i>
-
-                                    Project Details
-
-                                </h4>
-
-                            </div>
-
-                            <div class="card-body">
-
-                                <div class="row g-4">
-
-                                    <div class="col-md-6">
-
-                                        <label class="form-label fw-semibold">
-
-                                            Project Name
-
-                                        </label>
-
-                                        {{ form.project_name(
-                                            class="form-control",
-                                            placeholder="Enter project name"
-                                        ) }}
-
-                                    </div>
-
-                                    <div class="col-md-6">
-
-                                        <label class="form-label fw-semibold">
-
-                                            Programming Language
-
-                                        </label>
-
-                                        <select name="language" class="form-select">
-    <option value="python" selected>Python</option>
-</select>
-
-                                    </div>
-
-                                    <div class="col-md-6">
-
-                                        <label class="form-label fw-semibold">
-
-                                            Analysis Type
-
-                                        </label>
-
-                                        <select
-                                            class="form-select"
-                                            name="analysis_type">
-
-                                            <option value="full">
-
-                                                Full Analysis
-
-                                            </option>
-
-                                            <option value="security">
-
-                                                Security Only
-
-                                            </option>
-
-                                            <option value="quality">
-
-                                                Code Quality Only
-
-                                            </option>
-
-                                            <option value="complexity">
-
-                                                Complexity Only
-
-                                            </option>
-
-                                        </select>
-
-                                    </div>
-
-                                    <div class="col-md-6">
-
-                                        <label class="form-label fw-semibold">
-
-                                            Report Format
-
-                                        </label>
-
-                                        <select
-                                            class="form-select"
-                                            name="report_format">
-
-                                            <option value="html">
-
-                                                HTML
-
-                                            </option>
-
-                                            <option value="pdf">
-
-                                                PDF
-
-                                            </option>
-
-                                            <option value="json">
-
-                                                JSON
-
-                                            </option>
-
-                                        </select>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <!-- Analysis Options -->
-
-                    <div class="col-lg-4">
-
-                        <div class="card border-0 shadow-sm">
-
-                            <div class="card-header bg-white">
-
-                                <h4 class="mb-0">
-
-                                    <i class="fa-solid fa-sliders text-primary me-2"></i>
-
-                                    Analysis Options
-
-                                </h4>
-
-                            </div>
-
-                            <div class="card-body">
-
-                                <div class="form-check form-switch mb-3">
-
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        checked
-                                        name="pylint">
-
-                                    <label class="form-check-label">
-
-                                        Run Pylint
-
-                                    </label>
-
-                                </div>
-
-                                <div class="form-check form-switch mb-3">
-
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        checked
-                                        name="bandit">
-
-                                    <label class="form-check-label">
-
-                                        Run Bandit
-
-                                    </label>
-
-                                </div>
-
-                                <div class="form-check form-switch mb-3">
-
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        checked
-                                        name="radon">
-
-                                    <label class="form-check-label">
-
-                                        Run Radon
-
-                                    </label>
-
-                                </div>
-
-                                <div class="form-check form-switch mb-3">
-
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        checked
-                                        name="black">
-
-                                    <label class="form-check-label">
-
-                                        Check Formatting (Black)
-
-                                    </label>
-
-                                </div>
-
-                                <div class="form-check form-switch">
-
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        checked
-                                        name="ai_summary">
-
-                                    <label class="form-check-label">
-
-                                        Generate AI Summary
-
-                                    </label>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
-<!-- AI Provider Status -->
-
-                        <div class="card border-0 shadow-sm mt-4">
-
-                            <div class="card-header bg-white">
-
-                                <h4 class="mb-0">
-
-                                    <i class="fa-solid fa-key text-warning me-2"></i>
-
-                                    AI Provider (BYOK)
-
-                                </h4>
-
-                            </div>
-
-                            <div class="card-body">
-
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-
-                                    <span class="fw-semibold">
-
-                                        Provider
-
-                                    </span>
-
-                                    <span class="badge bg-success">
-
-                                        {{ ai_provider or "Gemini" }}
-
-                                    </span>
-
-                                </div>
-
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-
-                                    <span class="fw-semibold">
-
-                                        Model
-
-                                    </span>
-
-                                    <span>
-
-                                        {{ ai_model or "gemini-2.5-pro" }}
-
-                                    </span>
-
-                                </div>
-
-                                <div class="d-flex justify-content-between align-items-center mb-4">
-
-                                    <span class="fw-semibold">
-
-                                        Status
-
-                                    </span>
-
-                                    <span class="badge bg-success">
-
-                                        Connected
-
-                                    </span>
-
-                                </div>
-
-                                <a href="{{ url_for('main.settings') }}"
-                                   class="btn btn-outline-primary w-100">
-
-                                    <i class="fa-solid fa-gear me-2"></i>
-
-                                    Configure AI
-
-                                </a>
-
-                            </div>
-
-                        </div>
-
-                        <!-- Upload Progress -->
-
-                        <div class="card border-0 shadow-sm mt-4">
-
-                            <div class="card-header bg-white">
-
-                                <h4 class="mb-0">
-
-                                    <i class="fa-solid fa-bars-progress text-success me-2"></i>
-
-                                    Upload Progress
-
-                                </h4>
-
-                            </div>
-
-                            <div class="card-body">
-
-                                <div class="progress mb-3" style="height:12px;">
-
-                                    <div id="uploadProgress"
-                                         class="progress-bar progress-bar-striped progress-bar-animated"
-                                         role="progressbar"
-                                         style="width:0%">
-
-                                        0%
-
-                                    </div>
-
-                                </div>
-
-                                <small class="text-muted">
-
-                                    Progress will update automatically after
-                                    you start uploading your project.
-
-                                </small>
-
-                            </div>
-
-                        </div>
-
-                        <!-- Recent Uploads -->
-
-                        <div class="card border-0 shadow-sm mt-4">
-
-                            <div class="card-header bg-white">
-
-                                <h4 class="mb-0">
-
-                                    <i class="fa-solid fa-clock-rotate-left text-primary me-2"></i>
-
-                                    Recent Uploads
-
-                                </h4>
-
-                                 <div class="card-body">
-
-{% if recent_analyses %}
-
-    {% for analysis in recent_analyses %}
-
-    <div class="d-flex justify-content-between align-items-center mb-3">
-
-        <div>
-
-            <strong>{{ analysis.filename }}</strong><br>
-
-            <small class="text-muted">
-                {{ analysis.language }}
-                •
-                {{ analysis.created_at.strftime('%d %b %Y %I:%M %p') }}
-            </small>
-
-        </div>
-
-        <a href="{{ url_for('main.results', analysis_id=analysis.id) }}"
-           class="btn btn-sm btn-outline-primary">
-
-            View
-
-        </a>
-
-    </div>
-
-    {% if not loop.last %}
-    <hr>
-    {% endif %}
-
-    {% endfor %}
-
-{% else %}
-
-<div class="text-center py-4">
-
-    <i class="fa-solid fa-folder-open fa-3x text-secondary mb-3"></i>
-
-    <h6>No analyses yet</h6>
-
-    <p class="text-muted mb-0">
-
-        Upload your first project to receive AI-powered code quality,
-        security and complexity analysis.
-
-    </p>
-
-</div>
-
-{% endif %}
-
-</div>                       
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
                 </div>
+            </div>
 
-
-<!-- Submit Buttons -->
-
-                <div class="card border-0 shadow-sm mt-4">
-
-                    <div class="card-body">
-
-                        <div class="d-grid gap-2">
-
-                            <button
-                                type="submit"
-                                id="submitBtn"
-                                class="btn btn-primary btn-lg">
-
-                                <i class="fa-solid fa-play me-2"></i>
-
-                                Analyze Project
-
-                            </button>
-
-                            <button
-                                type="reset"
-                                class="btn btn-outline-secondary">
-
-                                <i class="fa-solid fa-arrow-rotate-left me-2"></i>
-
-                                Reset Form
-
-                            </button>
-
-                        </div>
-
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-body p-4">
+                    <div class="progress mb-3" style="height: 10px;" aria-label="Upload progress"><div id="uploadProgress" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div></div>
+                    <div class="d-grid d-md-flex justify-content-md-end gap-2">
+                        <button type="reset" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-rotate-left me-2"></i>Reset</button>
+                        <button type="submit" id="submitBtn" class="btn btn-primary btn-lg"><i class="fa-solid fa-play me-2"></i>Analyze Project</button>
                     </div>
-
                 </div>
-
-            </form>
-
+            </div>
+        </form>
     </div>
-
 </section>
-
 {% endblock %}
 
 {% block scripts %}
-
 <script>
+(() => {
+    const form = document.getElementById('uploadForm');
+    const fileInput = form?.querySelector('input[type="file"]');
+    const dropZone = document.getElementById('drop-zone');
+    const progressBar = document.getElementById('uploadProgress');
+    const submitBtn = document.getElementById('submitBtn');
 
-const fileInput = document.querySelector('input[type="file"]');
-const dropZone = document.getElementById('drop-zone');
-const progressBar = document.getElementById('uploadProgress');
-const submitBtn = document.getElementById('submitBtn');
+    if (dropZone && fileInput) {
+        ['dragenter', 'dragover'].forEach(eventName => dropZone.addEventListener(eventName, event => {
+            event.preventDefault();
+            dropZone.classList.add('border-success');
+        }));
+        ['dragleave', 'drop'].forEach(eventName => dropZone.addEventListener(eventName, event => {
+            event.preventDefault();
+            dropZone.classList.remove('border-success');
+        }));
+        dropZone.addEventListener('drop', event => {
+            if (event.dataTransfer.files.length) {
+                fileInput.files = event.dataTransfer.files;
+                fileInput.dispatchEvent(new Event('change'));
+            }
+        });
+        fileInput.addEventListener('change', () => {
+            const file = fileInput.files[0];
+            if (file && !file.name.toLowerCase().endsWith('.zip')) {
+                fileInput.value = '';
+                window.alert('Please upload a ZIP project archive.');
+            }
+        });
+    }
 
-if (dropZone && fileInput) {
-
-    dropZone.addEventListener('dragover', function(e) {
-
-        e.preventDefault();
-        dropZone.classList.add('border-success');
-
+    form?.addEventListener('submit', () => {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Analyzing…';
+        let progress = 8;
+        progressBar.style.width = `${progress}%`;
+        const timer = window.setInterval(() => {
+            progress = Math.min(progress + Math.max(1, Math.round((94 - progress) / 8)), 94);
+            progressBar.style.width = `${progress}%`;
+            if (progress >= 94) window.clearInterval(timer);
+        }, 250);
     });
-
-    dropZone.addEventListener('dragleave', function() {
-
-        dropZone.classList.remove('border-success');
-
-    });
-
-    dropZone.addEventListener('drop', function(e) {
-
-        e.preventDefault();
-
-        dropZone.classList.remove('border-success');
-
-        fileInput.files = e.dataTransfer.files;
-
-    });
-
-}
-
-if (fileInput) {
-
-    fileInput.addEventListener('change', function() {
-
-        if (!this.files.length) return;
-
-        const file = this.files[0];
-
-        if (!file.name.toLowerCase().endsWith(".zip")) {
-
-            alert("Please upload a ZIP file.");
-
-            this.value = "";
-
-            return;
-
-        }
-
-    });
-
-}
-
-document.querySelector("form").addEventListener("submit", function() {
-
-    submitBtn.disabled = true;
-
-    submitBtn.innerHTML =
-        '<i class="fa-solid fa-spinner fa-spin me-2"></i>Analyzing...';
-
-    let progress = 0;
-
-    const interval = setInterval(function() {
-
-        progress += 5;
-
-        if (progress > 95) {
-
-            clearInterval(interval);
-
-        }
-
-        progressBar.style.width = progress + "%";
-
-        progressBar.innerHTML = progress + "%";
-
-    }, 150);
-
-});
-
+})();
 </script>
-
 {% endblock %}
-
-
