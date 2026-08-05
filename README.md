@@ -155,9 +155,29 @@ Confirm that the runtime account has permission to create and write within the c
 
 Back up the database and run the latest managed migrations. Avoid manually adding duplicate columns.
 
+## Production-hardening status
+
+Completed on `agent/sentrix-production-hardening`:
+
+- Sentrix rebranding foundation and HR-Presents attribution
+- Official developer and social links
+- Platform-managed AI configuration with end-user BYOK removed
+- Production-safe environment configuration
+- Generated backup artifact cleanup
+- Profile/model mismatch repair
+- Additive compatibility handling for legacy databases
+
+Current stabilization priorities:
+
+- Remove remaining legacy CodeSentinel contact and interface references
+- Repair dashboard empty-state and duplicate activity handling
+- Complete project-history navigation and ownership-safe actions
+- Standardize authenticated report access and export filenames
+- Remove duplicate routes and unreachable profile/review logic
+- Add regression tests for dashboard, history, results and report downloads
+
 ## Roadmap
 
-- Complete Sentrix rebranding across all templates, reports and exports
 - Fully dynamic dashboard, settings and project history
 - Unified AI analysis result schema and score calculation
 - Enterprise PDF, HTML, JSON and Markdown reports
