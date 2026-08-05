@@ -15,24 +15,29 @@ def _hash_token(raw_token):
 
 
 def create_email_verification_token(user):
-    AuthToken.query.filter_by(
+    active_tokens = AuthToken.query.filter_by(
         user_id=user.id,
         token_type="email_verification",
-        revoked=False,
-    ).update({"revoked": True})
+    ).all()
+    now = datetime.utcnow()
+    for token in active_tokens:
+        if token.used_at is None and token.revoked_at is None:
+            token.revoked_at = now
 
     raw_token = secrets.token_urlsafe(48)
-    expires_at = datetime.utcnow() + timedelta(
+    expires_at = now + timedelta(
         seconds=current_app.config["EMAIL_VERIFICATION_TOKEN_MAX_AGE"]
     )
 
-    token = AuthToken(
-        user_id=user.id,
-        token_hash=_hash_token(raw_token),
-        token_type="email_verification",
-        expires_at=expires_at,
+    db.session.add(
+        AuthToken(
+            user_id=user.id,
+            token_hash=_hash_token(raw_token),
+            token_type="email_verification",
+            expires_at=expires_at,
+        )
     )
-    db.session.add(token)
+    user.verification_sent_at = now
     db.session.commit()
     return raw_token
 
@@ -41,14 +46,12 @@ def consume_email_verification_token(raw_token):
     token = AuthToken.query.filter_by(
         token_hash=_hash_token(raw_token),
         token_type="email_verification",
-        revoked=False,
     ).first()
 
-    if not token or token.expires_at < datetime.utcnow():
+    if not token or not token.is_active:
         return None
 
-    token.revoked = True
-    token.consumed_at = datetime.utcnow()
+    token.used_at = datetime.utcnow()
     db.session.commit()
     return token.user
 
