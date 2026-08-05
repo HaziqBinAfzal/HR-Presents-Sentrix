@@ -77,6 +77,32 @@ class Config:
         os.getenv("EMAIL_VERIFICATION_MAX_AGE", "86400")
     )
 
+    SECURITY_HEADERS_ENABLED = _env_bool("SECURITY_HEADERS_ENABLED", True)
+    HSTS_ENABLED = _env_bool("HSTS_ENABLED", ENVIRONMENT == "production")
+    HSTS_MAX_AGE = int(os.getenv("HSTS_MAX_AGE", "31536000"))
+    CONTENT_SECURITY_POLICY = os.getenv(
+        "CONTENT_SECURITY_POLICY",
+        "default-src 'self'; "
+        "base-uri 'self'; "
+        "form-action 'self'; "
+        "frame-ancestors 'none'; "
+        "object-src 'none'; "
+        "img-src 'self' data: https:; "
+        "font-src 'self' data: https:; "
+        "style-src 'self' 'unsafe-inline' https:; "
+        "script-src 'self' 'unsafe-inline' https:; "
+        "connect-src 'self' https:; "
+        "upgrade-insecure-requests",
+    )
+    PERMISSIONS_POLICY = os.getenv(
+        "PERMISSIONS_POLICY",
+        "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
+    )
+    REFERRER_POLICY = os.getenv(
+        "REFERRER_POLICY",
+        "strict-origin-when-cross-origin",
+    )
+
     PREFERRED_URL_SCHEME = os.getenv(
         "PREFERRED_URL_SCHEME", "https" if ENVIRONMENT == "production" else "http"
     )
