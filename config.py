@@ -41,6 +41,9 @@ class Config:
     EMAIL_VERIFICATION_TOKEN_MAX_AGE = int(
         os.getenv("EMAIL_VERIFICATION_TOKEN_MAX_AGE", "86400")
     )
+    PASSWORD_RESET_TOKEN_MAX_AGE = int(
+        os.getenv("PASSWORD_RESET_TOKEN_MAX_AGE", "3600")
+    )
 
     MAIL_SERVER = os.getenv("MAIL_SERVER", "smtp.gmail.com")
     MAIL_PORT = int(os.getenv("MAIL_PORT", "587"))
