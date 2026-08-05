@@ -1,0 +1,36 @@
+name: Fix dashboard indentation
+
+on:
+  push:
+    branches:
+      - agent/dynamic-reviews
+    paths:
+      - .github/workflows/fix-dashboard-indentation.yml
+      - scripts/fix_dashboard_indentation.py
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/dynamic-reviews
+          fetch-depth: 0
+
+      - name: Repair dashboard indentation
+        run: python scripts/fix_dashboard_indentation.py
+
+      - name: Validate Python syntax
+        run: python -m py_compile analyzer/routes/main.py
+
+      - name: Commit repair
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add analyzer/routes/main.py
+          git diff --cached --quiet && exit 0
+          git commit -m "Fix dashboard indentation error"
+          git push origin HEAD:agent/dynamic-reviews
