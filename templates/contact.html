@@ -1,445 +1,125 @@
 {% extends "base.html" %}
 
-{% block title %}Contact Us | CodeSentinel AI{% endblock %}
+{% block title %}Contact | Sentrix{% endblock %}
 
 {% block content %}
-
 <section class="py-5">
-
     <div class="container">
-
         <div class="text-center mb-5">
-
-            <span class="badge bg-primary px-3 py-2 mb-3">
-
-                Contact Us
-
-            </span>
-
-            <h1 class="display-5 fw-bold">
-
-                We're Here to Help
-
-            </h1>
-
-            <p class="lead text-muted">
-
-                Have a question, suggestion, or need technical support?
-                Our team is ready to assist you with CodeSentinel AI.
-
+            <span class="badge bg-primary px-3 py-2 mb-3">Contact Sentrix</span>
+            <h1 class="display-5 fw-bold">We’re Here to Help</h1>
+            <p class="lead text-muted mx-auto" style="max-width: 760px;">
+                Get help with project analysis, reports, account access, security findings,
+                or the integrated Sentrix AI Engine.
             </p>
-
         </div>
 
-        <div class="row g-5">
-
-            <!-- Contact Form -->
-
+        <div class="row g-4 align-items-stretch">
             <div class="col-lg-7">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4 p-lg-5">
+                        <h2 class="h3 fw-bold mb-2">Send Us a Message</h2>
+                        <p class="text-muted mb-4">Complete the form and the HR-Presents team will respond as soon as possible.</p>
 
-                <div class="card border-0 shadow-lg">
-
-                    <div class="card-body p-5">
-
-                        <h3 class="fw-bold mb-4">
-
-                            Send Us a Message
-
-                        </h3>
-
-                        <p class="text-muted mb-4">
-
-                            Fill out the form below and we'll respond as soon
-                            as possible.
-
-                        </p>
-
-                        <form method="POST" action="{{ url_for('main.contact') }}">
-    
-
+                        <form method="POST" action="{{ url_for('main.contact') }}" novalidate>
                             {{ form.hidden_tag() }}
 
+                            <div class="mb-3">
+                                {{ form.name.label(class="form-label fw-semibold") }}
+                                {{ form.name(class="form-control form-control-lg", placeholder="Enter your full name") }}
+                                {% for error in form.name.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                            </div>
 
-<div class="mb-4">
+                            <div class="mb-3">
+                                {{ form.email.label(class="form-label fw-semibold") }}
+                                {{ form.email(class="form-control form-control-lg", placeholder="Enter your email address") }}
+                                {% for error in form.email.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                            </div>
 
-                                <label class="form-label fw-semibold">
-
-                                    Full Name
-
-                                </label>
-
-                                {{ form.name(
-                                    class="form-control form-control-lg",
-                                    placeholder="Enter your full name"
-                                ) }}
-
+                            <div class="mb-3">
+                                {{ form.subject.label(class="form-label fw-semibold") }}
+                                {{ form.subject(class="form-control form-control-lg", placeholder="How can we help?") }}
+                                {% for error in form.subject.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
                             </div>
 
                             <div class="mb-4">
-
-                                <label class="form-label fw-semibold">
-
-                                    Email Address
-
-                                </label>
-
-                                {{ form.email(
-                                    class="form-control form-control-lg",
-                                    placeholder="Enter your email address"
-                                ) }}
-
+                                {{ form.message.label(class="form-label fw-semibold") }}
+                                {{ form.message(class="form-control", rows="7", placeholder="Describe your question or issue") }}
+                                {% for error in form.message.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
                             </div>
 
-                            <div class="mb-4">
-
-                                <label class="form-label fw-semibold">
-
-                                    Subject
-
-                                </label>
-
-                                {{ form.subject(
-                                    class="form-control form-control-lg",
-                                    placeholder="Enter message subject"
-                                ) }}
-
+                            <div class="d-grid d-sm-flex">
+                                {{ form.submit(class="btn btn-primary btn-lg px-4", value="Send Message") }}
                             </div>
-
-                            <div class="mb-4">
-
-                                <label class="form-label fw-semibold">
-
-                                    Message
-
-                                </label>
-
-                                {{ form.message(
-                                    class="form-control",
-                                    rows="6",
-                                    placeholder="Write your message here..."
-                                ) }}
-
-                            </div>
-
-                            <div class="d-grid">
-
-                                {{ form.submit(
-                                    class="btn btn-primary btn-lg",
-                                    value="Send Message"
-                                ) }}
-
-                            </div>
-
                         </form>
-
                     </div>
-
                 </div>
-
             </div>
-
-            <!-- Contact Information -->
 
             <div class="col-lg-5">
-
                 <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h2 class="h4 fw-bold mb-4">Contact Information</h2>
 
-                    <div class="card-body">
-
-                        <h4 class="fw-bold mb-4">
-
-                            Contact Information
-
-                        </h4>
-
-                        <div class="d-flex mb-4">
-
-    <i class="fa-solid fa-envelope fa-2x text-primary me-3"></i>
-
-    <div>
-
-        <h6 class="fw-bold mb-1">
-
-            Email Support
-
-        </h6>
-
-        <p class="text-muted mb-0">
-
-            supportcodesentinelai@gmail.com
-
-        </p>
-
-    </div>
-
-</div>
-
-                                    Monday – Friday<br>
-
-                                    9:00 AM – 6:00 PM (UTC)
-
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                        <div class="d-flex mb-4">
-
-                            <i class="fa-solid fa-location-dot fa-2x text-danger me-3"></i>
-
+                        <div class="d-flex gap-3 mb-4">
+                            <i class="fa-solid fa-envelope fa-xl text-primary mt-2"></i>
                             <div>
-
-                                <h6 class="fw-bold mb-1">
-
-                                    Location
-
-                                </h6>
-
-                                <p class="text-muted mb-0">
-
-                                    Remote Development Team
-
-                                </p>
-
+                                <h3 class="h6 fw-bold mb-1">Email Support</h3>
+                                <a class="text-decoration-none" href="mailto:supportsentrix@gmail.com">supportsentrix@gmail.com</a>
                             </div>
-
                         </div>
 
-                        <div class="d-flex">
-
-                            <i class="fa-solid fa-bolt fa-2x text-warning me-3"></i>
-
+                        <div class="d-flex gap-3 mb-4">
+                            <i class="fa-solid fa-clock fa-xl text-success mt-2"></i>
                             <div>
-
-                                <h6 class="fw-bold mb-1">
-
-                                    Response Time
-
-                                </h6>
-
-                                <p class="text-muted mb-0">
-
-                                    Usually within 24 hours.
-
-                                </p>
-
+                                <h3 class="h6 fw-bold mb-1">Support Hours</h3>
+                                <p class="text-muted mb-0">Monday–Friday, 9:00 AM–6:00 PM UTC</p>
                             </div>
-
                         </div>
 
+                        <div class="d-flex gap-3">
+                            <i class="fa-brands fa-github fa-xl text-dark mt-2"></i>
+                            <div>
+                                <h3 class="h6 fw-bold mb-1">GitHub</h3>
+                                <a class="text-decoration-none" href="https://github.com/HaziqBinAfzal/HR-Presents-Sentrix" target="_blank" rel="noopener noreferrer">HR-Presents-Sentrix</a>
+                            </div>
+                        </div>
                     </div>
-
                 </div>
 
-
-<div class="card border-0 shadow-sm">
-
-                    <div class="card-body">
-
-                        <h4 class="fw-bold mb-3">
-
-                            Why Contact CodeSentinel AI?
-
-                        </h4>
-
-                        <div class="d-flex mb-3">
-
-                            <i class="fa-solid fa-headset text-primary me-3 mt-1"></i>
-
-                            <div>
-
-                                <h6 class="fw-bold mb-1">
-
-                                    Technical Support
-
-                                </h6>
-
-                                <p class="text-muted mb-0">
-
-                                    Get assistance with project uploads, AI analysis, reports, and account-related issues.
-
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                        <div class="d-flex mb-3">
-
-                            <i class="fa-solid fa-lightbulb text-warning me-3 mt-1"></i>
-
-                            <div>
-
-                                <h6 class="fw-bold mb-1">
-
-                                    Suggestions & Feedback
-
-                                </h6>
-
-                                <p class="text-muted mb-0">
-
-                                    Share your ideas to help us improve CodeSentinel AI and deliver a better experience.
-
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                        <div class="d-flex">
-
-                            <i class="fa-solid fa-users text-success me-3 mt-1"></i>
-
-                            <div>
-
-                                <h6 class="fw-bold mb-1">
-
-                                    Partnership Inquiries
-
-                                </h6>
-
-                                <p class="text-muted mb-0">
-
-                                    Contact us for educational collaborations, business partnerships, or enterprise solutions.
-
-                                </p>
-
-                            </div>
-
-                        </div>
-
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h2 class="h4 fw-bold mb-3">Common Requests</h2>
+                        <ul class="list-unstyled mb-0">
+                            <li class="d-flex gap-3 mb-3"><i class="fa-solid fa-circle-check text-primary mt-1"></i><span>Upload and analysis troubleshooting</span></li>
+                            <li class="d-flex gap-3 mb-3"><i class="fa-solid fa-circle-check text-primary mt-1"></i><span>Security finding clarification</span></li>
+                            <li class="d-flex gap-3 mb-3"><i class="fa-solid fa-circle-check text-primary mt-1"></i><span>Report generation and downloads</span></li>
+                            <li class="d-flex gap-3"><i class="fa-solid fa-circle-check text-primary mt-1"></i><span>Feature suggestions and contributions</span></li>
+                        </ul>
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
 </section>
 
-<!-- FAQ -->
-
-<section class="py-5 bg-light">
-
+<section class="py-5 bg-light border-top">
     <div class="container">
-
-        <div class="text-center mb-5">
-
-            <h2 class="fw-bold">
-
-                Frequently Asked Questions
-
-            </h2>
-
-            <p class="text-muted">
-
-                Quick answers to common questions.
-
-            </p>
-
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">Frequently Asked Questions</h2>
+            <p class="text-muted mb-0">Quick answers before you contact support.</p>
         </div>
-
         <div class="row g-4">
-
             <div class="col-md-4">
-
-                <div class="card border-0 shadow-sm h-100">
-
-                    <div class="card-body">
-
-                        <h5 class="fw-bold">
-
-                            How quickly will I receive a reply?
-
-                        </h5>
-
-                        <p class="text-muted mb-0">
-
-                            We aim to respond to all inquiries within 24 hours during business days.
-
-                        </p>
-
-                    </div>
-
-                </div>
-
+                <div class="card border-0 shadow-sm h-100"><div class="card-body p-4"><h3 class="h5 fw-bold">How quickly will I receive a reply?</h3><p class="text-muted mb-0">Most support messages are reviewed within one business day.</p></div></div>
             </div>
-
             <div class="col-md-4">
-
-                <div class="card border-0 shadow-sm h-100">
-
-                    <div class="card-body">
-
-                        <h5 class="fw-bold">
-
-                            Can I report a bug?
-
-                        </h5>
-
-                        <p class="text-muted mb-0">
-
-                            Yes. Please include detailed information and screenshots if possible to help us investigate.
-
-                        </p>
-
-                    </div>
-
-                </div>
-
+                <div class="card border-0 shadow-sm h-100"><div class="card-body p-4"><h3 class="h5 fw-bold">Can I report a bug?</h3><p class="text-muted mb-0">Yes. Include the affected page, steps to reproduce, and any visible error message.</p></div></div>
             </div>
-
             <div class="col-md-4">
-
-                <div class="card border-0 shadow-sm h-100">
-
-                    <div class="card-body">
-
-                        <h5 class="fw-bold">
-
-                            Do you accept feature requests?
-
-                        </h5>
-
-                        <p class="text-muted mb-0">
-
-                            Absolutely. We value community feedback and regularly review suggestions for future updates.
-
-                        </p>
-
-                    </div>
-
-                </div>
-
+                <div class="card border-0 shadow-sm h-100"><div class="card-body p-4"><h3 class="h5 fw-bold">Do you accept feature requests?</h3><p class="text-muted mb-0">Yes. Sentrix is actively improved based on practical developer feedback.</p></div></div>
             </div>
-
         </div>
-
-        <div class="text-center mt-5">
-
-            <div class="alert alert-primary border-0 shadow-sm d-inline-block px-4">
-
-                <i class="fa-solid fa-envelope me-2"></i>
-
-                Need immediate assistance? Email us at
-                <strong>supportcodesentinelai@gmail.com</strong>
-
-            </div>
-
-            <p class="text-muted mt-4 mb-0">
-
-                © {{ current_year or 2026 }} CodeSentinel AI. All Rights Reserved.
-
-            </p>
-
-        </div>
-
     </div>
-
 </section>
-
 {% endblock %}
