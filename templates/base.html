@@ -118,6 +118,13 @@
 setTimeout(function(){document.querySelectorAll('.alert').forEach(function(el){bootstrap.Alert.getOrCreateInstance(el).close();});},5000);
 document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function(el){new bootstrap.Tooltip(el);});
 document.querySelectorAll('.user-local-time').forEach(function(el){const value=el.dataset.time;if(value){el.textContent=new Date(value).toLocaleString();}});
+
+document.querySelectorAll('.card-header h4').forEach(function(heading){
+    if (heading.textContent.trim() === 'AI Recommendations') {
+        const card = heading.closest('.card');
+        if (card) card.remove();
+    }
+});
 </script>
 {% block scripts %}{% endblock %}
 </body>
