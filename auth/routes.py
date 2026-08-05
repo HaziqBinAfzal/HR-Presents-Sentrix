@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
+from flask_wtf import FlaskForm
 
 from auth.services import (
     consume_email_verification_token,
@@ -23,6 +24,10 @@ from security.sessions import (
 
 
 auth = Blueprint("auth", __name__)
+
+
+class RevokeSessionForm(FlaskForm):
+    pass
 
 
 def _record_event(action, user=None, outcome="success", details=None):
@@ -126,12 +131,17 @@ def sessions():
         "auth/sessions.html",
         sessions=active_sessions,
         current_session_id=current_session.id if current_session else None,
+        revoke_form=RevokeSessionForm(),
     )
 
 
 @auth.route("/sessions/<int:session_id>/revoke", methods=["POST"])
 @login_required
 def revoke_session(session_id):
+    form = RevokeSessionForm()
+    if not form.validate_on_submit():
+        flash("Invalid or expired security request.", "danger")
+        return redirect(url_for("auth.sessions"))
     current_session = get_current_tracked_session()
     if not revoke_session_for_user(current_user.id, session_id):
         flash("Session not found or already revoked.", "warning")
