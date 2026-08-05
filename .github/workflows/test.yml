@@ -1,0 +1,44 @@
+name: Sentrix Regression Tests
+
+on:
+  push:
+    branches:
+      - main
+      - "agent/**"
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    strategy:
+      matrix:
+        python-version: ["3.12", "3.13"]
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Compile Python sources
+        run: python -m compileall -q app.py analyzer helpers models.py config.py
+
+      - name: Run regression suite
+        env:
+          SECRET_KEY: ci-test-secret
+          FLASK_DEBUG: "false"
+        run: pytest -q --cov=analyzer --cov=helpers --cov-report=term-missing
