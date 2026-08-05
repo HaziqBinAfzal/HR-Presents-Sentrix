@@ -5,7 +5,7 @@ from flask import Flask, render_template
 from flask_login import LoginManager
 
 from analyzer.routes.main import main
-from analyzer.routes.production_routes import install_production_routes
+from analyzer.routes.route_installer import install_production_routes
 from brand import BRAND
 from config import Config
 from database import db
@@ -28,11 +28,11 @@ def create_app(config_object=Config):
     db.init_app(app)
     mail.init_app(app)
     login_manager.init_app(app)
-
-    # Replace legacy route handlers and register production report/export
-    # endpoints before the blueprint is attached to the application.
-    install_production_routes(main)
     app.register_blueprint(main)
+
+    # Route overrides must be installed after blueprint registration because
+    # Flask materializes blueprint endpoint functions at that point.
+    install_production_routes(app)
 
     @app.context_processor
     def inject_brand_context():
