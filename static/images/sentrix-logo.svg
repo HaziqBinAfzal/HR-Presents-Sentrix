@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 128" role="img" aria-labelledby="title desc">
+  <title id="title">Sentrix</title>
+  <desc id="desc">A circuit shield and code brackets representing secure code intelligence.</desc>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#0ea5e9"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(8 8)">
+    <path d="M56 0 104 18v34c0 31-18 50-48 60C26 102 8 83 8 52V18L56 0Z" fill="url(#g)"/>
+    <path d="m42 34-16 18 16 18M70 34l16 18-16 18M62 27 50 77" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="56" cy="12" r="4" fill="#bfdbfe"/>
+    <circle cx="22" cy="30" r="4" fill="#bfdbfe"/>
+    <circle cx="90" cy="30" r="4" fill="#bfdbfe"/>
+    <path d="M56 12v10M22 30l10 7M90 30l-10 7" stroke="#bfdbfe" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <text x="136" y="74" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="58" font-weight="800" letter-spacing="-2" fill="#0f172a">Sentrix</text>
+  <text x="139" y="102" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="600" letter-spacing="2.2" fill="#2563eb">PRESENTED BY HR-PRESENTS</text>
+</svg>
