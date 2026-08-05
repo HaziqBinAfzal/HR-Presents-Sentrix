@@ -5,6 +5,7 @@ from extensions import mail, migrate
 from flask import Flask, render_template
 from flask_login import LoginManager
 
+from analyzer.routes.auth import auth
 from analyzer.routes.exports import exports
 from analyzer.routes.health import health
 from analyzer.routes.main import main
@@ -15,7 +16,7 @@ from models import User
 
 
 login_manager = LoginManager()
-login_manager.login_view = "main.login"
+login_manager.login_view = "auth.login"
 login_manager.login_message_category = "warning"
 
 
@@ -31,6 +32,7 @@ def create_app(config_object=Config):
     mail.init_app(app)
     login_manager.init_app(app)
 
+    app.register_blueprint(auth)
     app.register_blueprint(main)
     app.register_blueprint(exports)
     app.register_blueprint(health)
