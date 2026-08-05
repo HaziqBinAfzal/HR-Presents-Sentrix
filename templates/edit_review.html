@@ -1,185 +1,95 @@
 {% extends "base.html" %}
 
+{% block title %}Edit Review | Sentrix{% endblock %}
 
 {% block content %}
-
-<div class="container py-5">
-
-    <h2 class="mb-4">
-        Edit Review
-    </h2>
-
-    <form method="POST">
-
-        {{ form.hidden_tag() }}
-
-        <div class="mb-3">
-            {{ form.rating.label }}
-            {{ form.rating(class="form-control") }}
+<div class="container py-5" style="max-width:850px;">
+    <div class="card border-0 shadow-lg">
+        <div class="card-header bg-primary text-white py-3">
+            <h3 class="mb-0"><i class="fa-solid fa-pen me-2"></i>Edit Review</h3>
         </div>
+        <div class="card-body p-4">
+            <form method="POST" novalidate>
+                {{ form.hidden_tag() }}
 
-        <div class="mb-3">
-            {{ form.title.label }}
-            {{ form.title(class="form-control") }}
-        </div>
-
-        <div class="mb-3">
-            {{ form.comment.label }}
-            {{ form.comment(class="form-control", rows="5") }}
-        </div>
-
-        <button class="btn btn-primary">
-            Save Changes
-        </button>
-
-    </form>
-
-</div>
-
-{% block title %}Edit Review | CodeSentinel AI{% endblock %}
-
-{% block content %}
-
-<section class="py-5">
-
-    <div class="container">
-
-        <div class="row justify-content-center">
-
-            <div class="col-lg-8">
-
-                <div class="card shadow-sm border-0">
-
-                    <div class="card-header bg-primary text-white">
-
-                        <h3 class="mb-0">
-
-                            <i class="fa-solid fa-pen-to-square me-2"></i>
-
-                            Edit Your Review
-
-                        </h3>
-
+                <div class="mb-4">
+                    <label class="form-label fw-semibold d-block">Rating</label>
+                    <div class="star-picker" role="radiogroup" aria-label="Choose a rating from one to five stars">
+                        {% for value in range(1, 6) %}
+                        <button type="button" class="rating-star btn p-0 border-0 bg-transparent" data-value="{{ value }}" role="radio" aria-checked="false" aria-label="{{ value }} star{% if value != 1 %}s{% endif %}">
+                            <i class="fa-regular fa-star"></i>
+                        </button>
+                        {% endfor %}
                     </div>
-
-                    <div class="card-body p-4">
-
-                        <form method="POST">
-
-                            {{ form.hidden_tag() }}
-
-                            <div class="mb-4">
-
-                                <label class="form-label fw-bold">
-
-                                    Rating
-
-                                </label>
-
-                                <div id="starRating" class="fs-3">
-
-                                    {% for i in range(1,6) %}
-
-                                        <i
-                                            class="{% if i <= review.rating %}fa-solid{% else %}fa-regular{% endif %} fa-star rating-star text-warning"
-                                            data-value="{{ i }}">
-                                        </i>
-
-                                    {% endfor %}
-
-                                </div>
-
-                                {{ form.rating(id="rating") }}
-
-                            </div>
-
-                            <div class="mb-3">
-
-                                {{ form.title.label(class="form-label fw-bold") }}
-
-                                {{ form.title(class="form-control") }}
-
-                            </div>
-
-                            <div class="mb-4">
-
-                                {{ form.comment.label(class="form-label fw-bold") }}
-
-                                {{ form.comment(class="form-control", rows="5") }}
-
-                            </div>
-
-                            <div class="d-flex gap-2">
-
-                                {{ form.submit(class="btn btn-primary") }}
-
-                                <a
-                                    href="{{ url_for('main.reviews') }}"
-                                    class="btn btn-secondary">
-
-                                    Cancel
-
-                                </a>
-
-                            </div>
-
-                        </form>
-
-                    </div>
-
+                    {{ form.rating() }}
+                    <small id="ratingHelp" class="text-muted d-block mt-2">Choose your updated rating.</small>
+                    {% for error in form.rating.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
                 </div>
 
-            </div>
+                <div class="mb-4">
+                    {{ form.title.label(class="form-label fw-semibold") }}
+                    {{ form.title(class="form-control", maxlength="150") }}
+                    {% for error in form.title.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                </div>
 
+                <div class="mb-4">
+                    {{ form.comment.label(class="form-label fw-semibold") }}
+                    {{ form.comment(class="form-control", rows="6", maxlength="1000") }}
+                    <div class="text-end mt-1"><small class="text-muted"><span id="commentCount">0</span>/1000</small></div>
+                    {% for error in form.comment.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                </div>
+
+                <div class="d-flex justify-content-between gap-3">
+                    <a href="{{ url_for('main.reviews') }}" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk me-2"></i>Save Changes</button>
+                </div>
+            </form>
         </div>
-
     </div>
-
-</section>
-
+</div>
 {% endblock %}
 
 {% block scripts %}
-
+{{ super() }}
+<style>
+.star-picker{display:flex;gap:.45rem}.rating-star{font-size:2.35rem;line-height:1;color:#adb5bd;cursor:pointer;transition:transform .15s ease,color .15s ease}.rating-star:hover,.rating-star:focus-visible{transform:scale(1.12);outline:none}.rating-star.is-active{color:#ffc107}
+</style>
 <script>
+document.addEventListener('DOMContentLoaded', () => {
+    const input = document.getElementById('rating');
+    const stars = Array.from(document.querySelectorAll('.rating-star'));
+    const help = document.getElementById('ratingHelp');
 
-document.addEventListener("DOMContentLoaded", function () {
+    const paint = (value) => {
+        stars.forEach((star) => {
+            const starValue = Number(star.dataset.value);
+            const active = starValue <= value;
+            star.classList.toggle('is-active', active);
+            star.setAttribute('aria-checked', starValue === value ? 'true' : 'false');
+            const icon = star.querySelector('i');
+            icon.classList.toggle('fa-solid', active);
+            icon.classList.toggle('fa-regular', !active);
+        });
+    };
 
-    const input = document.getElementById("rating");
+    const select = (value) => {
+        input.value = String(value);
+        paint(value);
+        help.textContent = `${value} out of 5 stars selected.`;
+    };
 
-    const stars = document.querySelectorAll(".rating-star");
-
-    stars.forEach(function(star){
-
-        star.style.cursor = "pointer";
-
-        star.onclick = function(){
-
-            const value = Number(this.dataset.value);
-
-            input.value = value;
-
-            stars.forEach(function(s){
-
-                if(Number(s.dataset.value) <= value){
-
-                    s.className = "fa-solid fa-star rating-star text-warning";
-
-                }else{
-
-                    s.className = "fa-regular fa-star rating-star text-warning";
-
-                }
-
-            });
-
-        };
-
+    stars.forEach((star) => {
+        star.addEventListener('click', () => select(Number(star.dataset.value)));
+        star.addEventListener('mouseenter', () => paint(Number(star.dataset.value)));
     });
+    document.querySelector('.star-picker')?.addEventListener('mouseleave', () => paint(Number(input.value || 0)));
+    select(Number(input.value || {{ review.rating }}));
 
+    const comment = document.getElementById('comment');
+    const count = document.getElementById('commentCount');
+    const updateCount = () => { count.textContent = String(comment.value.length); };
+    comment.addEventListener('input', updateCount);
+    updateCount();
 });
-
 </script>
-
-
 {% endblock %}
