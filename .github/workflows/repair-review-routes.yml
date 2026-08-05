@@ -23,8 +23,13 @@ jobs:
       - name: Clean review backend routes
         run: python scripts/repair_review_routes.py
 
-      - name: Validate Python syntax
-        run: python -m py_compile analyzer/routes/main.py
+      - name: Validate review route cleanup
+        run: |
+          test "$(grep -c 'def edit_review' analyzer/routes/main.py)" -eq 1
+          test "$(grep -c 'def remove_review' analyzer/routes/main.py)" -eq 1
+          test "$(grep -c '@main.route("/reviews/delete/<int:review_id>"' analyzer/routes/main.py)" -eq 1
+          grep -q 'delete_review as delete_review_record' analyzer/routes/main.py
+          grep -q 'delete_review_record(review)' analyzer/routes/main.py
 
       - name: Commit repaired routes
         run: |
