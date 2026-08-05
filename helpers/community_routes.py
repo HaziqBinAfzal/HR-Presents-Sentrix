@@ -113,16 +113,10 @@ def install_community_routes(blueprint):
         flash("Review deleted successfully.", "success")
         return redirect(url_for("main.reviews"))
 
+    # Flask blueprints defer URL-rule registration. Replacing the endpoint's
+    # view function directly preserves the existing rule without registering
+    # a duplicate endpoint during app.register_blueprint().
     blueprint.view_functions["contact"] = contact
     blueprint.view_functions["reviews"] = reviews
     blueprint.view_functions["edit_review"] = edit_review
-
-    if "remove_review" in blueprint.view_functions:
-        blueprint.view_functions["remove_review"] = remove_review
-    else:
-        blueprint.add_url_rule(
-            "/reviews/delete/<int:review_id>",
-            endpoint="remove_review",
-            view_func=remove_review,
-            methods=["POST"],
-        )
+    blueprint.view_functions["remove_review"] = remove_review
