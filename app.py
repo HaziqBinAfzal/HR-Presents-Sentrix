@@ -3,10 +3,10 @@ import os
 from flask import Flask, render_template
 from flask_login import LoginManager
 
-from analyzer.routes.main_loader import main
+from analyzer.routes.main import main
 from config import Config
 from database import db
-from extensions import mail
+from extensions import mail, csrf
 from models import User
 
 
@@ -22,6 +22,7 @@ def create_app(config_class=Config):
 
     db.init_app(app)
     mail.init_app(app)
+    csrf.init_app(app)
     login_manager.init_app(app)
 
     app.register_blueprint(main)

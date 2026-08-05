@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from flask_login import UserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from database import db
 
@@ -11,58 +11,90 @@ class User(UserMixin, db.Model):
 
     id = db.Column(
         db.Integer,
-        primary_key=True
+        primary_key=True,
     )
 
     username = db.Column(
         db.String(80),
         unique=True,
         nullable=False,
-        index=True
+        index=True,
     )
 
     email = db.Column(
         db.String(120),
         unique=True,
         nullable=False,
-        index=True
+        index=True,
     )
 
     password_hash = db.Column(
         db.String(255),
-        nullable=False
+        nullable=False,
+    )
+
+    full_name = db.Column(
+        db.String(160),
+        nullable=True,
+    )
+
+    organization = db.Column(
+        db.String(160),
+        nullable=True,
+    )
+
+    bio = db.Column(
+        db.Text,
+        nullable=True,
+    )
+
+    role = db.Column(
+        db.String(80),
+        nullable=False,
+        default="user",
+        server_default="user",
+        index=True,
+    )
+
+    workspace = db.Column(
+        db.String(160),
+        nullable=False,
+        default="personal",
+        server_default="personal",
     )
 
     profile_picture = db.Column(
         db.String(255),
         nullable=True,
-        default="default.png"
+        default="default.png",
+        server_default="default.png",
     )
 
     created_at = db.Column(
         db.DateTime,
-        default=datetime.utcnow
+        default=datetime.utcnow,
+        nullable=False,
     )
 
     analyses = db.relationship(
         "Analysis",
         backref="user",
         lazy=True,
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan",
     )
 
     projects = db.relationship(
         "Project",
         backref="owner",
         lazy=True,
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan",
     )
 
     reviews = db.relationship(
         "Review",
         backref="user",
         lazy=True,
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan",
     )
 
     def set_password(self, password):
@@ -71,7 +103,7 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(
             self.password_hash,
-            password
+            password,
         )
 
     def __repr__(self):
@@ -82,219 +114,223 @@ class Project(db.Model):
 
     id = db.Column(
         db.Integer,
-        primary_key=True
+        primary_key=True,
     )
 
     project_id = db.Column(
         db.String(64),
         unique=True,
         nullable=False,
-        index=True
+        index=True,
     )
 
     project_name = db.Column(
         db.String(255),
-        nullable=False
+        nullable=False,
     )
 
     original_filename = db.Column(
         db.String(255),
-        nullable=False
+        nullable=False,
     )
 
     stored_filename = db.Column(
         db.String(255),
-        nullable=False
+        nullable=False,
     )
 
     file_type = db.Column(
         db.String(20),
-        nullable=False
+        nullable=False,
     )
 
     file_size = db.Column(
         db.Integer,
-        nullable=False
+        nullable=False,
     )
 
     project_path = db.Column(
         db.String(500),
-        nullable=False
+        nullable=False,
     )
 
     upload_date = db.Column(
         db.DateTime,
         default=datetime.utcnow,
-        index=True
+        nullable=False,
+        index=True,
     )
 
     user_id = db.Column(
         db.Integer,
         db.ForeignKey("users.id"),
-        nullable=False
+        nullable=False,
     )
 
     def __repr__(self):
         return (
             f"<Project {self.project_id}: "
             f"{self.project_name}>"
-    )
+        )
+
 
 class Analysis(db.Model):
-
     __tablename__ = "analyses"
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(
+        db.Integer,
+        primary_key=True,
+    )
 
     project_id = db.Column(
         db.Integer,
         db.ForeignKey("projects.id"),
         nullable=False,
-        index=True
+        index=True,
     )
 
     user_id = db.Column(
         db.Integer,
         db.ForeignKey("users.id"),
         nullable=False,
-        index=True
+        index=True,
     )
 
     filename = db.Column(
         db.String(255),
-        nullable=False
+        nullable=False,
     )
 
     language = db.Column(
         db.String(50),
         nullable=False,
-        default="Python"
+        default="Python",
     )
 
     overall_score = db.Column(
         db.Float,
         nullable=False,
-        default=0.0
+        default=0.0,
     )
 
     pylint_score = db.Column(
         db.Float,
         nullable=False,
-        default=0.0
+        default=0.0,
     )
 
     security_count = db.Column(
         db.Integer,
         nullable=False,
-        default=0
+        default=0,
     )
 
     formatting_status = db.Column(
         db.String(30),
         nullable=False,
-        default="Passed"
+        default="Passed",
     )
 
     complexity = db.Column(
         db.String(30),
         nullable=False,
-        default="Low"
+        default="Low",
     )
 
     analysis_duration = db.Column(
         db.Float,
         nullable=False,
-        default=0.0
+        default=0.0,
     )
 
     total_files = db.Column(
         db.Integer,
         nullable=False,
-        default=0
+        default=0,
     )
 
     total_lines = db.Column(
         db.Integer,
         nullable=False,
-        default=0
+        default=0,
     )
 
     ai_summary = db.Column(
         db.Text,
-        nullable=True
+        nullable=True,
     )
 
     recommendations = db.Column(
         db.Text,
-        nullable=True
+        nullable=True,
     )
 
     pylint_output = db.Column(
         db.Text,
-        nullable=True
+        nullable=True,
     )
 
     bandit_output = db.Column(
         db.Text,
-        nullable=True
+        nullable=True,
     )
 
     radon_output = db.Column(
         db.Text,
-        nullable=True
+        nullable=True,
     )
 
     issues_count = db.Column(
         db.Integer,
         nullable=False,
-        default=0
+        default=0,
     )
 
     functions_count = db.Column(
         db.Integer,
         nullable=False,
-        default=0
+        default=0,
     )
 
     classes_count = db.Column(
         db.Integer,
         nullable=False,
-        default=0
+        default=0,
     )
 
     comments_count = db.Column(
         db.Integer,
         nullable=False,
-        default=0
+        default=0,
     )
 
     blank_lines = db.Column(
         db.Integer,
         nullable=False,
-        default=0
+        default=0,
     )
 
     report_path = db.Column(
         db.String(255),
-        nullable=True
+        nullable=True,
     )
-    
+
     syntax_output = db.Column(
         db.Text,
-        nullable=True
+        nullable=True,
     )
 
     status = db.Column(
         db.String(30),
         nullable=False,
-        default="Completed"
+        default="Completed",
     )
 
     created_at = db.Column(
         db.DateTime,
         default=datetime.utcnow,
         nullable=False,
-        index=True
+        index=True,
     )
 
     project = db.relationship(
@@ -302,56 +338,57 @@ class Analysis(db.Model):
         backref=db.backref(
             "analyses",
             lazy=True,
-            cascade="all, delete-orphan"
-        )
+            cascade="all, delete-orphan",
+        ),
     )
 
-
     def __repr__(self):
-
         return (
             f"<Analysis {self.id}: "
             f"{self.filename}>"
         )
+
 
 class Review(db.Model):
     __tablename__ = "reviews"
 
     id = db.Column(
         db.Integer,
-        primary_key=True
+        primary_key=True,
     )
 
     rating = db.Column(
         db.Integer,
-        nullable=False
+        nullable=False,
     )
 
     title = db.Column(
         db.String(150),
-        nullable=False
+        nullable=False,
     )
 
     comment = db.Column(
         db.Text,
-        nullable=False
+        nullable=False,
     )
 
     created_at = db.Column(
         db.DateTime,
-        default=datetime.utcnow
+        default=datetime.utcnow,
+        nullable=False,
     )
 
     updated_at = db.Column(
         db.DateTime,
         default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        onupdate=datetime.utcnow,
+        nullable=False,
     )
 
     user_id = db.Column(
         db.Integer,
         db.ForeignKey("users.id"),
-        nullable=False
+        nullable=False,
     )
 
     def __repr__(self):
@@ -359,4 +396,4 @@ class Review(db.Model):
             f"<Review "
             f"{self.rating}★ "
             f"{self.title}>"
-    )
+        )
