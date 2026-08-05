@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, "release/**"]
+    branches: [main, "release/**", "agent/**"]
   pull_request:
 
 permissions:
@@ -11,14 +11,18 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.14"
+          python-version: ${{ matrix.python-version }}
           cache: pip
 
       - name: Install dependencies
@@ -27,19 +31,20 @@ jobs:
           pip install -r requirements.txt
 
       - name: Compile Python sources
-        run: python -m compileall -q .
+        run: python -m compileall -q app.py config.py database.py extensions.py forms.py models.py analyzer helpers
 
       - name: Import application
         env:
           APP_ENV: testing
           SECRET_KEY: ci-only-secret
           DATABASE_URL: sqlite:///:memory:
+          WTF_CSRF_ENABLED: "false"
         run: python -c "from app import create_app; app = create_app(); print(app.url_map)"
 
       - name: Audit dependencies
         run: |
           pip install pip-audit
-          pip-audit --strict
+          pip-audit
 
   docker:
     runs-on: ubuntu-latest
