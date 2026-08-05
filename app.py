@@ -4,10 +4,12 @@ from flask import Flask, render_template
 from flask_login import LoginManager
 
 from analyzer.routes.main import main
+from analyzer.routes.settings import settings_bp
 from config import Config
 from database import db
 from extensions import mail, csrf
 from models import User
+from settings_models import UserSettings  # noqa: F401 - registers the model before create_all
 
 
 login_manager = LoginManager()
@@ -25,7 +27,20 @@ def create_app(config_class=Config):
     csrf.init_app(app)
     login_manager.init_app(app)
 
+    # Register the dynamic settings blueprint first so /settings resolves to it.
+    app.register_blueprint(settings_bp)
     app.register_blueprint(main)
+
+    @app.after_request
+    def apply_sentrix_branding(response):
+        """Remove legacy product naming from rendered HTML responses."""
+        if response.mimetype == "text/html" and not response.direct_passthrough:
+            body = response.get_data(as_text=True)
+            body = body.replace("CodeSentinel AI", "Sentrix")
+            body = body.replace("CodeSentinel", "Sentrix")
+            response.set_data(body)
+            response.headers["Content-Length"] = len(response.get_data())
+        return response
 
     @app.errorhandler(403)
     def forbidden(error):
