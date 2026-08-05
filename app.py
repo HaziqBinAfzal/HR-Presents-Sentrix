@@ -5,7 +5,7 @@ from flask_login import LoginManager
 from sqlalchemy import inspect, text
 
 from analyzer.routes.account import account_bp
-from analyzer.routes.main import main
+from analyzer.routes.main_loader import main
 from analyzer.routes.settings import settings_bp
 from analyzer.routes.settings_alias import settings_page
 from analyzer.routes.upload import upload_bp
