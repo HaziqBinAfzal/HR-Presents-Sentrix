@@ -1,7 +1,7 @@
 import os
 
 from database import db
-from extensions import mail
+from extensions import mail, migrate
 from flask import Flask, render_template
 from flask_login import LoginManager
 
@@ -27,8 +27,10 @@ def create_app(config_object=Config):
     app.config.setdefault("SESSION_COOKIE_SAMESITE", "Lax")
 
     db.init_app(app)
+    migrate.init_app(app, db)
     mail.init_app(app)
     login_manager.init_app(app)
+
     app.register_blueprint(main)
     app.register_blueprint(exports)
     app.register_blueprint(health)
@@ -61,7 +63,6 @@ def create_app(config_object=Config):
             folder = app.config.get(config_key)
             if folder:
                 os.makedirs(folder, exist_ok=True)
-        db.create_all()
 
     return app
 
