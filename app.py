@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from flask import Flask, render_template
 from flask_login import LoginManager
 
+from analyzer.routes.artifacts import artifacts
 from analyzer.routes.main import main
 from brand import BRAND
 from config import Config
@@ -28,6 +29,7 @@ def create_app(config_object=Config):
     mail.init_app(app)
     login_manager.init_app(app)
     app.register_blueprint(main)
+    app.register_blueprint(artifacts)
 
     @app.context_processor
     def inject_brand_context():
