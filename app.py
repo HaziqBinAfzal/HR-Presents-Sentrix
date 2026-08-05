@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from flask import Flask, render_template
 from flask_login import LoginManager
 
-from analyzer.routes.main import main
+from analyzer.routes.main_loader import main
 from analyzer.routes.route_installer import install_production_routes
 from brand import BRAND
 from config import Config
