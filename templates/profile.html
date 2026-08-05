@@ -224,10 +224,31 @@
                         </div>
                         <hr>
                         <div class="d-grid gap-2">
-                            <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary"><i class="fa-solid fa-gauge-high me-2"></i>Open Dashboard</a>
-                            <a href="{{ url_for('main.upload') }}" class="btn btn-outline-success"><i class="fa-solid fa-cloud-arrow-up me-2"></i>Upload Project</a>
-                            <a href="{{ url_for('main.reviews') }}" class="btn btn-outline-warning"><i class="fa-solid fa-star me-2"></i>My Reviews</a>
-                        </div>
+    <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">
+        <i class="fa-solid fa-gauge-high me-2"></i>Open Dashboard
+    </a>
+
+    <a href="{{ url_for('main.upload') }}" class="btn btn-outline-success">
+        <i class="fa-solid fa-cloud-arrow-up me-2"></i>Upload Project
+    </a>
+
+    <a href="{{ url_for('main.reviews') }}" class="btn btn-outline-warning">
+        <i class="fa-solid fa-star me-2"></i>My Reviews
+    </a>
+
+    <hr>
+
+    <a href="{{ url_for('account.delete_account') }}"
+       class="btn btn-danger">
+        <i class="fa-solid fa-trash-can me-2"></i>
+        Delete Account
+    </a>
+
+    <small class="text-muted text-center">
+        Permanently delete your Sentrix account, projects,
+        analyses, reports, reviews, and profile data.
+    </small>
+</div>
                     </div>
                 </div>
             </div>
