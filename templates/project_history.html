@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.project_name }} History | Sentrix{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+        <div>
+            <p class="text-muted mb-1">Project history</p>
+            <h1 class="h2 mb-2">{{ project.project_name }}</h1>
+            <p class="text-muted mb-0">
+                {{ project.original_filename }} · {{ project.file_type|upper }} ·
+                {{ (project.file_size / 1024)|round(1) }} KB
+            </p>
+        </div>
+        <a class="btn btn-primary" href="{{ url_for('main.upload') }}">Run new analysis</a>
+    </div>
+
+    {% if analyses %}
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Overall</th>
+                    <th>Security issues</th>
+                    <th>Complexity</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for analysis in analyses %}
+                <tr>
+                    <td>{{ analysis.created_at.strftime('%d %b %Y, %H:%M') }}</td>
+                    <td>{{ analysis.status }}</td>
+                    <td>{{ analysis.overall_score|round(1) }}</td>
+                    <td>{{ analysis.security_count }}</td>
+                    <td>{{ analysis.complexity }}</td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-primary" href="{{ url_for('main.results', analysis_id=analysis.id) }}">View</a>
+                        <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('artifacts.export_analysis_json', analysis_id=analysis.id) }}">JSON</a>
+                        <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('artifacts.export_analysis_csv', analysis_id=analysis.id) }}">CSV</a>
+                        {% if analysis.report_path %}
+                        <a class="btn btn-sm btn-outline-success" href="{{ url_for('artifacts.download_report', analysis_id=analysis.id) }}">Report</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="card p-4">
+        <h2 class="h5">No analyses yet</h2>
+        <p class="text-muted mb-0">Run an analysis to start building this project’s history.</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}
