@@ -9,6 +9,7 @@ from brand import BRAND
 from config import Config
 from database import db
 from extensions import mail
+from helpers.schema_compat import apply_additive_schema_compatibility
 from models import User
 
 
@@ -52,6 +53,7 @@ def create_app(config_object=Config):
         # Retained for compatibility with the current project. Production
         # deployments should run managed Flask-Migrate/Alembic migrations.
         db.create_all()
+        apply_additive_schema_compatibility()
 
     return app
 
