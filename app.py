@@ -3,6 +3,7 @@ import os
 from flask import Flask, render_template
 from flask_login import LoginManager
 
+from analyzer.routes.account import account_bp
 from analyzer.routes.main import main
 from analyzer.routes.settings import settings_bp
 from analyzer.routes.settings_alias import settings_page
@@ -30,6 +31,7 @@ def create_app(config_class=Config):
     login_manager.init_app(app)
 
     # Register replacement feature blueprints before the legacy main routes.
+    app.register_blueprint(account_bp)
     app.register_blueprint(settings_bp)
     app.register_blueprint(settings_page)
     app.register_blueprint(upload_bp)
