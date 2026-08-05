@@ -5,6 +5,7 @@ from flask_login import LoginManager
 
 from analyzer.routes.main import main
 from analyzer.routes.settings import settings_bp
+from analyzer.routes.upload import upload_bp
 from config import Config
 from database import db
 from extensions import mail, csrf
@@ -27,8 +28,9 @@ def create_app(config_class=Config):
     csrf.init_app(app)
     login_manager.init_app(app)
 
-    # Register the dynamic settings blueprint first so /settings resolves to it.
+    # Register replacement feature blueprints before the legacy main routes.
     app.register_blueprint(settings_bp)
+    app.register_blueprint(upload_bp)
     app.register_blueprint(main)
 
     @app.after_request
