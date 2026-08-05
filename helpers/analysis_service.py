@@ -14,13 +14,55 @@ from analyzer.syntax import check_syntax
 from database import db
 from helpers.report_service import generate_html_report
 from models import Analysis
+from settings_models import UserSettings
+
+
+def _format_pylint_issue(issue, file_path):
+    if isinstance(issue, dict):
+        return "\n".join(
+            [
+                str(issue.get("file", file_path)),
+                f"Line {issue.get('line', 'Unknown')}",
+                str(issue.get("type", "Unknown")),
+                str(issue.get("symbol", "Unknown")),
+                str(issue.get("message", "")),
+            ]
+        )
+    return str(issue)
+
+
+def _format_bandit_issue(issue):
+    if isinstance(issue, dict):
+        return "\n".join(
+            [
+                str(issue.get("severity", "Unknown")),
+                str(issue.get("file", "Unknown")),
+                f"Line {issue.get('line', 'Unknown')}",
+                f"Confidence: {issue.get('confidence', 'Unknown')}",
+                str(issue.get("issue", "")),
+            ]
+        )
+    return str(issue)
+
+
+def _format_radon_row(row):
+    if isinstance(row, dict):
+        return "\n".join(
+            [
+                str(row.get("function", row.get("name", "Unknown"))),
+                f"Grade: {row.get('grade', 'Unknown')}",
+                f"Complexity: {row.get('complexity', 0)}",
+            ]
+        )
+    return str(row)
 
 
 def run_project_analysis(project, current_user):
-    """Run the complete project analysis and save an Analysis record."""
+    """Run a Sentrix analysis using the current user's saved preferences."""
 
     start_time = time.time()
     extract_folder = None
+    preferences = UserSettings.for_user(current_user.id)
 
     try:
         project_folder = os.path.abspath(project.project_path)
@@ -33,7 +75,7 @@ def run_project_analysis(project, current_user):
         extract_folder = tempfile.mkdtemp(prefix="sentrix_")
         python_files = extract_project(upload_path, extract_folder)
 
-        formatting_status = "Passed"
+        formatting_status = "Disabled" if not preferences.enable_black else "Passed"
         pylint_scores = []
         pylint_issues = []
         pylint_output = []
@@ -88,70 +130,33 @@ def run_project_analysis(project, current_user):
                     }
                 )
 
-            black_result = run_black(file_path)
-            if black_result.get("status") != "Passed":
-                formatting_status = black_result.get("status", "Failed")
+            if preferences.enable_black:
+                black_result = run_black(file_path)
+                if black_result.get("status") != "Passed":
+                    formatting_status = black_result.get("status", "Failed")
 
-            pylint_result = run_pylint(file_path)
-            pylint_scores.append(float(pylint_result.get("score", 0.0) or 0.0))
+            if preferences.enable_pylint:
+                pylint_result = run_pylint(file_path)
+                pylint_scores.append(float(pylint_result.get("score", 0.0) or 0.0))
+                file_issues = pylint_result.get("issues", [])
+                pylint_issues.extend(file_issues)
+                pylint_output.extend(
+                    _format_pylint_issue(issue, file_path) for issue in file_issues
+                )
 
-            file_issues = pylint_result.get("issues", [])
-            pylint_issues.extend(file_issues)
+            if preferences.enable_radon:
+                radon_result = run_radon(file_path)
+                if radon_result:
+                    complexity_rows.extend(radon_result)
 
-            for issue in file_issues:
-                if isinstance(issue, dict):
-                    pylint_output.append(
-                        "\n".join(
-                            [
-                                str(issue.get("file", file_path)),
-                                f"Line {issue.get('line', 'Unknown')}",
-                                str(issue.get("type", "Unknown")),
-                                str(issue.get("symbol", "Unknown")),
-                                str(issue.get("message", "")),
-                            ]
-                        )
-                    )
-                else:
-                    pylint_output.append(str(issue))
+        if preferences.enable_bandit:
+            bandit_result = run_bandit(extract_folder)
+        else:
+            bandit_result = {"count": 0, "issues": [], "output": ""}
 
-            radon_result = run_radon(file_path)
-            if radon_result:
-                complexity_rows.extend(radon_result)
-
-        bandit_result = run_bandit(extract_folder)
         bandit_issues = bandit_result.get("issues", [])
-
-        bandit_findings = []
-        for issue in bandit_issues:
-            if isinstance(issue, dict):
-                bandit_findings.append(
-                    "\n".join(
-                        [
-                            str(issue.get("severity", "Unknown")),
-                            str(issue.get("file", "Unknown")),
-                            f"Line {issue.get('line', 'Unknown')}",
-                            f"Confidence: {issue.get('confidence', 'Unknown')}",
-                            str(issue.get("issue", "")),
-                        ]
-                    )
-                )
-            else:
-                bandit_findings.append(str(issue))
-
-        radon_output = []
-        for row in complexity_rows:
-            if isinstance(row, dict):
-                radon_output.append(
-                    "\n".join(
-                        [
-                            str(row.get("function", row.get("name", "Unknown"))),
-                            f"Grade: {row.get('grade', 'Unknown')}",
-                            f"Complexity: {row.get('complexity', 0)}",
-                        ]
-                    )
-                )
-            else:
-                radon_output.append(str(row))
+        bandit_findings = [_format_bandit_issue(issue) for issue in bandit_issues]
+        radon_output = [_format_radon_row(row) for row in complexity_rows]
 
         average_score = (
             round(sum(pylint_scores) / len(pylint_scores), 2)
@@ -166,28 +171,41 @@ def run_project_analysis(project, current_user):
         ]
         max_complexity = max(numeric_complexities) if numeric_complexities else 0
 
-        if max_complexity <= 5:
+        if not preferences.enable_radon:
+            complexity_level = "Disabled"
+        elif max_complexity <= 5:
             complexity_level = "Low"
         elif max_complexity <= 10:
             complexity_level = "Medium"
         else:
             complexity_level = "High"
 
-        ai_summary, recommendations = generate_ai_summary(
-            average_score,
-            int(bandit_result.get("count", 0) or 0),
-            formatting_status,
-            complexity_rows,
-        )
+        security_count = int(bandit_result.get("count", len(bandit_issues)) or 0)
+
+        if preferences.enable_ai:
+            ai_summary, recommendations = generate_ai_summary(
+                average_score,
+                security_count,
+                formatting_status,
+                complexity_rows,
+            )
+        else:
+            ai_summary = "AI summary generation was disabled in your Sentrix settings."
+            recommendations = []
 
         if recommendations is None:
             recommendations = []
         elif isinstance(recommendations, str):
             recommendations = [recommendations]
 
-        security_count = int(bandit_result.get("count", len(bandit_issues)) or 0)
-        security_penalty = min(security_count * 2, 30)
-        overall_score = max(0, round((average_score * 10) - security_penalty, 2))
+        if preferences.enable_pylint:
+            quality_base = average_score * 10
+        else:
+            quality_base = 100.0
+
+        security_penalty = min(security_count * 2, 30) if preferences.enable_bandit else 0
+        syntax_penalty = min(len(syntax_errors) * 5, 30)
+        overall_score = max(0, round(quality_base - security_penalty - syntax_penalty, 2))
         analysis_duration = round(time.time() - start_time, 2)
 
         analysis = Analysis(
@@ -223,9 +241,10 @@ def run_project_analysis(project, current_user):
         db.session.add(analysis)
         db.session.commit()
 
-        report_path = generate_html_report(project, analysis)
-        analysis.report_path = report_path
-        db.session.commit()
+        if preferences.auto_generate_report:
+            report_path = generate_html_report(project, analysis)
+            analysis.report_path = report_path
+            db.session.commit()
 
         return {
             "analysis_id": analysis.id,
@@ -237,6 +256,14 @@ def run_project_analysis(project, current_user):
             "complexity": complexity_level,
             "summary": ai_summary,
             "recommendations": recommendations,
+            "preferences": {
+                "black": preferences.enable_black,
+                "pylint": preferences.enable_pylint,
+                "bandit": preferences.enable_bandit,
+                "radon": preferences.enable_radon,
+                "ai": preferences.enable_ai,
+                "auto_generate_report": preferences.auto_generate_report,
+            },
         }
 
     except Exception:
