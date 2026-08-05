@@ -57,7 +57,7 @@ def run_project_analysis(
     # -----------------------------------------
 
     extract_folder = tempfile.mkdtemp(
-        prefix="codesentinel_"
+        prefix="sentrix_"
     )
 
     python_files = extract_project(
@@ -93,165 +93,134 @@ def run_project_analysis(
 
     for file in python_files:
 
-    # -----------------------------------------
-    # Count file statistics
-    # -----------------------------------------
+        # -----------------------------------------
+        # Count file statistics
+        # -----------------------------------------
 
         try:
 
-             with open(file, "r", encoding="utf-8") as source:
+            with open(file, "r", encoding="utf-8") as source:
 
-                 lines = source.readlines()
+                lines = source.readlines()
 
-             total_lines += len(lines)
+            total_lines += len(lines)
 
-             for line in lines:
+            for line in lines:
 
-                 stripped = line.strip()
+                stripped = line.strip()
 
-                 if not stripped:
+                if not stripped:
 
-                     blank_lines += 1
+                    blank_lines += 1
 
-                 elif stripped.startswith("#"):
+                elif stripped.startswith("#"):
 
-                     comments_count += 1
+                    comments_count += 1
 
-                 elif stripped.startswith("def "):
+            try:
 
-                     functions_count += 1
+                tree = ast.parse(
+                    "".join(lines)
+                )
 
-                 elif stripped.startswith("class "):
+                for node in ast.walk(tree):
 
-                     classes_count += 1
+                    if isinstance(
+                        node,
+                        ast.FunctionDef
+                    ):
+
+                        functions_count += 1
+
+                    elif isinstance(
+                        node,
+                        ast.ClassDef
+                    ):
+
+                        classes_count += 1
+
+            except Exception:
+
+                pass
 
         except Exception:
 
             pass
 
-    # -----------------------------------------
-    # Black
-    # -----------------------------------------
-    
-    syntax = check_syntax(file)
+        # -----------------------------------------
+        # Syntax
+        # -----------------------------------------
 
-    if not syntax["valid"]:
+        syntax = check_syntax(file)
 
-        syntax_errors.append({
+        if not syntax["valid"]:
 
-            "file": file,
+            syntax_errors.append({
 
-            "line": syntax["line"],
+                "file": file,
 
-            "message": syntax["message"]
+                "line": syntax["line"],
 
-        })
+                "message": syntax["message"]
 
-        
+            })
 
-    with open(
-        file,
-        "r",
-        encoding="utf-8",
-        errors="ignore"
-    ) as f:
+        # -----------------------------------------
+        # Black
+        # -----------------------------------------
 
-        source = f.readlines()
+        black = run_black(file)
 
-    total_lines += len(source)
+        if black["status"] != "Passed":
 
-    for line in source:
+            formatting_status = black["status"]
 
-        stripped = line.strip()
+        # -----------------------------------------
+        # Pylint
+        # -----------------------------------------
 
-        if not stripped:
+        pylint_result = run_pylint(file)
 
-            blank_lines += 1
-
-        elif stripped.startswith("#"):
-
-            comments_count += 1
-
-    try:
-
-        tree = ast.parse(
-            "".join(source)
+        pylint_scores.append(
+            pylint_result["score"]
         )
 
-        for node in ast.walk(tree):
+        pylint_issues.extend(
+            pylint_result["issues"]
+        )
 
-            if isinstance(
-                node,
-                ast.FunctionDef
-            ):
+        pylint_output.append(
 
-                functions_count += 1
+            "\n".join(
 
-            elif isinstance(
-                node,
-                ast.ClassDef
-            ):
+                [
 
-                classes_count += 1
+                    f"{issue['file']}"
 
-    except Exception:
+                    f"\nLine {issue['line']}"
 
-        pass
+                    f"\n{issue['type']}"
 
+                    f"\n{issue['symbol']}"
 
-    black = run_black(file)
+                    f"\n{issue['message']}"
 
-    black = run_black(file)
+                    for issue in pylint_result["issues"]
 
-    if black["status"] != "Passed":
+                ]
 
-        formatting_status = black["status"]
+            )
 
-    # -----------------------------------------
-    # Pylint
-    # -----------------------------------------
+        )
 
-    pylint_result = run_pylint(file)
+        # -----------------------------------------
+        # Radon
+        # -----------------------------------------
 
-    pylint_scores.append(
-        pylint_result["score"]
-    )
+        complexity_rows.extend(
+            run_radon(file)
+        )
 
-    pylint_issues.extend(
-        pylint_result["issues"]
-    )
-
-    pylint_output.append(
-
-        "\n".join(
-
-            [
-
-                f"{issue['file']}"
-
-                f"\nLine {issue['line']}"
-
-                f"\n{issue['type']}"
-
-                f"\n{issue['symbol']}"
-
-                f"\n{issue['message']}"
-
-                for issue in pylint_result["issues"]
-
-            ]
-
-       )
-
-    )
-
-    # -----------------------------------------
-    # Radon
-    # -----------------------------------------
-
-    complexity_rows.extend(
-        run_radon(file)
-    )
     bandit_result = run_bandit(
         extract_folder
     )
@@ -259,8 +228,6 @@ def run_project_analysis(
     # -----------------------------------------
     # Store detailed outputs
     # -----------------------------------------
-
-    bandit_output = bandit_result["output"]
 
     bandit_findings = "\n\n".join(
 
@@ -281,7 +248,7 @@ def run_project_analysis(
         ]
 
     )
-    
+
     radon_output = "\n\n".join(
 
         [
@@ -297,6 +264,7 @@ def run_project_analysis(
         ]
 
     )
+
     # -----------------------------------------
     # Calculate average pylint score
     # -----------------------------------------
@@ -326,30 +294,10 @@ def run_project_analysis(
     # Complexity Level
     # -----------------------------------------
 
-<<<<<<< HEAD
     if complexity_rows:
         max_complexity = max(
             row["complexity"] for row in complexity_rows
         )
-=======
-    highest_grade = "A"
-
-    for row in complexity_rows:
-
-        grade = row["grade"]
-
-        if grade > highest_grade:
-
-            highest_grade = grade
-
-    if highest_grade in ("A", "B"):
-
-        complexity_level = "Low"
-
-    elif highest_grade == "C":
-
-        complexity_level = "Medium"
->>>>>>> c93460b (Complete Milestone 1 analysis engine)
 
         if max_complexity <= 5:
             complexity_level = "Low"
@@ -358,12 +306,8 @@ def run_project_analysis(
         else:
             complexity_level = "High"
     else:
-<<<<<<< HEAD
         complexity_level = "Low"
-=======
 
-        complexity_level = "High"
->>>>>>> c93460b (Complete Milestone 1 analysis engine)
     # -----------------------------------------
     # Overall Score
     # -----------------------------------------
@@ -418,7 +362,6 @@ def run_project_analysis(
             ]
         ),
 
-
         total_files=len(python_files),
 
         total_lines=total_lines,
@@ -448,7 +391,6 @@ def run_project_analysis(
         status="Completed"
     )
 
-
     db.session.add(analysis)
     db.session.commit()
 
@@ -473,4 +415,3 @@ def run_project_analysis(
         "summary": ai_summary,
         "recommendations": recommendations,
     }
-
