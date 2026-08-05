@@ -1,8 +1,8 @@
 import os
 from datetime import datetime, timezone
 
-from flask import Flask, render_template
-from flask_login import LoginManager
+from flask import Flask, flash, redirect, render_template, request, url_for
+from flask_login import LoginManager, current_user
 
 from analyzer.routes.artifacts import artifacts
 from analyzer.routes.main import main
@@ -13,6 +13,7 @@ from database import db
 from extensions import mail
 from helpers.schema_compat import apply_additive_schema_compatibility
 from models import User
+from security.sessions import validate_current_session
 
 
 login_manager = LoginManager()
@@ -32,6 +33,15 @@ def create_app(config_object=Config):
     app.register_blueprint(auth)
     app.register_blueprint(main)
     app.register_blueprint(artifacts)
+
+    @app.before_request
+    def enforce_tracked_session():
+        if request.endpoint == "static" or not current_user.is_authenticated:
+            return None
+        if validate_current_session():
+            return None
+        flash("Your session expired or was revoked. Please sign in again.", "warning")
+        return redirect(url_for("auth.login"))
 
     @app.context_processor
     def inject_brand_context():
