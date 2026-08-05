@@ -33,6 +33,19 @@ class User(UserMixin, db.Model):
         nullable=False,
     )
 
+    email_verified = db.Column(
+        db.Boolean,
+        nullable=False,
+        default=True,
+        server_default="1",
+        index=True,
+    )
+
+    email_verified_at = db.Column(
+        db.DateTime,
+        nullable=True,
+    )
+
     full_name = db.Column(
         db.String(160),
         nullable=True,
@@ -106,8 +119,13 @@ class User(UserMixin, db.Model):
             password,
         )
 
+    def mark_email_verified(self):
+        self.email_verified = True
+        self.email_verified_at = datetime.utcnow()
+
     def __repr__(self):
         return f"<User {self.username}>"
+
 
 class Project(db.Model):
     __tablename__ = "projects"
