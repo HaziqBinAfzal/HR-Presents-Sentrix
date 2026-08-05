@@ -27,7 +27,7 @@
               <p class="mb-0"><strong>Last active:</strong> {{ item.last_seen_at.strftime('%d %b %Y %H:%M') }}</p>
             </div>
             <form method="post" action="{{ url_for('auth.revoke_session', session_id=item.id) }}">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              {{ revoke_form.hidden_tag() }}
               <button class="btn btn-outline-danger" type="submit">
                 {% if item.id == current_session_id %}Sign out this device{% else %}Revoke access{% endif %}
               </button>
