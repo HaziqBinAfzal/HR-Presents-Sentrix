@@ -29,7 +29,8 @@ def _ensure_email_verification_columns() -> None:
 
     existing_columns = {column["name"] for column in inspector.get_columns("users")}
     dialect = db.engine.dialect.name
-    verified_type = "BOOLEAN" if dialect != "mysql" else "TINYINT(1)"
+    verified_type = "TINYINT(1)" if dialect == "mysql" else "BOOLEAN"
+    verified_default = "TRUE" if dialect == "postgresql" else "1"
     datetime_type = "TIMESTAMP" if dialect in {"postgresql", "mysql"} else "DATETIME"
 
     with db.engine.begin() as connection:
@@ -37,7 +38,7 @@ def _ensure_email_verification_columns() -> None:
             connection.execute(
                 text(
                     "ALTER TABLE users ADD COLUMN email_verified "
-                    f"{verified_type} NOT NULL DEFAULT 1"
+                    f"{verified_type} NOT NULL DEFAULT {verified_default}"
                 )
             )
         if "email_verified_at" not in existing_columns:
