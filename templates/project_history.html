@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.project_name }} History | Sentrix{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+            <div>
+                <span class="badge bg-primary mb-2">Project History</span>
+                <h1 class="fw-bold mb-1">{{ project.project_name }}</h1>
+                <p class="text-muted mb-0">
+                    {{ project.original_filename }} · Uploaded {{ project.upload_date.strftime('%d %b %Y, %H:%M') }}
+                </p>
+            </div>
+            <div class="d-flex gap-2">
+                <a class="btn btn-outline-secondary" href="{{ url_for('main.history') }}">All History</a>
+                <a class="btn btn-primary" href="{{ url_for('main.upload') }}">New Analysis</a>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                {% if analyses %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Date</th>
+                                <th>Status</th>
+                                <th>Overall</th>
+                                <th>Quality</th>
+                                <th>Security</th>
+                                <th>Complexity</th>
+                                <th class="text-end pe-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for analysis in analyses %}
+                            <tr>
+                                <td class="ps-4">{{ analysis.created_at.strftime('%d %b %Y, %H:%M') }}</td>
+                                <td><span class="badge bg-success">{{ analysis.status }}</span></td>
+                                <td>{{ analysis.overall_score }}</td>
+                                <td>{{ analysis.pylint_score }}</td>
+                                <td>{{ analysis.security_count }}</td>
+                                <td>{{ analysis.complexity }}</td>
+                                <td class="text-end pe-4">
+                                    <a class="btn btn-sm btn-outline-primary" href="{{ url_for('main.results', analysis_id=analysis.id) }}">View</a>
+                                    <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('exports.export_analysis_json', analysis_id=analysis.id) }}">JSON</a>
+                                    {% if analysis.report_path %}
+                                    <a class="btn btn-sm btn-outline-success" href="{{ url_for('exports.export_report', analysis_id=analysis.id) }}">Report</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <h4>No analyses found</h4>
+                    <p class="text-muted">This project does not have any analysis records yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
