@@ -1,8 +1,8 @@
 """Compatibility loader for the legacy route module.
 
-The current legacy ``main.py`` contains one malformed, duplicate dashboard
-activity block. This loader removes only that known block before compiling the
-module, allowing the production route overrides to be installed normally.
+The legacy ``main.py`` still contains a small number of malformed duplicate
+blocks. This loader removes only those known blocks before compiling the module,
+allowing the production route overrides to be installed normally.
 """
 
 from pathlib import Path
@@ -44,8 +44,30 @@ def _remove_malformed_dashboard_block(source: str) -> str:
     return "".join(cleaned)
 
 
+def _remove_malformed_duplicate_review_route(source: str) -> str:
+    start_marker = '@main.route("/reviews/delete/<int:review_id>", methods=["POST"])\n@login_required\ndef remove_review(review_id):'
+    end_marker = "# REPORT DOWNLOAD #"
+
+    start = source.find(start_marker)
+    if start == -1:
+        raise RuntimeError(
+            "The expected malformed duplicate review route was not found in "
+            "analyzer/routes/main.py. Refusing to modify unknown source."
+        )
+
+    end = source.find(end_marker, start)
+    if end == -1:
+        raise RuntimeError(
+            "The report-download marker following the malformed review route "
+            "was not found. Refusing to modify unknown source."
+        )
+
+    return source[:start] + source[end:]
+
+
 _source = _SOURCE_PATH.read_text(encoding="utf-8")
 _source = _remove_malformed_dashboard_block(_source)
+_source = _remove_malformed_duplicate_review_route(_source)
 _namespace = {
     "__name__": "analyzer.routes.main_runtime",
     "__file__": str(_SOURCE_PATH),
