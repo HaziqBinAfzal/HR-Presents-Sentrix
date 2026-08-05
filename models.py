@@ -27,6 +27,20 @@ class User(UserMixin, db.Model):
     )
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
+    email_verified = db.Column(db.Boolean, nullable=False, default=False)
+    email_verified_at = db.Column(db.DateTime, nullable=True)
+    verification_sent_at = db.Column(db.DateTime, nullable=True)
+
+    failed_login_attempts = db.Column(db.Integer, nullable=False, default=0)
+    locked_until = db.Column(db.DateTime, nullable=True)
+    last_login_at = db.Column(db.DateTime, nullable=True)
+    last_login_ip = db.Column(db.String(64), nullable=True)
+    password_changed_at = db.Column(db.DateTime, nullable=True)
+
+    two_factor_enabled = db.Column(db.Boolean, nullable=False, default=False)
+    two_factor_secret = db.Column(db.String(255), nullable=True)
+    backup_codes_hash = db.Column(db.Text, nullable=True)
+
     analyses = db.relationship(
         "Analysis",
         backref="user",
@@ -45,15 +59,109 @@ class User(UserMixin, db.Model):
         lazy=True,
         cascade="all, delete-orphan",
     )
+    auth_tokens = db.relationship(
+        "AuthToken",
+        backref="user",
+        lazy=True,
+        cascade="all, delete-orphan",
+    )
+    sessions = db.relationship(
+        "UserSession",
+        backref="user",
+        lazy=True,
+        cascade="all, delete-orphan",
+    )
+    audit_logs = db.relationship(
+        "AuditLog",
+        backref="user",
+        lazy=True,
+        cascade="all, delete-orphan",
+    )
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
+        self.password_changed_at = datetime.utcnow()
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    def is_locked(self):
+        return bool(self.locked_until and self.locked_until > datetime.utcnow())
+
     def __repr__(self):
         return f"<User {self.username}>"
+
+
+class AuthToken(db.Model):
+    __tablename__ = "auth_tokens"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id"),
+        nullable=False,
+        index=True,
+    )
+    token_hash = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    token_type = db.Column(db.String(40), nullable=False, index=True)
+    expires_at = db.Column(db.DateTime, nullable=False, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    used_at = db.Column(db.DateTime, nullable=True)
+    revoked_at = db.Column(db.DateTime, nullable=True)
+
+    @property
+    def is_active(self):
+        return (
+            self.used_at is None
+            and self.revoked_at is None
+            and self.expires_at > datetime.utcnow()
+        )
+
+
+class UserSession(db.Model):
+    __tablename__ = "user_sessions"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id"),
+        nullable=False,
+        index=True,
+    )
+    session_hash = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    ip_address = db.Column(db.String(64), nullable=True)
+    user_agent = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    last_seen_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    expires_at = db.Column(db.DateTime, nullable=False, index=True)
+    revoked_at = db.Column(db.DateTime, nullable=True)
+
+    @property
+    def is_active(self):
+        return self.revoked_at is None and self.expires_at > datetime.utcnow()
+
+
+class AuditLog(db.Model):
+    __tablename__ = "audit_logs"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id"),
+        nullable=True,
+        index=True,
+    )
+    action = db.Column(db.String(120), nullable=False, index=True)
+    outcome = db.Column(db.String(30), nullable=False, default="success")
+    ip_address = db.Column(db.String(64), nullable=True)
+    user_agent = db.Column(db.Text, nullable=True)
+    details = db.Column(db.Text, nullable=True)
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow,
+        nullable=False,
+        index=True,
+    )
 
 
 class Project(db.Model):
