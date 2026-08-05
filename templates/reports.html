@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Reports | {{ brand.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h1 class="mb-1">Analysis Reports</h1>
+            <p class="text-muted mb-0">Access generated reports and export your complete analysis history.</p>
+        </div>
+        <a class="btn btn-primary" href="{{ url_for('main.export_history_csv') }}">
+            Export history (CSV)
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            {% if analyses %}
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Project</th>
+                            <th>Status</th>
+                            <th>Score</th>
+                            <th>Security issues</th>
+                            <th>Date</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for analysis in analyses %}
+                        <tr>
+                            <td>
+                                <strong>{{ analysis.filename }}</strong>
+                                <div class="small text-muted">{{ analysis.language }}</div>
+                            </td>
+                            <td>{{ analysis.status }}</td>
+                            <td>{{ analysis.overall_score }}</td>
+                            <td>{{ analysis.security_count }}</td>
+                            <td>{{ analysis.created_at.strftime('%d %b %Y') }}</td>
+                            <td class="text-end">
+                                <a class="btn btn-sm btn-outline-primary" href="{{ url_for('main.results', analysis_id=analysis.id) }}">View</a>
+                                {% if analysis.report_path %}
+                                <a class="btn btn-sm btn-primary" href="{{ url_for('main.download_report', analysis_id=analysis.id) }}">Download</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5 px-3">
+                <h3>No reports yet</h3>
+                <p class="text-muted">Run an analysis to create your first report.</p>
+                <a class="btn btn-primary" href="{{ url_for('main.upload') }}">New analysis</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
