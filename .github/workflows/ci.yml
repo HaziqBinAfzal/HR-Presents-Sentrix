@@ -36,6 +36,13 @@ jobs:
           DATABASE_URL: sqlite:///:memory:
         run: python -c "from app import create_app; app = create_app(); print(app.url_map)"
 
+      - name: Test review CRUD and authorization
+        env:
+          APP_ENV: testing
+          SECRET_KEY: ci-only-secret
+          DATABASE_URL: sqlite:///:memory:
+        run: python -m unittest -v tests.test_reviews
+
       - name: Audit dependencies
         run: |
           pip install pip-audit
