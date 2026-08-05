@@ -45,7 +45,11 @@ def _remove_malformed_dashboard_block(source: str) -> str:
 
 
 def _remove_malformed_duplicate_review_route(source: str) -> str:
-    start_marker = '@main.route("/reviews/delete/<int:review_id>", methods=["POST"])\n@login_required\ndef remove_review(review_id):'
+    start_marker = (
+        '@main.route("/reviews/delete/<int:review_id>", methods=["POST"])\n'
+        "@login_required\n"
+        "def remove_review(review_id):"
+    )
     end_marker = "# REPORT DOWNLOAD #"
 
     start = source.find(start_marker)
@@ -65,9 +69,35 @@ def _remove_malformed_duplicate_review_route(source: str) -> str:
     return source[:start] + source[end:]
 
 
+def _remove_trailing_duplicate_review_handlers(source: str) -> str:
+    marker = (
+        '# ============================================================\n'
+        '# EDIT REVIEW\n'
+        '# ============================================================\n\n'
+        '@main.route("/reviews/edit/<int:review_id>", methods=["GET", "POST"])'
+    )
+
+    first = source.find(marker)
+    if first == -1:
+        raise RuntimeError(
+            "The primary edit-review route was not found in analyzer/routes/main.py."
+        )
+
+    second = source.find(marker, first + len(marker))
+    if second == -1:
+        raise RuntimeError(
+            "The trailing duplicate edit-review route was not found in "
+            "analyzer/routes/main.py. Refusing to modify unknown source."
+        )
+
+    # The duplicate edit/delete handlers are the final block in the legacy file.
+    return source[:second].rstrip() + "\n"
+
+
 _source = _SOURCE_PATH.read_text(encoding="utf-8")
 _source = _remove_malformed_dashboard_block(_source)
 _source = _remove_malformed_duplicate_review_route(_source)
+_source = _remove_trailing_duplicate_review_handlers(_source)
 _namespace = {
     "__name__": "analyzer.routes.main_runtime",
     "__file__": str(_SOURCE_PATH),
