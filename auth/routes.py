@@ -14,6 +14,12 @@ from auth.services import (
 from database import db
 from forms import ForgotPasswordForm, LoginForm, RegisterForm, ResetPasswordForm
 from models import AuditLog, AuthToken, User, UserSession
+from security.sessions import (
+    create_tracked_session,
+    get_current_tracked_session,
+    revoke_current_session,
+    revoke_session_for_user,
+)
 
 
 auth = Blueprint("auth", __name__)
@@ -91,8 +97,53 @@ def login():
     user.last_login_ip = request.headers.get("X-Forwarded-For", request.remote_addr)
     _record_event("auth.login", user=user)
     db.session.commit()
-    login_user(user, remember=form.remember.data)
+    remember = bool(form.remember.data)
+    login_user(user, remember=remember)
+    create_tracked_session(user, remember=remember)
     return redirect(request.args.get("next") or url_for("main.dashboard"))
+
+
+@auth.route("/logout")
+@login_required
+def logout():
+    revoke_current_session()
+    logout_user()
+    flash("You have been logged out.", "info")
+    return redirect(url_for("auth.login"))
+
+
+@auth.route("/sessions")
+@login_required
+def sessions():
+    active_sessions = (
+        UserSession.query
+        .filter_by(user_id=current_user.id, revoked_at=None)
+        .order_by(UserSession.last_seen_at.desc())
+        .all()
+    )
+    current_session = get_current_tracked_session()
+    return render_template(
+        "auth/sessions.html",
+        sessions=active_sessions,
+        current_session_id=current_session.id if current_session else None,
+    )
+
+
+@auth.route("/sessions/<int:session_id>/revoke", methods=["POST"])
+@login_required
+def revoke_session(session_id):
+    current_session = get_current_tracked_session()
+    if not revoke_session_for_user(current_user.id, session_id):
+        flash("Session not found or already revoked.", "warning")
+        return redirect(url_for("auth.sessions"))
+    _record_event("auth.session_revoked", user=current_user, details=f"session_id={session_id}")
+    db.session.commit()
+    if current_session and current_session.id == session_id:
+        logout_user()
+        flash("This device was signed out.", "info")
+        return redirect(url_for("auth.login"))
+    flash("Device session revoked successfully.", "success")
+    return redirect(url_for("auth.sessions"))
 
 
 @auth.route("/forgot-password", methods=["GET", "POST"])
@@ -129,9 +180,9 @@ def reset_password(token):
         user.failed_login_attempts = 0
         user.locked_until = None
         now = datetime.utcnow()
-        for session in UserSession.query.filter_by(user_id=user.id).all():
-            if session.revoked_at is None:
-                session.revoked_at = now
+        for tracked_session in UserSession.query.filter_by(user_id=user.id).all():
+            if tracked_session.revoked_at is None:
+                tracked_session.revoked_at = now
         for auth_token in AuthToken.query.filter_by(user_id=user.id).all():
             if auth_token.used_at is None and auth_token.revoked_at is None:
                 auth_token.revoked_at = now
@@ -155,9 +206,9 @@ def change_password():
             return render_template("auth/change_password.html", form=form)
         current_user.set_password(form.password.data)
         now = datetime.utcnow()
-        for session in UserSession.query.filter_by(user_id=current_user.id).all():
-            if session.revoked_at is None:
-                session.revoked_at = now
+        for tracked_session in UserSession.query.filter_by(user_id=current_user.id).all():
+            if tracked_session.revoked_at is None:
+                tracked_session.revoked_at = now
         _record_event("auth.password_changed", user=current_user)
         db.session.commit()
         logout_user()
