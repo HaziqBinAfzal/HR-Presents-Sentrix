@@ -6,6 +6,7 @@ from flask_login import LoginManager
 
 from analyzer.routes.artifacts import artifacts
 from analyzer.routes.main import main
+from auth import auth
 from brand import BRAND
 from config import Config
 from database import db
@@ -15,7 +16,7 @@ from models import User
 
 
 login_manager = LoginManager()
-login_manager.login_view = "main.login"
+login_manager.login_view = "auth.login"
 login_manager.login_message_category = "warning"
 
 
@@ -28,6 +29,7 @@ def create_app(config_object=Config):
     db.init_app(app)
     mail.init_app(app)
     login_manager.init_app(app)
+    app.register_blueprint(auth)
     app.register_blueprint(main)
     app.register_blueprint(artifacts)
 
@@ -52,8 +54,6 @@ def create_app(config_object=Config):
         return render_template("500.html"), 500
 
     with app.app_context():
-        # Retained for compatibility with the current project. Production
-        # deployments should run managed Flask-Migrate/Alembic migrations.
         db.create_all()
         apply_additive_schema_compatibility()
 
