@@ -28,7 +28,7 @@ Sentrix is a Flask-based Python project analysis platform by **HR-Presents**. It
 | Application startup | Repaired, runtime test pending | `app.py` now imports the legacy routes through `main_loader.py`, which removes only exact known malformed duplicate blocks and fails closed if source markers change. |
 | Authentication | Implemented | Registration, login/logout, password hashing and user-scoped records exist. |
 | Email verification | Not implemented | SMTP is configured, but verification state, signed activation tokens, activation/resend routes, and templates are not yet present. |
-| Forgot password | Implemented, SMTP test pending | Signed time-limited tokens, reset email delivery, invalid/expired handling, CSRF-protected forms, password update, and automatic token invalidation after password change are implemented. Real SMTP delivery still requires environment testing. |
+| Forgot password | Implemented, test pending | Signed time-limited tokens, reset email delivery, invalid/expired handling, CSRF-protected forms, password update, and automatic token invalidation after password change are implemented. Executable CI and real SMTP/browser-flow testing remain. |
 | AI providers | Partial | OpenAI-oriented analysis exists. Gemini/Ollama switching, provider health checks, retries, and fallback behavior are not proven. |
 | Report exports | Partial | Report storage/generation references exist. HTML, JSON, and PDF exports require route-level and artifact-level tests. |
 | Dashboard metrics | Implemented, runtime test pending | Metrics query the database. The malformed duplicate dashboard block is removed at load time; route rendering still needs an executable CI or local smoke test. |
@@ -154,7 +154,7 @@ Sentrix should be tagged `v1.0.0` only after all of the following are true:
 
 1. Repository Actions permissions allow CI jobs to run, and Python plus Docker checks pass.
 2. The compatibility loader is replaced by a directly cleaned and tested route module before or shortly after v1.0.
-3. Password reset passes real SMTP and browser-flow testing; email verification is implemented and tested or removed from the advertised feature set.
+3. Password reset passes executable CI plus real SMTP and browser-flow testing; email verification is implemented and tested or removed from the advertised feature set.
 4. Every user-facing route and POST form has functional, CSRF, and authorization coverage.
 5. HTML, JSON, and PDF exports are generated and validated.
 6. Fresh-install and upgrade migrations succeed.
