@@ -7,7 +7,7 @@
 
 Sentrix is a Flask-based Python project analysis platform by **HR-Presents**. It accepts Python projects, performs syntax, lint, complexity, formatting, security, and optional AI-assisted analysis, stores project and analysis history, and generates report artifacts.
 
-> **Release status:** v1.0.0-RC1 remains a release candidate. Repository-level implementation and CI checks are being completed on `agent/sentrix-v1-production-completion`; environment-dependent SMTP, HTTPS, backup/restore, scale, and clean-machine deployment checks must still be performed before production promotion.
+> **Release status:** v1.0.0-RC1 remains a release candidate. Repository-level implementation is continuing on `agent/sentrix-v1-production-completion`. GitHub Actions is currently blocked before job creation by repository-level Actions permissions or policy; environment-dependent SMTP, HTTPS, backup/restore, scale, and clean-machine deployment checks must also be completed before production promotion.
 
 ## Verified repository capabilities
 
@@ -17,30 +17,32 @@ Sentrix is a Flask-based Python project analysis platform by **HR-Presents**. It
 - Database-backed dashboard metrics and history queries
 - Review model, forms, service references, and UI routes
 - Dockerfile, Docker Compose, Gunicorn, Nginx, environment configuration, and documentation
-- GitHub Actions validation for Python 3.11, 3.12, and 3.13 plus a production image build
+- A fail-closed compatibility loader that removes only known malformed duplicate route blocks before application startup
+- GitHub Actions workflow definitions for Python validation and a production image build; repository Actions policy must allow jobs to execute
 
 ## Production readiness matrix
 
 | Area | Status | Evidence / remaining work |
 |---|---|---|
+| Application startup | Repaired, runtime test pending | `app.py` now imports the legacy routes through `main_loader.py`, which removes only exact known malformed duplicate blocks and fails closed if source markers change. |
 | Authentication | Implemented | Registration, login/logout, password hashing and user-scoped records exist. |
 | Email verification | Not implemented | SMTP is configured, but verification state, signed activation tokens, activation/resend routes, and templates are not yet present. |
 | Forgot password | Partial | Forms/templates exist; the current route only displays a generic success message and does not send or consume reset tokens. |
 | AI providers | Partial | OpenAI-oriented analysis exists. Gemini/Ollama switching, provider health checks, retries, and fallback behavior are not proven. |
 | Report exports | Partial | Report storage/generation references exist. HTML, JSON, and PDF exports require route-level and artifact-level tests. |
-| Dashboard metrics | Implemented, CI pending | Metrics query the database; CI must confirm the full application imports and routes render. |
-| Reviews | Implemented, test pending | Model, forms, services, and route references exist; CRUD authorization tests are still required. |
+| Dashboard metrics | Implemented, runtime test pending | Metrics query the database. The malformed duplicate dashboard block is removed at load time; route rendering still needs an executable CI or local smoke test. |
+| Reviews | Implemented, test pending | Model, forms, services, and route references exist. Known malformed duplicate review handlers are removed at load time; CRUD authorization tests remain required. |
 | Notifications | Not verified | No complete notification delivery workflow has been established. |
 | Settings | Partial | UI/routes exist; persistence and validation need automated tests. |
 | Uploads | Partial | `.py` and `.zip` validation and a 100 MB ceiling exist; archive traversal, duplicate, cleanup, nested-folder, and stress tests remain. |
 | Migrations | Not verified | Migration commands must be exercised against fresh and upgrade databases. |
-| Docker | Implemented, CI pending | Dockerfile and Compose are present; CI builds the image, while clean-machine Compose startup still needs verification. |
+| Docker | Implemented, CI pending | Dockerfile and Compose are present; clean-machine Compose startup still needs verification. |
 | Production deployment | Configured, environment pending | Gunicorn and Nginx examples exist; HTTPS, DNS, proxy headers, static files, and production secrets require a real deployment test. |
-| GitHub Actions | In progress | The previous RC run failed before creating jobs. The completion branch broadens CI to supported Python versions and agent branches. |
+| GitHub Actions | Repository-policy blocked | Multiple runs fail before creating jobs or check runs, including after reducing the workflow to a conventional minimal configuration. The integration receives `403 Resource not accessible` when reading Actions permissions. |
 | Security headers | Not verified | CSP, HSTS, frame, referrer, and related response headers require implementation/audit. |
 | CSRF | Framework enabled | Flask-WTF provides CSRF for FlaskForm submissions; every manual POST endpoint/template must still be audited. |
 | Authorization | Partially verified | Key analysis/project lookups use `current_user.id`; complete cross-user route tests remain required. |
-| Error handling | Partial | Upload and missing-record handling exists; dedicated 403/404/500 handlers and failure-path tests are still needed. |
+| Error handling | Partial | Upload and missing-record handling plus 403/404/500 handlers exist; failure-path tests are still needed. |
 | Performance | Not tested | Run 100 MB ZIP, 500/1,000-file, and concurrent-user tests outside CI. |
 | Backup/restore | Documented, not tested | Restore a backup into a clean deployment and validate login, projects, analyses, and artifacts. |
 | End-to-end flow | Not yet certified | Complete register → login → upload → analyze → recommendations → dashboard → report/export → history → logout testing. |
@@ -50,7 +52,8 @@ Sentrix is a Flask-based Python project analysis platform by **HR-Presents**. It
 ```mermaid
 flowchart LR
     U[Browser] --> W[Flask application]
-    W --> R[Main blueprint and routes]
+    W --> L[Fail-closed route compatibility loader]
+    L --> R[Main blueprint and routes]
     R --> S[Analysis, upload, review, report services]
     S --> A[Syntax / lint / complexity / security / AI analyzers]
     R --> D[(SQLAlchemy database)]
@@ -69,6 +72,9 @@ flowchart LR
 ├── forms.py
 ├── models.py
 ├── analyzer/
+│   └── routes/
+│       ├── main.py
+│       └── main_loader.py
 ├── helpers/
 ├── templates/
 ├── static/
@@ -133,22 +139,23 @@ docker compose build
 docker compose up
 ```
 
-The image build is covered by CI. Compose service startup, persistence, uploads, networking, and recovery must still be tested on a clean machine before the release is promoted.
+The image definition is present. Compose service startup, persistence, uploads, networking, and recovery must still be tested on a clean machine before the release is promoted.
 
 ## v1.0 promotion gate
 
 Sentrix should be tagged `v1.0.0` only after all of the following are true:
 
-1. CI passes on supported Python versions and the Docker image builds.
-2. Password reset and email verification are implemented and tested, or explicitly removed from the advertised feature set.
-3. Every user-facing route and POST form has functional, CSRF, and authorization coverage.
-4. HTML, JSON, and PDF exports are generated and validated.
-5. Fresh-install and upgrade migrations succeed.
-6. Docker Compose and Gunicorn/Nginx deployments pass clean-machine smoke tests.
-7. HTTPS and security headers are validated.
-8. Backup and restore produce a working application.
-9. The full end-to-end workflow succeeds.
-10. A deliberate license is added, or the repository is clearly marked proprietary.
+1. Repository Actions permissions allow CI jobs to run, and Python plus Docker checks pass.
+2. The compatibility loader is replaced by a directly cleaned and tested route module before or shortly after v1.0.
+3. Password reset and email verification are implemented and tested, or explicitly removed from the advertised feature set.
+4. Every user-facing route and POST form has functional, CSRF, and authorization coverage.
+5. HTML, JSON, and PDF exports are generated and validated.
+6. Fresh-install and upgrade migrations succeed.
+7. Docker Compose and Gunicorn/Nginx deployments pass clean-machine smoke tests.
+8. HTTPS and security headers are validated.
+9. Backup and restore produce a working application.
+10. The full end-to-end workflow succeeds.
+11. A deliberate license is added, or the repository is clearly marked proprietary.
 
 ## Documentation
 
