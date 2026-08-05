@@ -20,6 +20,8 @@
         .nav-link{font-weight:500}
         .card{border-radius:1rem}
         footer{background:var(--sentrix-dark);color:#fff}
+        .developer-link{display:flex;align-items:center;gap:.7rem;color:#fff;text-decoration:none;padding:.65rem .8rem;border:1px solid rgba(255,255,255,.18);border-radius:.75rem;transition:.2s ease}
+        .developer-link:hover{color:#fff;background:rgba(255,255,255,.08);transform:translateY(-1px)}
     </style>
     {% block head %}{% endblock %}
 </head>
@@ -74,7 +76,7 @@
 <footer class="pt-5 pb-3 mt-5">
     <div class="container">
         <div class="row g-4">
-            <div class="col-lg-5">
+            <div class="col-lg-4">
                 <h4 class="fw-bold"><i class="fa-solid fa-shield-halved me-2 text-primary"></i>Sentrix</h4>
                 <p class="text-light opacity-75 mb-2">Python project analysis for code quality, security, complexity and maintainability.</p>
                 <p class="small text-light opacity-75 mb-0">Presented and maintained by HR-Presents.</p>
@@ -90,9 +92,20 @@
                 <h5 class="fw-bold">Company</h5>
                 <ul class="list-unstyled"><li class="mb-2"><a class="text-light opacity-75 text-decoration-none" href="{{ url_for('main.about') }}">About</a></li><li><a class="text-light opacity-75 text-decoration-none" href="{{ url_for('main.contact') }}">Contact</a></li></ul>
             </div>
-            <div class="col-lg-3">
-                <h5 class="fw-bold">Repository</h5>
-                <a class="btn btn-outline-light" href="https://github.com/HaziqBinAfzal/HR-Presents-Sentrix" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github me-2"></i>View on GitHub</a>
+            <div class="col-lg-4">
+                <h5 class="fw-bold">Connect with the developers</h5>
+                <div class="row g-2">
+                    <div class="col-sm-6">
+                        <p class="small text-light opacity-75 mb-2">Ruveeha Ashfaq</p>
+                        <a class="developer-link mb-2" href="https://github.com/ruveeha33" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github"></i><span>GitHub</span></a>
+                        <a class="developer-link" href="https://www.linkedin.com/in/ruveeha-ashfaq-632b15378" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-linkedin"></i><span>LinkedIn</span></a>
+                    </div>
+                    <div class="col-sm-6">
+                        <p class="small text-light opacity-75 mb-2">Haziq Afzal</p>
+                        <a class="developer-link mb-2" href="https://github.com/HaziqBinAfzal" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github"></i><span>GitHub</span></a>
+                        <a class="developer-link" href="https://www.linkedin.com/in/haziq-afzal-010b6636a" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-linkedin"></i><span>LinkedIn</span></a>
+                    </div>
+                </div>
             </div>
         </div>
         <hr class="border-secondary my-4">
