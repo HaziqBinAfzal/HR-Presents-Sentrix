@@ -1,6 +1,13 @@
 from database import db
 from models import Analysis
-from tests.conftest import login
+
+
+def login(client, email, password="password123"):
+    return client.post(
+        "/login",
+        data={"email": email, "password": password},
+        follow_redirects=False,
+    )
 
 
 def test_public_pages_render(client):
