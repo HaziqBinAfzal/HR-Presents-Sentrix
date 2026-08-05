@@ -8,6 +8,8 @@ markers change, preventing silent modification of unknown code.
 
 from pathlib import Path
 
+from helpers.password_reset import install_password_reset_routes
+
 
 _SOURCE_PATH = Path(__file__).with_name("main.py")
 
@@ -101,3 +103,4 @@ _namespace = {
 exec(compile(_source, str(_SOURCE_PATH), "exec"), _namespace)
 
 main = _namespace["main"]
+install_password_reset_routes(main)
