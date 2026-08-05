@@ -93,13 +93,53 @@
                         </div>
                     </div>
 
-                    <div class="card border-0 shadow-sm">
+                    <div class="card border-0 shadow-sm mb-4">
                         <div class="card-header bg-white py-3"><h4 class="mb-0"><i class="fa-solid fa-circle-info text-info me-2"></i>Before you upload</h4></div>
                         <div class="card-body">
                             <div class="row g-3">
                                 <div class="col-md-4"><div class="border rounded-3 p-3 h-100"><i class="fa-solid fa-shield-halved text-success mb-2"></i><strong class="d-block">Private workspace</strong><small class="text-muted">Projects are attached only to your account.</small></div></div>
                                 <div class="col-md-4"><div class="border rounded-3 p-3 h-100"><i class="fa-solid fa-file-zipper text-warning mb-2"></i><strong class="d-block">Clean archives</strong><small class="text-muted">Exclude virtual environments, caches, and build files.</small></div></div>
                                 <div class="col-md-4"><div class="border rounded-3 p-3 h-100"><i class="fa-solid fa-key text-danger mb-2"></i><strong class="d-block">Remove secrets</strong><small class="text-muted">Do not upload passwords, tokens, or private keys.</small></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white py-3 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+                            <h4 class="mb-0"><i class="fa-solid fa-diagram-project text-primary me-2"></i>What happens after upload</h4>
+                            <span class="badge bg-primary-subtle text-primary">Automatic workflow</span>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-4">Sentrix prepares, scans, scores, and reports on your project without modifying the file you uploaded.</p>
+                            <div class="row g-3">
+                                <div class="col-sm-6">
+                                    <div class="border rounded-3 p-3 h-100 d-flex gap-3">
+                                        <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:42px;height:42px;"><strong>1</strong></div>
+                                        <div><strong class="d-block mb-1">Validate and extract</strong><small class="text-muted">The file type and size are checked, then ZIP projects are safely extracted.</small></div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="border rounded-3 p-3 h-100 d-flex gap-3">
+                                        <div class="bg-success-subtle text-success rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:42px;height:42px;"><strong>2</strong></div>
+                                        <div><strong class="d-block mb-1">Discover source files</strong><small class="text-muted">Python files are collected while caches, virtual environments, Git data, and dependencies are ignored.</small></div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="border rounded-3 p-3 h-100 d-flex gap-3">
+                                        <div class="bg-warning-subtle text-warning rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:42px;height:42px;"><strong>3</strong></div>
+                                        <div><strong class="d-block mb-1">Run configured checks</strong><small class="text-muted">Sentrix applies your enabled quality, security, complexity, formatting, and syntax checks.</small></div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="border rounded-3 p-3 h-100 d-flex gap-3">
+                                        <div class="bg-info-subtle text-info rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:42px;height:42px;"><strong>4</strong></div>
+                                        <div><strong class="d-block mb-1">Build results and report</strong><small class="text-muted">Scores, findings, recommendations, and a downloadable report are saved to your history.</small></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="alert alert-light border mt-3 mb-0 d-flex align-items-start gap-2">
+                                <i class="fa-solid fa-circle-check text-success mt-1"></i>
+                                <small class="text-muted">Processing time depends on archive size and the number of enabled analyzers. Keep this tab open until the results page appears.</small>
                             </div>
                         </div>
                     </div>
