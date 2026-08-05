@@ -5,6 +5,7 @@ from extensions import mail
 from flask import Flask, render_template
 from flask_login import LoginManager
 
+from analyzer.routes.exports import exports
 from analyzer.routes.main import main
 from config import Config
 from models import User
@@ -26,6 +27,7 @@ def create_app(config_object=Config):
     mail.init_app(app)
     login_manager.init_app(app)
     app.register_blueprint(main)
+    app.register_blueprint(exports)
 
     @app.errorhandler(403)
     def forbidden(error):
