@@ -2,7 +2,7 @@ import os
 
 from database import db
 from extensions import mail, migrate
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_login import LoginManager
 
 from analyzer.routes.auth import auth
@@ -10,6 +10,7 @@ from analyzer.routes.exports import exports
 from analyzer.routes.health import health
 from analyzer.routes.main import main
 from config import Config
+from forms import LoginForm, RegisterForm
 from helpers.branding import register_branding
 from helpers.security import register_security_headers
 from models import User
@@ -38,6 +39,14 @@ def create_app(config_object=Config):
     app.register_blueprint(health)
     register_branding(app)
     register_security_headers(app)
+
+    @app.context_processor
+    def authentication_forms():
+        if request.endpoint == "auth.login":
+            return {"form": LoginForm()}
+        if request.endpoint == "auth.register":
+            return {"form": RegisterForm()}
+        return {}
 
     @app.errorhandler(403)
     def forbidden(error):
