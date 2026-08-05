@@ -1,13 +1,13 @@
 import os
 
+from database import db
 from extensions import mail
 from flask import Flask, render_template
-from models import User
 from flask_login import LoginManager
 
 from analyzer.routes.main import main
 from config import Config
-from database import db
+from models import User
 
 
 login_manager = LoginManager()
@@ -15,28 +15,17 @@ login_manager.login_view = "main.login"
 login_manager.login_message_category = "warning"
 
 
-def create_app():
+def create_app(config_object=Config):
     app = Flask(__name__)
-
-    # Load application configuration
-    app.config.from_object(Config)
-    mail.init_app(app)
+    app.config.from_object(config_object)
 
     app.config.setdefault("SESSION_COOKIE_HTTPONLY", True)
     app.config.setdefault("SESSION_COOKIE_SAMESITE", "Lax")
 
-    # Initialize database
     db.init_app(app)
-
-    # Initialize Flask-Login
+    mail.init_app(app)
     login_manager.init_app(app)
-
-    # Register routes
     app.register_blueprint(main)
-
-    # --------------------------------------------------
-    # Error Handlers
-    # --------------------------------------------------
 
     @app.errorhandler(403)
     def forbidden(error):
@@ -48,16 +37,22 @@ def create_app():
 
     @app.errorhandler(500)
     def internal_server_error(error):
-      db.session.rollback()
-      return render_template("500.html"), 500
-
-    # --------------------------------------------------
-    # Create Required Directories + Database
-    # --------------------------------------------------
+        db.session.rollback()
+        app.logger.exception("Unhandled server error", exc_info=error)
+        return render_template("500.html"), 500
 
     with app.app_context():
-
-        # Create database tables
+        for config_key in (
+            "UPLOAD_FOLDER",
+            "TEMP_FOLDER",
+            "PROJECT_FOLDER",
+            "REPORT_FOLDER",
+            "CORRECTED_FOLDER",
+            "DIFF_FOLDER",
+        ):
+            folder = app.config.get(config_key)
+            if folder:
+                os.makedirs(folder, exist_ok=True)
         db.create_all()
 
     return app
@@ -65,10 +60,14 @@ def create_app():
 
 @login_manager.user_loader
 def load_user(user_id):
-    return db.session.get(User, int(user_id))
+    try:
+        return db.session.get(User, int(user_id))
+    except (TypeError, ValueError):
+        return None
+
 
 app = create_app()
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=os.getenv("FLASK_DEBUG", "false").lower() == "true")
