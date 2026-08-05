@@ -1,10 +1,33 @@
+# Python
 venv/
+.venv/
 __pycache__/
-*.pyc
-*.db
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Application secrets and runtime data
 .env
+.env.*
+!.env.example
+*.db
 instance/
 uploads/
 reports/
 corrected/
+
+# Editor and operating-system files
 .vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local backups and merge artifacts
+*.backup
+*.bak
+*.orig
+*.rej
+*.save
+*~
