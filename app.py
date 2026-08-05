@@ -2,6 +2,7 @@ import os
 
 from flask import Flask, render_template
 from flask_login import LoginManager
+from sqlalchemy import inspect, text
 
 from analyzer.routes.account import account_bp
 from analyzer.routes.main import main
@@ -18,6 +19,34 @@ from settings_models import UserSettings  # noqa: F401 - registers the model bef
 login_manager = LoginManager()
 login_manager.login_view = "main.login"
 login_manager.login_message_category = "warning"
+
+
+def _ensure_email_verification_columns() -> None:
+    """Add verification columns to legacy databases without locking out users."""
+    inspector = inspect(db.engine)
+    if "users" not in inspector.get_table_names():
+        return
+
+    existing_columns = {column["name"] for column in inspector.get_columns("users")}
+    dialect = db.engine.dialect.name
+    verified_type = "BOOLEAN" if dialect != "mysql" else "TINYINT(1)"
+    datetime_type = "TIMESTAMP" if dialect in {"postgresql", "mysql"} else "DATETIME"
+
+    with db.engine.begin() as connection:
+        if "email_verified" not in existing_columns:
+            connection.execute(
+                text(
+                    "ALTER TABLE users ADD COLUMN email_verified "
+                    f"{verified_type} NOT NULL DEFAULT 1"
+                )
+            )
+        if "email_verified_at" not in existing_columns:
+            connection.execute(
+                text(
+                    "ALTER TABLE users ADD COLUMN email_verified_at "
+                    f"{datetime_type} NULL"
+                )
+            )
 
 
 def create_app(config_class=Config):
@@ -63,6 +92,7 @@ def create_app(config_class=Config):
 
     with app.app_context():
         db.create_all()
+        _ensure_email_verification_columns()
 
     return app
 
