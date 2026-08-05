@@ -73,6 +73,9 @@ class Config:
     MAIL_DEFAULT_SENDER = os.getenv("MAIL_DEFAULT_SENDER", MAIL_USERNAME)
     SUPPORT_EMAIL = os.getenv("SUPPORT_EMAIL", "supportsentrix@gmail.com")
     PASSWORD_RESET_MAX_AGE = int(os.getenv("PASSWORD_RESET_MAX_AGE", "3600"))
+    EMAIL_VERIFICATION_MAX_AGE = int(
+        os.getenv("EMAIL_VERIFICATION_MAX_AGE", "86400")
+    )
 
     PREFERRED_URL_SCHEME = os.getenv(
         "PREFERRED_URL_SCHEME", "https" if ENVIRONMENT == "production" else "http"
