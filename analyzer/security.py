@@ -1,86 +1,64 @@
 import json
 import subprocess
+from pathlib import Path
 
 
 def run_bandit(path):
-    """
-    Run Bandit recursively on a file or directory.
-
-    Returns:
-        {
-            "count": int,
-            "issues": list,
-            "output": str
-        }
-    Run Bandit recursively and return structured results.
-    """
+    """Run Bandit recursively and return structured findings."""
+    target = str(Path(path))
 
     try:
-
         result = subprocess.run(
-            [
-                "bandit",
-                "-r",
-                path,
-                "-f",
-
-                "txt"
-            ],
+            ["bandit", "-r", target, "-f", "json"],
             capture_output=True,
             text=True,
-            check=False
+            check=False,
         )
-
-        output = (
-            result.stdout +
-            "\n" +
-            result.stderr
-        ).strip()
-                "json"
-            ],
-            capture_output=True,
-            text=True
-        )
-
-        data = json.loads(result.stdout)
-
-        issues = []
-
-        for item in data.get("results", []):
-
-            line = line.strip()
-
-            if line.startswith(">> Issue:"):
-
-                issues.append(
-                    line.replace(
-                        ">> Issue:",
-                        ""
-                    ).strip()
-                )
-            issues.append(
-                {
-                    "file": item.get("filename"),
-                    "line": item.get("line_number"),
-                    "severity": item.get("issue_severity"),
-                    "confidence": item.get("issue_confidence"),
-                    "issue": item.get("issue_text")
-                }
-            )
-
-        return {
-            "count": len(issues),
-            "issues": issues,
-            "output": output
-            "output": json.dumps(data, indent=4)
-        }
-
-    except Exception as error:
-
+    except FileNotFoundError:
         return {
             "count": 0,
-            "issues": [str(error)],
-            "output": ""
             "issues": [],
-            "output": str(error)
+            "output": "Bandit is not installed or is not available on PATH.",
         }
+    except OSError as error:
+        return {
+            "count": 0,
+            "issues": [],
+            "output": str(error),
+        }
+
+    raw_output = (result.stdout or "").strip()
+    error_output = (result.stderr or "").strip()
+
+    try:
+        data = json.loads(raw_output) if raw_output else {}
+    except json.JSONDecodeError:
+        return {
+            "count": 0,
+            "issues": [],
+            "output": "\n".join(part for part in (raw_output, error_output) if part),
+        }
+
+    issues = []
+    for item in data.get("results", []):
+        issues.append(
+            {
+                "file": item.get("filename"),
+                "line": item.get("line_number"),
+                "severity": item.get("issue_severity"),
+                "confidence": item.get("issue_confidence"),
+                "issue": item.get("issue_text"),
+                "test_id": item.get("test_id"),
+                "test_name": item.get("test_name"),
+            }
+        )
+
+    output = json.dumps(data, indent=2)
+    if error_output:
+        output = f"{output}\n{error_output}".strip()
+
+    return {
+        "count": len(issues),
+        "issues": issues,
+        "output": output,
+    }
