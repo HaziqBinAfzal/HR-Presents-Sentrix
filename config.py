@@ -1,4 +1,6 @@
 import os
+from datetime import timedelta
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -25,7 +27,19 @@ class Config:
     CORRECTED_FOLDER = os.path.join(UPLOAD_FOLDER, "corrected")
     DIFF_FOLDER = os.path.join(UPLOAD_FOLDER, "diff")
 
-    MAX_CONTENT_LENGTH = 100 * 1024 * 1024
+    MAX_CONTENT_LENGTH = int(os.getenv("MAX_CONTENT_LENGTH", str(100 * 1024 * 1024)))
+
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = os.getenv("SESSION_COOKIE_SAMESITE", "Lax")
+    SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE", "false").lower() == "true"
+    REMEMBER_COOKIE_HTTPONLY = True
+    REMEMBER_COOKIE_SAMESITE = os.getenv("REMEMBER_COOKIE_SAMESITE", "Lax")
+    REMEMBER_COOKIE_SECURE = os.getenv("REMEMBER_COOKIE_SECURE", "false").lower() == "true"
+    PERMANENT_SESSION_LIFETIME = timedelta(
+        minutes=int(os.getenv("SESSION_LIFETIME_MINUTES", "120"))
+    )
+    WTF_CSRF_TIME_LIMIT = int(os.getenv("WTF_CSRF_TIME_LIMIT", "3600"))
+    FORCE_HTTPS_HEADERS = os.getenv("FORCE_HTTPS_HEADERS", "false").lower() == "true"
 
     MAIL_SERVER = os.getenv("MAIL_SERVER", "smtp.gmail.com")
     MAIL_PORT = int(os.getenv("MAIL_PORT", "587"))

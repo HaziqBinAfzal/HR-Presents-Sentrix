@@ -9,6 +9,7 @@ from analyzer.routes.exports import exports
 from analyzer.routes.main import main
 from config import Config
 from helpers.branding import register_branding
+from helpers.security import register_security_headers
 from models import User
 
 
@@ -30,6 +31,7 @@ def create_app(config_object=Config):
     app.register_blueprint(main)
     app.register_blueprint(exports)
     register_branding(app)
+    register_security_headers(app)
 
     @app.errorhandler(403)
     def forbidden(error):
