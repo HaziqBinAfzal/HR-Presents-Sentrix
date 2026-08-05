@@ -449,18 +449,6 @@ def dashboard():
         ]
     }
 
-        recent_activities.append({
-
-            "project": analysis.filename,
-
-            "score": analysis.overall_score,
-
-            "status": analysis.status,
-
-            "date": analysis.created_at.strftime("%d %b %Y")
-
-        })
-
 
     return render_template(
         "dashboard.html",
