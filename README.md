@@ -15,100 +15,205 @@
   <a href="https://github.com/HaziqBinAfzal/HR-Presents-Sentrix/actions/workflows/ci.yml"><img src="https://github.com/HaziqBinAfzal/HR-Presents-Sentrix/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
 </p>
 
-## Overview
+## New user? Start here
 
-Sentrix is a Flask-based secure software analysis platform developed and maintained by **HR-Presents**. It allows authenticated users to upload a Python file or ZIP project, run multiple analyzers, review project-scoped findings, track analysis history, and generate professional security assessment reports.
+You do not need previous Flask experience.
 
-The finalized Sentrix identity uses the **Electric Wing** logo throughout the application shell, favicon, social metadata, generated reports, and documentation. The permanent production branch is:
+Read the complete guide:
+
+### [Open the Sentrix Beginner Localhost Guide](docs/BEGINNER_LOCALHOST_GUIDE.md)
+
+It explains every step for Windows, Ubuntu/Linux, and macOS, including:
+
+- Installing and checking Git
+- Installing and checking Python
+- Downloading Sentrix
+- Selecting the correct permanent branch
+- Creating and activating a virtual environment
+- Installing dependencies
+- Creating `.env`
+- Starting localhost
+- Registering the first account
+- Uploading the first project
+- Understanding reports
+- Stopping and restarting Sentrix
+- Updating to the latest version
+- Fixing common beginner errors
+
+The permanent source-of-truth branch is:
 
 ```text
 production/sentrix-permanent
 ```
 
-## Main capabilities
+## Five-minute Linux/macOS start
 
-### User and account workflows
+```bash
+git clone https://github.com/HaziqBinAfzal/HR-Presents-Sentrix.git
+cd HR-Presents-Sentrix
+git switch production/sentrix-permanent
+python3 -m venv venv
+source venv/bin/activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+cp .env.example .env
+python app.py
+```
 
-- User registration and secure login
-- Password hashing and session management
-- Logout and authenticated route protection
-- User profile and account settings
-- Signed, expiring password-reset links
-- SMTP-based password-reset delivery
-- User-scoped projects, analyses, reports, reviews, and history
+Open in a browser:
 
-Newly registered users can sign in immediately. Mandatory email verification is not part of the finalized workflow.
+```text
+http://127.0.0.1:5000
+```
 
-### Project analysis
+## Five-minute Windows PowerShell start
 
-Sentrix supports Python source files and ZIP-based Python projects. The analysis pipeline includes:
+```powershell
+git clone https://github.com/HaziqBinAfzal/HR-Presents-Sentrix.git
+cd HR-Presents-Sentrix
+git switch production/sentrix-permanent
+py -m venv venv
+.\venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+Copy-Item .env.example .env
+python app.py
+```
+
+Open in a browser:
+
+```text
+http://127.0.0.1:5000
+```
+
+Do not type the localhost address as a PowerShell command. Paste it into Chrome, Edge, Firefox, Safari, or another browser.
+
+## Running Sentrix again after restarting the computer
+
+You only create the virtual environment and install dependencies during the first setup.
+
+### Linux/macOS
+
+```bash
+cd ~/HR-Presents-Sentrix
+source venv/bin/activate
+git switch production/sentrix-permanent
+git pull origin production/sentrix-permanent
+python app.py
+```
+
+### Windows PowerShell
+
+```powershell
+cd $HOME\HR-Presents-Sentrix
+.\venv\Scripts\Activate.ps1
+git switch production/sentrix-permanent
+git pull origin production/sentrix-permanent
+python app.py
+```
+
+Stop the local server with:
+
+```text
+Ctrl + C
+```
+
+---
+
+## What Sentrix is
+
+Sentrix is a Flask-based secure software analysis platform developed and maintained by **HR-Presents**. Authenticated users can upload Python files or ZIP projects, run multiple analyzers, review project-scoped findings, track analysis history, and generate professional security assessment reports.
+
+Sentrix is designed for:
+
+- Python developers
+- Cybersecurity students
+- Software engineering students
+- Security analysts
+- DevSecOps engineers
+- Technical reviewers
+- Academic project evaluation
+- Secure code review and education
+
+## Core features
+
+### Accounts and workspace
+
+- User registration
+- Secure login and logout
+- Password hashing
+- Session management
+- Password-reset tokens
+- User profile and settings
+- User-scoped projects, analyses, reviews, reports, and history
+
+New users can sign in immediately. Mandatory email verification is not part of the finalized workflow.
+
+### Python project analysis
 
 - Python syntax validation
 - Pylint code-quality analysis
 - Bandit security scanning
-- Radon complexity measurements
+- Radon complexity analysis
 - Formatting and structural inspection
-- Project metadata and code metrics
-- Optional operator-configured AI-assisted recommendations
+- Project metrics and metadata
+- Optional operator-configured AI recommendations
 
-The platform records analysis information such as project name, file count, line count, functions, classes, comments, duration, quality score, security findings, complexity, raw scanner output, recommendations, and report paths.
+Sentrix supports individual `.py` files and supported ZIP-based Python projects.
 
-### Secure archive handling
+### Secure ZIP extraction
 
-ZIP extraction is hardened against common archive attacks, including:
+The extraction layer protects against:
 
 - Path traversal
 - Absolute paths
-- Symlinks and unsafe members
+- Symlink members
 - Duplicate normalized paths
 - Nested archives
-- Excessive member counts
-- Oversized individual files
+- Excessive archive members
+- Oversized files
 - Excessive expanded size
 - Suspicious compression ratios
 
-Upload and extraction limits are configurable and should be reviewed for the target deployment environment.
-
 ### Dashboard and history
 
-Authenticated users receive a database-backed workspace containing:
+Authenticated users can review:
 
-- Project totals
-- Analysis totals
-- Generated report totals
-- Recent project activity
-- Analysis result access
+- Total projects
+- Total analyses
+- Generated reports
+- Recent activity
+- Analysis results
 - Downloadable reports
 - Project and analysis history
-- User ownership enforcement
 
-Users cannot access another user's project, result, or report through direct object references.
+Ownership checks prevent users from opening another user’s projects, results, or reports through direct URLs.
 
-### Professional reporting
+### Professional reports
 
-Sentrix generates self-contained branded HTML reports suitable for browser review, printing, and saving as PDF.
+Sentrix creates self-contained branded HTML reports suitable for browser review, printing, and saving as PDF.
 
-The report preserves a consistent finalized structure while providing detailed technical and educational content, including:
+The report includes:
 
 - Executive summary
-- Project profile and analysis methodology
+- Project profile
+- Analysis methodology
 - Code-quality findings
 - Static security findings
-- Complexity and maintainability findings
+- Complexity and maintainability information
 - Raw scanner evidence
 - Root-cause explanations
 - Business and technical impact
 - Severity interpretation
-- Secure remediation guidance
-- Verification and prevention guidance
+- Remediation and prevention guidance
 - Project-specific standards mapping
 - Project-specific security-control mapping
 
-Where scanner evidence contains a source location, the report can associate the issue with its affected file, line, or scanner rule. When evidence is insufficient, the report states that a project-specific location cannot safely be asserted instead of inventing one.
+When the scanner provides a source location, the report can show the related file, line, or scanner rule. When evidence is missing, Sentrix does not invent a location.
 
-### Standards and security controls
+### Standards represented in reports
 
-Report interpretation may reference applicable security and compliance frameworks, including:
+Technical mappings may reference:
 
 - OWASP Top 10
 - OWASP ASVS
@@ -117,7 +222,7 @@ Report interpretation may reference applicable security and compliance framework
 - NIST SSDF
 - NIST Cybersecurity Framework
 - NIST SP 800-53
-- CIS security guidance
+- CIS guidance
 - SANS secure coding practices
 - CERT secure coding standards
 - PCI DSS where applicable
@@ -126,9 +231,9 @@ Report interpretation may reference applicable security and compliance framework
 - GDPR security requirements where applicable
 - HIPAA security requirements where applicable
 
-These mappings are technical guidance and do not represent certification, legal advice, or proof of compliance.
+These mappings are technical guidance. They are not certification, legal advice, or proof of compliance.
 
-The report also evaluates ten major security-control areas:
+### Top security controls
 
 1. Secure authentication
 2. Authorization and access control
@@ -141,9 +246,169 @@ The report also evaluates ten major security-control areas:
 9. Dependency and supply-chain security
 10. Secure error handling
 
-### Light and dark appearance
+### Light and dark mode
 
-Sentrix includes a persistent light/dark mode toggle in the navigation bar. The selected mode is stored in the browser and remains active across navigation and future visits. The finalized dark mode covers headings, paragraphs, forms, tables, cards, dropdowns, accordions, results, report summaries, badges, and custom result components.
+The navigation bar includes a persistent day/night toggle. The selected theme is saved in the browser and remains active across pages and future visits.
+
+---
+
+## Basic user walkthrough
+
+1. Start Sentrix with `python app.py`.
+2. Open `http://127.0.0.1:5000` in a browser.
+3. Select **Get Started** or **Register**.
+4. Create an account.
+5. Sign in.
+6. Open **Upload**.
+7. Select a `.py` file or supported ZIP project.
+8. Start the analysis.
+9. Review the Results page.
+10. Open or download the professional report.
+11. Use **Print / PDF** to save a PDF through the browser.
+12. Open **History** later to review previous analyses.
+
+For detailed explanations, read the [User Guide](docs/USER_GUIDE.md).
+
+---
+
+## Requirements
+
+Recommended local environment:
+
+- Python 3.11, 3.12, or 3.13
+- Git
+- `pip`
+- A Python virtual environment
+- Internet access during dependency installation
+- SQLite for normal local development
+
+Python 3.14 is not the documented support baseline.
+
+## Environment setup
+
+Copy `.env.example` to `.env`.
+
+Linux/macOS:
+
+```bash
+cp .env.example .env
+```
+
+Windows PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Important configuration areas include:
+
+- Application environment
+- `SECRET_KEY`
+- Database URL
+- Automatic local table creation
+- Upload-size limits
+- SMTP host and credentials
+- Password-reset expiry
+- Secure cookie settings
+- Security headers
+- Optional AI-provider configuration
+
+Never commit `.env`, passwords, API keys, SMTP credentials, private keys, database credentials, or generated user data.
+
+## Compile and test
+
+Activate the virtual environment, then run:
+
+```bash
+python -m compileall -q app.py analyzer helpers forms.py models.py config.py tests
+python -m unittest discover -s tests -v
+```
+
+Focused tests:
+
+```bash
+python -m unittest tests.test_extractor_security -v
+python -m unittest tests.test_report_content_enrichment -v
+python -m unittest tests.test_report_project_mapping -v
+```
+
+A successful unittest run ends with:
+
+```text
+OK
+```
+
+## Updating to the latest permanent version
+
+Stop Sentrix with `Ctrl + C`, then run:
+
+```bash
+git switch production/sentrix-permanent
+git pull origin production/sentrix-permanent
+pip install -r requirements.txt
+python -m compileall -q app.py analyzer helpers forms.py models.py config.py tests
+python app.py
+```
+
+To make a local checkout exactly match the remote branch, the following commands are available, but they permanently discard uncommitted and untracked local work:
+
+```bash
+git fetch --all --prune
+git switch production/sentrix-permanent
+git reset --hard origin/production/sentrix-permanent
+git clean -fd
+```
+
+Back up important files before using the destructive reset.
+
+---
+
+## Repository structure
+
+```text
+.
+├── app.py                         # Flask application entry point
+├── config.py                      # Environment-based configuration
+├── database.py                    # Database compatibility export
+├── extensions.py                  # Flask extension instances
+├── forms.py                       # Web forms
+├── models.py                      # SQLAlchemy models
+├── requirements.txt               # Python dependencies
+├── analyzer/
+│   ├── ai.py                      # Optional AI support
+│   ├── complexity.py              # Radon integration
+│   ├── extractor.py               # Secure archive extraction
+│   ├── formatter.py               # Formatting checks
+│   ├── lint.py                    # Pylint integration
+│   ├── security.py                # Bandit integration
+│   ├── syntax.py                  # Python syntax checks
+│   └── routes/                    # Flask blueprints and routes
+├── helpers/
+│   ├── report_enrichment.py       # Detailed report explanations
+│   ├── report_project_mapping.py  # Evidence-aware standards mapping
+│   └── report_service.py          # Report generation
+├── templates/                     # HTML/Jinja pages
+├── static/
+│   ├── css/                       # Website styles
+│   ├── images/                    # Sentrix branding assets
+│   └── js/                        # Browser scripts
+├── migrations/                    # Database migrations
+├── tests/                         # Automated tests
+├── docs/                          # User, installation, and technical guides
+├── deploy/nginx/                  # Nginx deployment example
+├── .github/workflows/ci.yml       # GitHub Actions validation
+├── Dockerfile
+├── docker-compose.yml
+├── gunicorn.conf.py
+├── CHANGELOG.md
+├── RELEASE_NOTES.md
+├── ROADMAP.md
+├── SECURITY.md
+├── CONTRIBUTING.md
+└── CODE_OF_CONDUCT.md
+```
+
+---
 
 ## Technology stack
 
@@ -166,258 +431,161 @@ Sentrix includes a persistent light/dark mode toggle in the navigation bar. The 
 - Docker and Docker Compose
 - GitHub Actions
 
-## Repository structure
-
-```text
-.
-├── app.py                         # Flask application entry point
-├── config.py                      # Environment-driven configuration
-├── database.py                    # Database compatibility export
-├── extensions.py                  # Flask extension instances
-├── forms.py                       # Authentication and application forms
-├── models.py                      # SQLAlchemy models
-├── requirements.txt               # Python dependencies
-├── analyzer/
-│   ├── ai.py                      # Optional AI recommendation support
-│   ├── complexity.py              # Radon integration
-│   ├── extractor.py               # Secure project extraction
-│   ├── formatter.py               # Formatting analysis
-│   ├── lint.py                    # Pylint integration
-│   ├── security.py                # Bandit integration
-│   ├── syntax.py                  # Syntax validation
-│   └── routes/                    # Application blueprints and routes
-├── helpers/
-│   ├── report_enrichment.py       # Enterprise report explanations
-│   ├── report_project_mapping.py  # Project-specific standards/control evidence
-│   └── report_service.py          # Report generation service
-├── templates/                     # Jinja application pages
-├── static/
-│   ├── css/                       # Shared application styling
-│   ├── images/                    # Sentrix branding assets
-│   └── js/                        # Client-side scripts when present
-├── migrations/                    # Versioned database migrations
-├── tests/                         # Automated test suite
-├── docs/                          # Operational and developer documentation
-├── deploy/nginx/                  # Nginx deployment example
-├── .github/workflows/ci.yml       # CI validation
-├── Dockerfile
-├── docker-compose.yml
-├── gunicorn.conf.py
-├── CHANGELOG.md
-├── RELEASE_NOTES.md
-├── ROADMAP.md
-├── SECURITY.md
-├── CONTRIBUTING.md
-└── CODE_OF_CONDUCT.md
-```
-
-## Requirements
-
-Recommended local environment:
-
-- Python 3.11 to 3.13
-- `pip`
-- A Python virtual environment
-- SQLite for local development, or a configured production database
-- Pylint, Bandit, and Radon installed from `requirements.txt`
-
-Python 3.14 may work in some environments, but the documented and CI-targeted range should be treated as the supported baseline unless CI is expanded.
-
-## Local installation on Linux or macOS
-
-```bash
-git clone https://github.com/HaziqBinAfzal/HR-Presents-Sentrix.git
-cd HR-Presents-Sentrix
-git fetch origin
-git switch production/sentrix-permanent
-python -m venv venv
-source venv/bin/activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-cp .env.example .env
-python app.py
-```
-
-Open:
-
-```text
-http://127.0.0.1:5000
-```
-
-## Local installation on Windows PowerShell
-
-```powershell
-git clone https://github.com/HaziqBinAfzal/HR-Presents-Sentrix.git
-cd HR-Presents-Sentrix
-git fetch origin
-git switch production/sentrix-permanent
-py -m venv venv
-.\venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-Copy-Item .env.example .env
-python app.py
-```
-
-Open:
-
-```text
-http://127.0.0.1:5000
-```
-
-## Environment configuration
-
-Copy `.env.example` to `.env` and configure values appropriate to the environment. Important settings include:
-
-- `APP_ENV`
-- `SECRET_KEY`
-- `DATABASE_URL`
-- `DATABASE_AUTO_CREATE`
-- `MAX_CONTENT_LENGTH`
-- SMTP host, port, username, password, sender, and TLS/SSL options
-- Password-reset expiry
-- Secure cookie settings
-- Security-header settings
-- Optional AI-provider configuration when enabled by the operator
-
-Never commit `.env`, credentials, API keys, SMTP passwords, database secrets, private keys, or generated user data.
-
-Production startup must use a strong stable `SECRET_KEY`. Do not rely on development defaults in a production environment.
-
-## Database and migrations
-
-Local development may use automatic table creation when explicitly enabled. Production deployments should use committed migrations.
-
-Typical migration workflow:
-
-```bash
-flask db upgrade
-```
-
-Before applying migrations to an existing populated database:
-
-1. Create a verified backup.
-2. Inspect the existing schema.
-3. Confirm the current migration revision.
-4. Test the migration against a disposable copy.
-5. Prepare a rollback and restore procedure.
-
-Do not stamp or upgrade a legacy database without understanding whether its existing tables already match the migration baseline.
-
-## Running tests
-
-Activate the virtual environment and run:
-
-```bash
-python -m compileall -q app.py analyzer helpers forms.py models.py config.py tests
-python -m unittest discover -s tests -v
-```
-
-Focused report tests can be run with:
-
-```bash
-python -m unittest tests.test_report_content_enrichment -v
-python -m unittest tests.test_report_project_mapping -v
-```
-
-Secure extraction tests can be run with:
-
-```bash
-python -m unittest tests.test_extractor_security -v
-```
-
-## Updating a local checkout to the permanent branch
-
-Use the following when the local working copy should exactly match the permanent branch:
-
-```bash
-cd ~/HR-Presents-Sentrix
-git fetch --all --prune
-git switch production/sentrix-permanent
-git reset --hard origin/production/sentrix-permanent
-git clean -fd
-```
-
-`git reset --hard` and `git clean -fd` permanently remove uncommitted changes and untracked files.
-
 ## Docker
 
-Build and start the configured services with:
+After reviewing and creating `.env`:
 
 ```bash
 docker compose up --build
 ```
 
-Review `.env`, storage mounts, database configuration, reverse-proxy settings, health checks, and HTTPS termination before production use.
+The included deployment assets are examples. Review storage, database, domains, HTTPS, permissions, health checks, and reverse-proxy settings before production use.
 
 ## Production deployment
 
-A production deployment should use:
+Do not expose the Flask development server directly to the public internet.
 
-- Gunicorn or another supported production WSGI server
+A production deployment should include:
+
+- Gunicorn or another supported WSGI server
 - Nginx or an equivalent reverse proxy
 - HTTPS
+- Strong environment-managed secrets
 - Secure cookies
-- Strong secrets supplied through the environment
 - Migration-managed database changes
-- Durable storage for uploads and generated reports
-- Centralized logging
-- Monitoring and alerting
+- Durable upload and report storage
+- Centralized logs
+- Monitoring and alerts
 - Backup and restore procedures
-- Rate limiting or upstream request controls where appropriate
+- Request controls or rate limiting
 
-The included deployment files are examples and must be reviewed for the target host, domain, certificate paths, user permissions, storage paths, and database service.
+Read [Deployment Guide](docs/DEPLOYMENT.md).
 
-## Security model
+## Security notes
 
-Sentrix applies layered protections including:
+Sentrix uses layered protections including:
 
 - Password hashing
 - CSRF-protected forms
 - Signed password-reset tokens
-- Generic password-reset responses to reduce account enumeration
-- Authenticated route protection
-- Owner-scoped project, analysis, and report access
-- Secure archive extraction controls
+- Generic reset responses to reduce account enumeration
+- Authenticated routes
+- Owner-scoped project and report access
+- Secure archive extraction
 - Upload limits
 - Environment-based secrets
-- Production configuration checks
-- Security response headers where enabled
-- Secure-cookie and HSTS options for production
+- Security response headers
+- Production cookie and HSTS options
 - Escaping of project-derived report content
 
-Static analysis results are indicators requiring developer review. A clean scan does not prove that a project is vulnerability-free, and a scanner finding does not automatically prove exploitability.
+Static-analysis output requires human review. A clean scan does not prove a project is vulnerability-free, and a scanner finding does not automatically prove exploitability.
 
-For vulnerability reporting and supported security procedures, read [SECURITY.md](SECURITY.md).
+Read [SECURITY.md](SECURITY.md) before reporting a vulnerability.
 
-## Reports and generated data
+## Generated and sensitive data
 
-Uploads, generated reports, corrected files, databases, environment files, logs, caches, and local runtime artifacts are excluded through `.gitignore` and `.dockerignore` where appropriate.
+The following should not be committed:
 
-Generated reports may contain project names, source locations, scanner evidence, code excerpts, security findings, and remediation guidance. Treat them as potentially sensitive and apply appropriate access control, retention, storage, and deletion policies.
+- `.env`
+- Local databases
+- Uploaded projects
+- Generated reports
+- Corrected files
+- Logs
+- Caches
+- Virtual environments
+- Credentials and secret keys
 
-## Documentation
+Reports may contain project names, source locations, evidence, code excerpts, and security findings. Treat them as sensitive when analyzing private projects.
 
-Additional documentation is available in:
+---
 
-- [Release notes](RELEASE_NOTES.md)
+## Documentation index
+
+### Beginner and user documentation
+
+- [Complete Beginner Localhost Guide](docs/BEGINNER_LOCALHOST_GUIDE.md)
+- [Installation Guide](docs/INSTALLATION.md)
+- [User Guide](docs/USER_GUIDE.md)
+- [Troubleshooting Guide](docs/TROUBLESHOOTING.md)
+- [Frequently Asked Questions](docs/FAQ.md)
+
+### Technical and operational documentation
+
+- [Architecture](docs/ARCHITECTURE.md)
+- [Developer Guide](docs/DEVELOPER_GUIDE.md)
+- [Administrator Guide](docs/ADMIN_GUIDE.md)
+- [Deployment Guide](docs/DEPLOYMENT.md)
+- [Security Guide](docs/SECURITY.md)
+- [API and Route Guide](docs/API.md)
+- [Release Checklist](docs/RELEASE_CHECKLIST.md)
+
+### Project documents
+
+- [Release Notes](RELEASE_NOTES.md)
 - [Changelog](CHANGELOG.md)
 - [Roadmap](ROADMAP.md)
-- [Security policy](SECURITY.md)
-- [Contributing guide](CONTRIBUTING.md)
-- [Code of conduct](CODE_OF_CONDUCT.md)
-- `docs/` for installation, deployment, architecture, API, operations, troubleshooting, and user guidance
+- [Security Policy](SECURITY.md)
+- [Contributing](CONTRIBUTING.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+
+---
+
+## Common first-run fixes
+
+### `No module named flask`
+
+Activate the virtual environment, then run:
+
+```bash
+pip install -r requirements.txt
+```
+
+### Port 5000 is already being used
+
+Linux/macOS:
+
+```bash
+lsof -ti :5000 | xargs -r kill -9
+python app.py
+```
+
+Windows:
+
+```powershell
+netstat -ano | findstr :5000
+taskkill /PID YOUR_PID /F
+python app.py
+```
+
+### PowerShell blocks activation
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\venv\Scripts\Activate.ps1
+```
+
+### The browser shows an old version
+
+1. Confirm the branch with `git branch --show-current`.
+2. Pull the permanent branch.
+3. Restart `python app.py`.
+4. Hard-refresh the browser with `Ctrl + Shift + R`.
+
+For more solutions, read [Troubleshooting Guide](docs/TROUBLESHOOTING.md).
+
+---
 
 ## Branding
 
-The permanent application identity is:
+The permanent identity is:
 
 ```text
 Sentrix
 Presented by HR-Presents
 ```
 
-Primary brand assets are stored in `static/images/`. The Electric Wing SVG is the preferred scalable source for the website shell, favicon, documentation, and generated reports.
+The Electric Wing SVG in `static/images/` is the primary scalable brand asset.
 
 ## Developers
 
@@ -433,13 +601,13 @@ Primary brand assets are stored in `static/images/`. The Electric Wing SVG is th
 
 ## Contributing
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a change. Contributions should preserve:
+Read [CONTRIBUTING.md](CONTRIBUTING.md). Changes should preserve:
 
 - Sentrix branding
-- Existing user and report workflows
+- Existing website structure and functionality
 - User ownership boundaries
 - Secure extraction controls
-- Environment-driven configuration
+- Environment-based configuration
 - Migration compatibility
 - Automated tests
 - Light and dark mode readability
@@ -447,14 +615,12 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a change. Contributions s
 
 ## License
 
-No license should be assumed unless a license file is explicitly added to the repository. All rights remain with the repository owners and HR-Presents unless stated otherwise.
+No license should be assumed unless a license file is explicitly added. All rights remain with the repository owners and HR-Presents unless stated otherwise.
 
-## Status
-
-The latest consolidated working version is maintained on:
+## Current source of truth
 
 ```text
 production/sentrix-permanent
 ```
 
-This branch is the source of truth for the finalized Sentrix application and its current documentation.
+This branch contains the finalized working Sentrix application and its maintained documentation.
