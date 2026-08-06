@@ -1,0 +1,16 @@
+[tool.black]
+line-length = 100
+target-version = ["py311", "py313"]
+extend-exclude = '''
+/(
+    venv
+  | \.venv
+  | uploads
+  | backups
+  | instance
+)/
+'''
+
+[tool.bandit]
+exclude_dirs = ["tests", "venv", ".venv", "uploads", "backups", "instance"]
+skips = ["B101"]

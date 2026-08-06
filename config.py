@@ -35,6 +35,10 @@ class Config:
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True}
+    DATABASE_AUTO_CREATE = _env_bool(
+        "DATABASE_AUTO_CREATE",
+        ENVIRONMENT != "production",
+    )
 
     UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
     TEMP_FOLDER = os.path.join(UPLOAD_FOLDER, "temp")
@@ -71,6 +75,37 @@ class Config:
     MAIL_USERNAME = os.getenv("MAIL_USERNAME")
     MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
     MAIL_DEFAULT_SENDER = os.getenv("MAIL_DEFAULT_SENDER", MAIL_USERNAME)
+    SUPPORT_EMAIL = os.getenv("SUPPORT_EMAIL", "supportsentrix@gmail.com")
+    PASSWORD_RESET_MAX_AGE = int(os.getenv("PASSWORD_RESET_MAX_AGE", "3600"))
+    EMAIL_VERIFICATION_MAX_AGE = int(
+        os.getenv("EMAIL_VERIFICATION_MAX_AGE", "86400")
+    )
+
+    SECURITY_HEADERS_ENABLED = _env_bool("SECURITY_HEADERS_ENABLED", True)
+    HSTS_ENABLED = _env_bool("HSTS_ENABLED", ENVIRONMENT == "production")
+    HSTS_MAX_AGE = int(os.getenv("HSTS_MAX_AGE", "31536000"))
+    CONTENT_SECURITY_POLICY = os.getenv(
+        "CONTENT_SECURITY_POLICY",
+        "default-src 'self'; "
+        "base-uri 'self'; "
+        "form-action 'self'; "
+        "frame-ancestors 'none'; "
+        "object-src 'none'; "
+        "img-src 'self' data: https:; "
+        "font-src 'self' data: https:; "
+        "style-src 'self' 'unsafe-inline' https:; "
+        "script-src 'self' 'unsafe-inline' https:; "
+        "connect-src 'self' https:; "
+        "upgrade-insecure-requests",
+    )
+    PERMISSIONS_POLICY = os.getenv(
+        "PERMISSIONS_POLICY",
+        "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
+    )
+    REFERRER_POLICY = os.getenv(
+        "REFERRER_POLICY",
+        "strict-origin-when-cross-origin",
+    )
 
     PREFERRED_URL_SCHEME = os.getenv(
         "PREFERRED_URL_SCHEME", "https" if ENVIRONMENT == "production" else "http"

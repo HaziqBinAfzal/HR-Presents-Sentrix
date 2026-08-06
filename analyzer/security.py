@@ -4,7 +4,7 @@ import subprocess
 
 def run_bandit(path):
     """
-    Run Bandit recursively on a file or directory.
+    Run Bandit recursively and return structured security results.
 
     Returns:
         {
@@ -12,75 +12,63 @@ def run_bandit(path):
             "issues": list,
             "output": str
         }
-    Run Bandit recursively and return structured results.
     """
 
     try:
-
         result = subprocess.run(
             [
                 "bandit",
                 "-r",
                 path,
                 "-f",
-
-                "txt"
+                "json",
             ],
             capture_output=True,
             text=True,
-            check=False
+            check=False,
         )
 
-        output = (
-            result.stdout +
-            "\n" +
-            result.stderr
+        raw_output = (
+            result.stdout
+            + "\n"
+            + result.stderr
         ).strip()
-                "json"
-            ],
-            capture_output=True,
-            text=True
-        )
 
-        data = json.loads(result.stdout)
+        try:
+            data = json.loads(result.stdout or "{}")
+        except json.JSONDecodeError:
+            return {
+                "count": 0,
+                "issues": [],
+                "output": raw_output,
+            }
 
         issues = []
 
         for item in data.get("results", []):
-
-            line = line.strip()
-
-            if line.startswith(">> Issue:"):
-
-                issues.append(
-                    line.replace(
-                        ">> Issue:",
-                        ""
-                    ).strip()
-                )
             issues.append(
                 {
                     "file": item.get("filename"),
                     "line": item.get("line_number"),
+                    "column": item.get("col_offset"),
                     "severity": item.get("issue_severity"),
                     "confidence": item.get("issue_confidence"),
-                    "issue": item.get("issue_text")
+                    "issue": item.get("issue_text"),
+                    "test_id": item.get("test_id"),
+                    "test_name": item.get("test_name"),
+                    "code": item.get("code"),
                 }
             )
 
         return {
             "count": len(issues),
             "issues": issues,
-            "output": output
-            "output": json.dumps(data, indent=4)
+            "output": raw_output,
         }
 
     except Exception as error:
-
         return {
             "count": 0,
             "issues": [str(error)],
-            "output": ""
-            "issues": [],
-            "output": str(error)
+            "output": str(error),
         }

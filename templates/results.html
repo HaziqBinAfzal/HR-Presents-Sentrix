@@ -1,987 +1,160 @@
 {% extends "base.html" %}
 
-{% block title %}Analysis Results | CodeSentinel AI{% endblock %}
+{% block title %}Analysis Results | Sentrix{% endblock %}
+
+{% block head %}
+<style>
+    .metric-card { border: 0; box-shadow: 0 .35rem 1rem rgba(15, 23, 42, .07); transition: transform .2s ease, box-shadow .2s ease; }
+    .metric-card:hover { transform: translateY(-3px); box-shadow: 0 .7rem 1.4rem rgba(15, 23, 42, .1); }
+    .result-output { max-height: 390px; overflow: auto; white-space: pre-wrap; word-break: break-word; font-size: .84rem; background: #0f172a; color: #dbeafe; border-radius: .75rem; padding: 1rem; }
+    .score-ring { width: 126px; height: 126px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--ring-color) calc(var(--score) * 1%), #e9eef6 0); }
+    .score-ring::before { content: ""; width: 94px; height: 94px; border-radius: 50%; background: #fff; position: absolute; }
+    .score-ring span { position: relative; z-index: 1; font-weight: 800; font-size: 1.45rem; }
+    .summary-panel { background: linear-gradient(135deg, rgba(13,110,253,.07), rgba(25,135,84,.05)); }
+    .health-strip { height: 8px; border-radius: 999px; overflow: hidden; background: #e9eef6; }
+    .health-strip > div { height: 100%; border-radius: inherit; }
+    .finding-card .accordion-button:not(.collapsed) { background: rgba(13,110,253,.06); color: inherit; box-shadow: none; }
+    .finding-card .accordion-button:focus { box-shadow: none; }
+    .recommendation-item { border-left: 4px solid var(--bs-primary); }
+    @media print {
+        nav, footer, .no-print, .accordion-button::after { display: none !important; }
+        .accordion-collapse { display: block !important; }
+        .card { box-shadow: none !important; break-inside: avoid; }
+        .result-output { max-height: none; overflow: visible; color: #111827; background: #f8fafc; }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
+{% set overall = analysis.overall_score or 0 %}
+{% set pylint = analysis.pylint_score or 0 %}
+{% set security = analysis.security_count or 0 %}
+{% set issues = analysis.issues_count or 0 %}
+{% set total_lines = analysis.total_lines or 0 %}
+{% set total_files = analysis.total_files or 0 %}
+{% set duration = analysis.analysis_duration or 0 %}
+{% set health_label = 'Excellent' if overall >= 90 else 'Good' if overall >= 75 else 'Needs attention' if overall >= 55 else 'High risk' %}
+{% set health_class = 'success' if overall >= 75 else 'warning' if overall >= 55 else 'danger' %}
+{% set ring_color = '#198754' if overall >= 75 else '#ffc107' if overall >= 55 else '#dc3545' %}
 
-<section class="py-5">
-
+<section class="py-4 py-lg-5">
     <div class="container">
-
-        <!-- Header -->
-
-        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-5">
-
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
             <div>
-
-                <h1 class="fw-bold mb-2">
-
-                    <i class="fa-solid fa-chart-line text-primary me-2"></i>
-
-                    Analysis Results
-
-                </h1>
-
-                <p class="text-muted mb-0">
-
-                    Review your project's code quality, security findings,
-                    AI insights, and recommendations.
-
-                </p>
-
+                <span class="badge bg-{{ health_class }}-subtle text-{{ health_class }} mb-2"><i class="fa-solid fa-chart-line me-2"></i>Analysis complete</span>
+                <h1 class="fw-bold mb-2">Project analysis results</h1>
+                <p class="text-muted mb-0">A complete quality, security, complexity, and structure review for <strong>{{ project.project_name if project and project.project_name else analysis.filename }}</strong>.</p>
             </div>
-
-            <div class="mt-4 mt-lg-0 d-flex flex-wrap gap-2">
-
-                <a href="{{ url_for('main.history') }}"
-                   class="btn btn-outline-secondary">
-
-                    <i class="fa-solid fa-clock-rotate-left me-2"></i>
-
-                    History
-
-                </a>
-
-                <a href="{{ url_for('main.dashboard') }}"
-                   class="btn btn-outline-primary">
-
-                    <i class="fa-solid fa-gauge-high me-2"></i>
-
-                    Dashboard
-
-                </a>
-
-                <a href="{{ url_for('main.upload') }}"
-                   class="btn btn-primary">
-
-                    <i class="fa-solid fa-upload me-2"></i>
-
-                    New Analysis
-
-                </a>
-
-            </div>
-
-        </div>
-
-        <!-- Project Information -->
-
-        <div class="card border-0 shadow-sm mb-4">
-
-            <div class="card-body">
-
-                <div class="row align-items-center">
-
-                    <div class="col-lg-8">
-
-                        <h3 class="fw-bold mb-3">
-
-                            {{ analysis.filename }}
-
-                        </h3>
-
-                        <div class="d-flex flex-wrap gap-3">
-
-                            <span class="badge bg-primary">
-
-                                {{ analysis.language }}
-
-                            </span>
-
-                            <span class="badge bg-success">
-
-                                {{ analysis.status }}
-
-                            </span>
-
-                            <span class="text-muted">
-
-                                <i class="fa-regular fa-calendar me-1"></i>
-
-                                {{ analysis.created_at.strftime('%d %b %Y') }}
-
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                    <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
-
-                        
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- Overview Cards -->
-
-        <div class="row g-4 mb-5">
-
-            <div class="col-md-6 col-xl-3">
-
-                <div class="card border-0 shadow-sm h-100">
-
-                    <div class="card-body">
-
-                        <h6 class="text-muted">
-
-                            Overall Score
-
-                        </h6>
-
-                        <h2 class="fw-bold text-primary">
-
-                            {{ analysis.overall_score }}%
-
-                        </h2>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="col-md-6 col-xl-3">
-
-                <div class="card border-0 shadow-sm h-100">
-
-                    <div class="card-body">
-
-                        <h6 class="text-muted">
-
-                            Security Issues
-
-                        </h6>
-
-                        <h2 class="fw-bold text-danger">
-
-                            {{ analysis.security_count }}
-
-                        </h2>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="col-md-6 col-xl-3">
-
-                <div class="card border-0 shadow-sm h-100">
-
-                    <div class="card-body">
-
-                        <h6 class="text-muted">
-
-                            Complexity
-
-                        </h6>
-
-                        <h2 class="fw-bold text-warning">
-
-                            {{ analysis.complexity }}
-
-                        </h2>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="col-md-6 col-xl-3">
-
-                <div class="card border-0 shadow-sm h-100">
-
-                    <div class="card-body">
-
-                        <h6 class="text-muted">
-
-                            Pylint Score
-
-                        </h6>
-
-                        <h2 class="fw-bold text-success">
-
-                            {{ analysis.pylint_score }}/10
-
-                        </h2>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-<!-- AI Summary & Code Metrics -->
-
-        <div class="row g-4 mb-5">
-
-            <!-- AI Summary -->
-
-            <div class="col-lg-8">
-
-                <div class="card border-0 shadow-sm h-100">
-
-                    <div class="card-header bg-white">
-
-                        <h4 class="mb-0">
-
-                            <i class="fa-solid fa-robot text-primary me-2"></i>
-
-                            AI Summary
-
-                        </h4>
-
-                    </div>
-
-                    <div class="card-body">
-
-                        {% if analysis.ai_summary %}
-
-                        <p class="mb-0 text-muted lh-lg">
-
-                            {{ analysis.ai_summary }}
-
-                        </p>
-
-                        {% else %}
-
-                        <div class="text-center py-4">
-
-                            <i class="fa-solid fa-robot fa-3x text-secondary mb-3"></i>
-
-                            <h5>No AI Summary Available</h5>
-
-                            <p class="text-muted mb-0">
-
-                                AI summary was not generated for this analysis.
-
-                            </p>
-
-                        </div>
-
-                        {% endif %}
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <!-- Code Metrics -->
-
-            <!-- Vulnerability Details -->
-
-<div class="col-lg-4">
-
-    <div class="card border-0 shadow-sm h-100">
-
-        <div class="card-header bg-white">
-
-            <h4 class="mb-0">
-
-                <i class="fa-solid fa-shield-virus text-danger me-2"></i>
-
-                Vulnerability Details
-
-            </h4>
-
-        </div>
-
-        <div class="card-body">
-
-            {% if analysis.security_count > 0 %}
-
-                <div class="alert alert-danger">
-
-                    <strong>
-
-                        {{ analysis.security_count }}
-
-                        Vulnerabilit{{ "y" if analysis.security_count == 1 else "ies" }}
-
-                        Found
-
-                    </strong>
-
-                </div>
-
-                <table class="table table-sm">
-
-                    <tr>
-
-                        <th>Risk</th>
-
-                        <td>
-
-                            {% if analysis.security_count >= 5 %}
-
-                                High
-
-                            {% elif analysis.security_count >= 2 %}
-
-                                Medium
-
-                            {% else %}
-
-                                Low
-
-                            {% endif %}
-
-                        </td>
-
-                    </tr>
-
-                    <tr>
-
-                        <th>Scanner</th>
-
-                        <td>Bandit</td>
-
-                    </tr>
-
-                    <tr>
-
-                        <th>Status</th>
-
-                        <td>Needs Review</td>
-
-                    </tr>
-
-                </table>
-
-                <hr>
-
-                <div
-                    class="small border rounded bg-light p-2"
-                    style="max-height:240px;
-                           overflow:auto;
-                           white-space:pre-wrap;
-                           font-family:monospace;">
-
-{{ analysis.bandit_output }}
-
-                </div>
-
-            {% else %}
-
-                <div class="text-center py-5">
-
-                    <i class="fa-solid fa-circle-check fa-4x text-success mb-3"></i>
-
-                    <h5 class="text-success">
-
-                        Secure Project
-
-                    </h5>
-
-                    <p class="text-muted mb-0">
-
-                        No security vulnerabilities were detected.
-
-                    </p>
-
-                </div>
-
-            {% endif %}
-
-        </div>
-
-    </div>
-
-</div>
-        <!-- AI Recommendations -->
-
-        <div class="card border-0 shadow-sm mb-5">
-
-            <div class="card-header bg-white">
-
-                <h4 class="mb-0">
-
-                    <i class="fa-solid fa-lightbulb text-warning me-2"></i>
-
-                    AI Recommendations
-
-                </h4>
-
-            </div>
-
-            <div class="card-body">
-
-                {% if analysis.recommendations %}
-
-                <div class="alert alert-light border mb-0">
-
-    <ul class="mb-0">
-{% for recommendation in analysis.recommendations.split('\n') %}
-    {% if recommendation.strip() %}
-    <li>{{ recommendation }}</li>
-    {% endif %}
-{% endfor %}
-</ul>
-</div>
-                {% else %}
-
-                <div class="text-center py-4">
-
-                    <i class="fa-solid fa-circle-check fa-3x text-success mb-3"></i>
-
-                    <h5>No Recommendations</h5>
-
-                    <p class="text-muted mb-0">
-
-                        Great work! No additional AI recommendations were generated.
-
-                    </p>
-
-                </div>
-
+            <div class="d-flex flex-wrap gap-2 no-print">
+                <button type="button" onclick="window.print()" class="btn btn-outline-dark"><i class="fa-solid fa-print me-2"></i>Print / PDF</button>
+                {% if analysis.report_path %}
+                <a href="{{ url_for('main.download_report', analysis_id=analysis.id) }}" class="btn btn-outline-primary"><i class="fa-solid fa-download me-2"></i>Download report</a>
                 {% endif %}
-
+                <a href="{{ url_for('main.upload') }}" class="btn btn-primary"><i class="fa-solid fa-upload me-2"></i>New analysis</a>
             </div>
-
         </div>
 
-
-
-{% if analysis.syntax_output %}
-
-<!-- ======================================================= -->
-<!-- Detailed Analysis Output -->
-<!-- ======================================================= -->
-
-{% if analysis.syntax_output %}
-
-<div class="card border-0 shadow-sm mb-4">
-
-    <div class="card-header bg-white">
-
-        <h4 class="mb-0">
-
-            <i class="fa-solid fa-code text-danger me-2"></i>
-
-            Syntax Errors
-
-        </h4>
-
-    </div>
-
-    <div class="card-body">
-
-        <pre class="mb-0">{{ analysis.syntax_output }}</pre>
-
-    </div>
-
-</div>
-
-{% endif %}
-
-
-{% if analysis.pylint_output %}
-
-<div class="card border-0 shadow-sm mb-4">
-
-    <div class="card-header bg-white">
-
-        <h4 class="mb-0">
-
-            <i class="fa-solid fa-list-check text-warning me-2"></i>
-
-            Detailed Pylint Findings
-
-        </h4>
-
-    </div>
-
-    <div class="card-body">
-
-        <pre class="mb-0">{{ analysis.pylint_output }}</pre>
-
-    </div>
-
-</div>
-
-{% endif %}
-
-
-{% if analysis.bandit_output %}
-
-<div class="card border-0 shadow-sm mb-4">
-
-    <div class="card-header bg-white">
-
-        <h4 class="mb-0">
-
-            <i class="fa-solid fa-shield-halved text-danger me-2"></i>
-
-            Detailed Bandit Findings
-
-        </h4>
-
-    </div>
-
-    <div class="card-body">
-
-        <pre class="mb-0">{{ analysis.bandit_output }}</pre>
-
-    </div>
-
-</div>
-
-{% endif %}
-
-
-{% if analysis.radon_output %}
-
-<div class="card border-0 shadow-sm mb-5">
-
-    <div class="card-header bg-white">
-
-        <h4 class="mb-0">
-
-            <i class="fa-solid fa-chart-line text-primary me-2"></i>
-
-            Cyclomatic Complexity
-
-        </h4>
-
-    </div>
-
-    <div class="card-body">
-
-        <pre class="mb-0">{{ analysis.radon_output }}</pre>
-
-    </div>
-
-</div>
-
-{% endif %}
-
-
-<div class="card border-0 shadow-sm mb-4">
-
-    <div class="card-header bg-white">
-
-        <h4 class="mb-0">
-
-            <i class="fa-solid fa-code text-danger me-2"></i>
-
-            Syntax Errors
-
-        </h4>
-
-    </div>
-
-    <div class="card-body">
-
-        <pre class="mb-0">{{ analysis.syntax_output }}</pre>
-
-    </div>
-
-</div>
-
-{% endif %}
-
-{% if analysis.pylint_output %}
-
-<div class="card border-0 shadow-sm mb-4">
-
-    <div class="card-header bg-white">
-
-        <h4 class="mb-0">
-
-            <i class="fa-solid fa-list-check text-warning me-2"></i>
-
-            Detailed Pylint Findings
-
-        </h4>
-
-    </div>
-
-    <div class="card-body">
-
-        <pre class="mb-0">{{ analysis.pylint_output }}</pre>
-
-    </div>
-
-</div>
-
-{% endif %}
-
-
-{% if analysis.bandit_output %}
-
-<div class="card border-0 shadow-sm mb-4">
-
-    <div class="card-header bg-white">
-
-        <h4 class="mb-0">
-
-            <i class="fa-solid fa-shield-halved text-danger me-2"></i>
-
-            Security Findings
-
-        </h4>
-
-    </div>
-
-    <div class="card-body">
-
-        <pre class="mb-0">{{ analysis.bandit_output }}</pre>
-
-    </div>
-
-</div>
-
-{% endif %}
-
-
-{% if analysis.radon_output %}
-
-<div class="card border-0 shadow-sm mb-5">
-
-    <div class="card-header bg-white">
-
-        <h4 class="mb-0">
-
-            <i class="fa-solid fa-chart-simple text-primary me-2"></i>
-
-            Cyclomatic Complexity
-
-        </h4>
-
-    </div>
-
-    <div class="card-body">
-
-        <pre class="mb-0">{{ analysis.radon_output }}</pre>
-
-    </div>
-
-</div>
-
-{% endif %}
-
-<!-- Analysis Summary -->
-
-<div class="row g-4 mb-5">
-
-    <div class="col-12">
-
-        <div class="card border-0 shadow-sm">
-
-            <div class="card-header bg-white">
-
-                <h4 class="mb-0">
-
-                    <i class="fa-solid fa-chart-line text-primary me-2"></i>
-
-                    Analysis Summary
-
-                </h4>
-
-            </div>
-
-
-            <div class="card-body">
-
-                <div class="row text-center">
-
-
-                    <div class="col-md-3">
-
-                        <h2 class="fw-bold text-info">
-
-                            {{ analysis.functions_count }}
-
-                        </h2>
-
-                        <p class="text-muted mb-0">
-
-                            Functions
-
-                        </p>
-
+        <div class="card border-0 shadow-sm summary-panel mb-4">
+            <div class="card-body p-4 p-lg-5">
+                <div class="row align-items-center g-4">
+                    <div class="col-lg-8">
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                            <span class="badge bg-primary">{{ analysis.language or 'Python' }}</span>
+                            <span class="badge bg-{{ health_class }}">{{ health_label }}</span>
+                            <span class="badge bg-light text-dark border">{{ analysis.status or 'Completed' }}</span>
+                            <span class="badge bg-light text-dark border">{{ analysis.created_at.strftime('%d %b %Y, %H:%M') }}</span>
+                        </div>
+                        <h2 class="fw-bold mb-3">Executive summary</h2>
+                        <p class="text-muted lh-lg mb-3">{{ analysis.ai_summary or 'The analysis completed successfully. Review the detailed findings and recommended next steps below.' }}</p>
+                        <div class="health-strip"><div class="bg-{{ health_class }}" style="width: {{ overall }}%;"></div></div>
+                        <div class="d-flex justify-content-between mt-2"><small class="text-muted">Project health</small><small class="fw-semibold text-{{ health_class }}">{{ health_label }}</small></div>
                     </div>
-
-
-                    <div class="col-md-3">
-
-                        <h2 class="fw-bold text-secondary">
-
-                            {{ analysis.classes_count }}
-
-                        </h2>
-
-                        <p class="text-muted mb-0">
-
-                            Classes
-
-                        </p>
-
+                    <div class="col-lg-4 d-flex justify-content-lg-end justify-content-center">
+                        <div class="text-center">
+                            <div class="score-ring position-relative mx-auto" style="--score: {{ overall }}; --ring-color: {{ ring_color }};"><span>{{ overall|round(1) }}%</span></div>
+                            <small class="text-muted d-block mt-2">Overall health score</small>
+                        </div>
                     </div>
-
-
-                    <div class="col-md-3">
-
-                        <h2 class="fw-bold text-success">
-
-                            {{ analysis.comments_count }}
-
-                        </h2>
-
-                        <p class="text-muted mb-0">
-
-                            Comments
-
-                        </p>
-
-                    </div>
-
-
-                    <div class="col-md-3">
-
-                        <h2 class="fw-bold text-warning">
-
-                            {{ analysis.blank_lines }}
-
-                        </h2>
-
-                        <p class="text-muted mb-0">
-
-                            Blank Lines
-
-                        </p>
-
-                    </div>
-
-
                 </div>
-
             </div>
-
         </div>
 
-    </div>
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-xl-3"><div class="card metric-card h-100"><div class="card-body"><small class="text-muted">Code quality</small><div class="d-flex justify-content-between align-items-end mt-2"><div><h3 class="fw-bold text-primary mb-0">{{ pylint|round(1) }}/10</h3><small class="text-muted">Pylint</small></div><i class="fa-solid fa-list-check text-primary fa-xl"></i></div></div></div></div>
+            <div class="col-6 col-xl-3"><div class="card metric-card h-100"><div class="card-body"><small class="text-muted">Security findings</small><div class="d-flex justify-content-between align-items-end mt-2"><div><h3 class="fw-bold {{ 'text-danger' if security else 'text-success' }} mb-0">{{ security }}</h3><small class="text-muted">Bandit</small></div><i class="fa-solid fa-shield-halved {{ 'text-danger' if security else 'text-success' }} fa-xl"></i></div></div></div></div>
+            <div class="col-6 col-xl-3"><div class="card metric-card h-100"><div class="card-body"><small class="text-muted">Quality issues</small><div class="d-flex justify-content-between align-items-end mt-2"><div><h3 class="fw-bold text-warning mb-0">{{ issues }}</h3><small class="text-muted">Reported</small></div><i class="fa-solid fa-triangle-exclamation text-warning fa-xl"></i></div></div></div></div>
+            <div class="col-6 col-xl-3"><div class="card metric-card h-100"><div class="card-body"><small class="text-muted">Complexity level</small><div class="d-flex justify-content-between align-items-end mt-2"><div><h3 class="fw-bold text-info mb-0">{{ analysis.complexity or 'N/A' }}</h3><small class="text-muted">Radon</small></div><i class="fa-solid fa-code-branch text-info fa-xl"></i></div></div></div></div>
+        </div>
 
-</div>
-
-
-<!-- Charts -->
-
-        <div class="row g-4 mb-5">
-
-            <div class="col-lg-6">
-
-
-                <div class="card border-0 shadow-sm">
-
-                    <div class="card-header bg-white">
-
-                        <h4 class="mb-0">
-
-                            <i class="fa-solid fa-chart-pie text-primary me-2"></i>
-
-                            Quality Overview
-
-                        </h4>
-
-                    </div>
-
+        <div class="row g-4 mb-4">
+            <div class="col-xl-7">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3"><h4 class="mb-0"><i class="fa-solid fa-folder-tree text-primary me-2"></i>Project overview</h4></div>
                     <div class="card-body">
-
-                        <canvas id="qualityChart" height="250"></canvas>
-
+                        <div class="row g-3 text-center">
+                            <div class="col-6 col-md-4"><div class="border rounded-3 p-3 h-100"><h3 class="fw-bold text-primary mb-1">{{ total_files }}</h3><small class="text-muted">Python files</small></div></div>
+                            <div class="col-6 col-md-4"><div class="border rounded-3 p-3 h-100"><h3 class="fw-bold text-info mb-1">{{ total_lines }}</h3><small class="text-muted">Total lines</small></div></div>
+                            <div class="col-6 col-md-4"><div class="border rounded-3 p-3 h-100"><h3 class="fw-bold text-success mb-1">{{ analysis.functions_count or 0 }}</h3><small class="text-muted">Functions</small></div></div>
+                            <div class="col-6 col-md-4"><div class="border rounded-3 p-3 h-100"><h3 class="fw-bold text-secondary mb-1">{{ analysis.classes_count or 0 }}</h3><small class="text-muted">Classes</small></div></div>
+                            <div class="col-6 col-md-4"><div class="border rounded-3 p-3 h-100"><h3 class="fw-bold text-success mb-1">{{ analysis.comments_count or 0 }}</h3><small class="text-muted">Comments</small></div></div>
+                            <div class="col-6 col-md-4"><div class="border rounded-3 p-3 h-100"><h3 class="fw-bold text-dark mb-1">{{ duration|round(2) }}s</h3><small class="text-muted">Analysis time</small></div></div>
+                        </div>
                     </div>
-
                 </div>
-
             </div>
-
-            <div class="col-lg-6">
-
-                <div class="card border-0 shadow-sm">
-
-                    <div class="card-header bg-white">
-
-                        <h4 class="mb-0">
-
-                            <i class="fa-solid fa-chart-column text-success me-2"></i>
-
-                            Security Overview
-
-                        </h4>
-
-                    </div>
-
+            <div class="col-xl-5">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3"><h4 class="mb-0"><i class="fa-solid fa-shield-virus text-danger me-2"></i>Security summary</h4></div>
                     <div class="card-body">
-
-                        <canvas id="securityChart" height="250"></canvas>
-
+                        {% if security > 0 %}
+                        <div class="alert alert-danger mb-3"><strong>{{ security }} potential securit{{ 'y issue' if security == 1 else 'y issues' }} detected.</strong></div>
+                        <div class="d-flex justify-content-between py-2 border-bottom"><span>Risk level</span><strong class="text-{{ 'danger' if security >= 5 else 'warning' }}">{{ 'High' if security >= 5 else 'Medium' if security >= 2 else 'Low' }}</strong></div>
+                        <div class="d-flex justify-content-between py-2 border-bottom"><span>Scanner</span><strong>Bandit</strong></div>
+                        <div class="d-flex justify-content-between py-2"><span>Action</span><strong>Review findings below</strong></div>
+                        {% else %}
+                        <div class="text-center py-4"><i class="fa-solid fa-circle-check fa-3x text-success mb-3"></i><h5 class="text-success">No security issues detected</h5><p class="text-muted mb-0">Bandit did not report known Python security patterns in this scan.</p></div>
+                        {% endif %}
                     </div>
-
                 </div>
-
             </div>
-
         </div>
 
-        <!-- Actions -->
-
-        <div class="card border-0 shadow-sm">
-
+        {% if analysis.recommendations %}
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3"><h4 class="mb-0"><i class="fa-solid fa-route text-primary me-2"></i>Recommended next steps</h4></div>
             <div class="card-body">
-
-                <div class="d-flex flex-wrap justify-content-center gap-3">
-
-                    
-                    <a href="{{ url_for('main.upload') }}"
-                       class="btn btn-primary">
-
-                        <i class="fa-solid fa-rotate me-2"></i>
-
-                        Re-analyze Project
-
-                    </a>
-
-                    <a href="{{ url_for('main.history') }}"
-                       class="btn btn-outline-secondary">
-
-                        <i class="fa-solid fa-clock-rotate-left me-2"></i>
-
-                        View History
-
-                    </a>
-
-                    <a href="{{ url_for('main.dashboard') }}"
-                       class="btn btn-outline-primary">
-
-                        <i class="fa-solid fa-house me-2"></i>
-
-                        Dashboard
-
-                    </a>
-
-                </div>
-
+                {% for recommendation in analysis.recommendations.split('\n') if recommendation.strip() %}
+                <div class="recommendation-item bg-light rounded-end p-3 mb-3"><div class="d-flex gap-3"><span class="badge bg-primary rounded-pill align-self-start">{{ loop.index }}</span><p class="mb-0">{{ recommendation }}</p></div></div>
+                {% endfor %}
             </div>
+        </div>
+        {% endif %}
 
+        <div class="accordion finding-card mb-4" id="findingAccordion">
+            {% if analysis.syntax_output %}
+            <div class="accordion-item border-0 shadow-sm mb-3 rounded-3 overflow-hidden"><h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#syntaxFindings"><i class="fa-solid fa-code text-danger me-3"></i><strong>Syntax findings</strong></button></h2><div id="syntaxFindings" class="accordion-collapse collapse show" data-bs-parent="#findingAccordion"><div class="accordion-body"><pre class="result-output mb-0">{{ analysis.syntax_output }}</pre></div></div></div>
+            {% endif %}
+            {% if analysis.pylint_output %}
+            <div class="accordion-item border-0 shadow-sm mb-3 rounded-3 overflow-hidden"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#qualityFindings"><i class="fa-solid fa-list-check text-warning me-3"></i><strong>Pylint quality findings</strong><span class="badge bg-warning text-dark ms-3">{{ issues }}</span></button></h2><div id="qualityFindings" class="accordion-collapse collapse" data-bs-parent="#findingAccordion"><div class="accordion-body"><pre class="result-output mb-0">{{ analysis.pylint_output }}</pre></div></div></div>
+            {% endif %}
+            {% if analysis.bandit_output %}
+            <div class="accordion-item border-0 shadow-sm mb-3 rounded-3 overflow-hidden"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#securityFindings"><i class="fa-solid fa-shield-halved text-danger me-3"></i><strong>Bandit security findings</strong><span class="badge bg-danger ms-3">{{ security }}</span></button></h2><div id="securityFindings" class="accordion-collapse collapse" data-bs-parent="#findingAccordion"><div class="accordion-body"><pre class="result-output mb-0">{{ analysis.bandit_output }}</pre></div></div></div>
+            {% endif %}
+            {% if analysis.radon_output %}
+            <div class="accordion-item border-0 shadow-sm rounded-3 overflow-hidden"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#complexityFindings"><i class="fa-solid fa-chart-simple text-info me-3"></i><strong>Radon complexity findings</strong></button></h2><div id="complexityFindings" class="accordion-collapse collapse" data-bs-parent="#findingAccordion"><div class="accordion-body"><pre class="result-output mb-0">{{ analysis.radon_output }}</pre></div></div></div>
+            {% endif %}
         </div>
 
-    </div>
+        {% if not analysis.syntax_output and not analysis.pylint_output and not analysis.bandit_output and not analysis.radon_output %}
+        <div class="card border-0 shadow-sm mb-4"><div class="card-body text-center py-5"><i class="fa-solid fa-circle-check fa-3x text-success mb-3"></i><h4>No detailed findings were recorded</h4><p class="text-muted mb-0">The configured analyzers did not return additional output for this project.</p></div></div>
+        {% endif %}
 
+        <div class="card border-0 shadow-sm no-print">
+            <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                <div><h5 class="fw-bold mb-1">Continue improving your project</h5><p class="text-muted mb-0">Apply the recommendations, rerun the analysis, and compare progress in your history.</p></div>
+                <div class="d-flex flex-wrap gap-2"><a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-primary">Dashboard</a><a href="{{ url_for('main.history') }}" class="btn btn-outline-secondary">History</a><a href="{{ url_for('main.upload') }}" class="btn btn-primary">Analyze another project</a></div>
+            </div>
+        </div>
+    </div>
 </section>
-
 {% endblock %}
-
-{% block scripts %}
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script>
-
-const qualityCtx = document.getElementById('qualityChart');
-
-if (qualityCtx) {
-
-    new Chart(qualityCtx, {
-
-        type: 'doughnut',
-
-        data: {
-
-            labels: ['Quality', 'Remaining'],
-
-            datasets: [{
-
-                data: [
-
-                    {{ analysis.overall_score }},
-
-                    {{ 100 - analysis.overall_score }}
-
-                ]
-
-            }]
-
-        },
-
-        options: {
-
-            responsive: true,
-
-            plugins: {
-
-                legend: {
-
-                    position: 'bottom'
-
-                }
-
-            }
-
-        }
-
-    });
-
-}
-
-const securityCtx = document.getElementById('securityChart');
-
-if (securityCtx) {
-
-    new Chart(securityCtx, {
-
-        type: 'bar',
-
-        data: {
-
-            labels: ['Security Issues'],
-
-            datasets: [{
-
-                label: 'Issues',
-
-                data: [
-
-                    {{ analysis.security_count }}
-
-                ]
-
-            }]
-
-        },
-
-        options: {
-
-            responsive: true,
-
-            scales: {
-
-                y: {
-
-                    beginAtZero: true
-
-                }
-
-            }
-
-        }
-
-    });
-
-}
-
-</script>
-
-{% endblock %}
-
-

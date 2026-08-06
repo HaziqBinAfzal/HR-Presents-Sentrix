@@ -1,19 +1,8 @@
 import os
 import uuid
-import tempfile
-import time
-from zoneinfo import ZoneInfo
-from flask import send_file
-from flask_login import login_required, current_user
 from flask_mail import Message
 from extensions import mail
 from helpers.analysis_service import run_project_analysis
-from analyzer.extractor import extract_project
-from analyzer.formatter import run_black
-from analyzer.lint import run_pylint
-from analyzer.security import run_bandit
-from analyzer.complexity import run_radon
-from analyzer.ai import generate_ai_summary
 from forms import ContactForm
 from flask import (
     abort,
@@ -24,7 +13,8 @@ from flask import (
     url_for,
     flash,
     current_app,
-    send_from_directory
+    send_file,
+    send_from_directory,
 )
 
 from flask_login import (
@@ -37,7 +27,7 @@ from flask_login import (
 from werkzeug.utils import secure_filename
 
 from helpers.upload_service import (
-     validate_upload,
+    validate_upload,
     build_metadata,
     generate_unique_filename,
     generate_project_id,
@@ -47,7 +37,7 @@ from helpers.upload_service import (
 from helpers.review_service import (
     create_review,
     update_review,
-    delete_review,
+    delete_review as delete_review_record,
     get_review,
     get_latest_reviews,
     get_all_reviews,
@@ -135,7 +125,7 @@ def login():
     if form.validate_on_submit():
 
         user = User.query.filter_by(
-            email=form.email.data
+            email=form.email.data.strip().lower()
         ).first()
 
         if user and user.check_password(
@@ -176,7 +166,7 @@ def register():
     if form.validate_on_submit():
 
         existing_user = User.query.filter_by(
-            email=form.email.data
+            email=form.email.data.strip().lower()
         ).first()
 
         if existing_user:
@@ -191,7 +181,7 @@ def register():
             )
 
         existing_username = User.query.filter_by(
-            username=form.username.data
+            username=form.username.data.strip()
         ).first()
 
         if existing_username:
@@ -207,7 +197,7 @@ def register():
 
         user = User(
             username=form.username.data,
-            email=form.email.data
+            email=form.email.data.strip().lower()
         )
 
         user.set_password(
@@ -342,8 +332,7 @@ def dashboard():
     )
 
 
-
-        # -----------------------------------------
+    # -----------------------------------------
     # Quality Trend
     # -----------------------------------------
 
@@ -393,7 +382,7 @@ def dashboard():
                 "date": analysis.created_at.strftime("%d %b %Y")
             }
         )
-    
+
 
     chart_analyses = list(reversed(recent_analyses))
 
@@ -448,18 +437,6 @@ def dashboard():
             }
         ]
     }
-
-        recent_activities.append({
-
-            "project": analysis.filename,
-
-            "score": analysis.overall_score,
-
-            "status": analysis.status,
-
-            "date": analysis.created_at.strftime("%d %b %Y")
-
-        })
 
 
     return render_template(
@@ -518,7 +495,7 @@ def upload():
     )
 
     if not form.validate_on_submit():
-    
+
         return render_template(
             "upload.html",
             form=form,
@@ -601,7 +578,7 @@ def upload():
             source_path
         )
 
-    except Exception as error:
+    except Exception:
 
         current_app.logger.exception(
             "Failed to save uploaded file."
@@ -708,11 +685,11 @@ def upload():
         return redirect(
             url_for(
                 "main.results",
-        analysis_id=analysis_result["analysis_id"]
+                analysis_id=analysis_result["analysis_id"]
             )
         )
 
-    except Exception as e:
+    except Exception:
 
         db.session.rollback()
 
@@ -866,7 +843,7 @@ def history():
         complexity=complexity,
         sort=sort
     )
-# DELETE ANALYSIS# 
+# DELETE ANALYSIS#
 
 
 @main.route("/delete_analysis/<int:analysis_id>", methods=["POST"])
@@ -943,133 +920,88 @@ def settings():
 # PROFILE
 # ============================================================
 
-@main.route(
-    "/profile",
-    methods=["GET", "POST"]
-)
+@main.route("/profile", methods=["GET", "POST"])
 @login_required
 def profile():
-
     if request.method == "POST":
-
-        username = request.form.get(
-            "username",
-            ""
-        ).strip()
-
-        email = request.form.get(
-            "email",
-            ""
-        ).strip()
-
-        profile_picture = request.files.get(
-            "profile_picture"
-        )
-
-        # ------------------------------------------
-        # Validate username and email
-        # ------------------------------------------
+        username = request.form.get("username", "").strip()
+        email = request.form.get("email", "").strip()
+        profile_picture = request.files.get("profile_picture")
 
         if not username or not email:
-
             flash(
                 "Username and email are required.",
-                "danger"
+                "danger",
             )
-
-            return redirect(
-                url_for("main.profile")
-            )
-
-        # ------------------------------------------
-        # Check duplicate username
-        # ------------------------------------------
+            return redirect(url_for("main.profile"))
 
         existing_username = User.query.filter(
             User.username == username,
-            User.id != current_user.id
+            User.id != current_user.id,
         ).first()
 
         if existing_username:
-
             flash(
                 "That username is already taken.",
-                "danger"
+                "danger",
             )
-
-            return redirect(
-                url_for("main.profile")
-            )
-
-        # ------------------------------------------
-        # Check duplicate email
-        # ------------------------------------------
+            return redirect(url_for("main.profile"))
 
         existing_email = User.query.filter(
             User.email == email,
-            User.id != current_user.id
+            User.id != current_user.id,
         ).first()
 
         if existing_email:
-
             flash(
                 "That email is already registered.",
-                "danger"
+                "danger",
             )
-
-            return redirect(
-                url_for("main.profile")
-            )
-
-        # ------------------------------------------
-        # Update username and email
-        # ------------------------------------------
+            return redirect(url_for("main.profile"))
 
         current_user.username = username
         current_user.email = email
-
-        current_user.full_name = request.form.get("full_name", "").strip()
-        current_user.organization = request.form.get("organization", "").strip()
-        current_user.bio = request.form.get("bio", "").strip()
-
-        # ------------------------------------------
-        # Handle profile picture
-        # ------------------------------------------
+        current_user.full_name = request.form.get(
+            "full_name",
+            "",
+        ).strip()
+        current_user.organization = request.form.get(
+            "organization",
+            "",
+        ).strip()
+        current_user.bio = request.form.get(
+            "bio",
+            "",
+        ).strip()
 
         if profile_picture and profile_picture.filename:
-
             if not allowed_profile_picture(
                 profile_picture.filename
             ):
-
                 flash(
                     "Invalid image type. Use PNG, JPG, JPEG, GIF, or WEBP.",
-                    "danger"
+                    "danger",
                 )
-
-                return redirect(
-                    url_for("main.profile")
-                )
+                return redirect(url_for("main.profile"))
 
             profile_folder = os.path.join(
                 current_app.root_path,
                 current_app.config["UPLOAD_FOLDER"],
-                "profile_pics"
+                "profile_pics",
             )
 
             os.makedirs(
                 profile_folder,
-                exist_ok=True
+                exist_ok=True,
             )
 
             if (
                 current_user.profile_picture
                 and current_user.profile_picture != "default.png"
             ):
-
                 old_picture = os.path.join(
                     profile_folder,
-                    current_user.profile_picture
+                    current_user.profile_picture,
                 )
 
                 if os.path.exists(old_picture):
@@ -1081,7 +1013,7 @@ def profile():
 
             extension = original_name.rsplit(
                 ".",
-                1
+                1,
             )[1].lower()
 
             new_filename = (
@@ -1092,41 +1024,54 @@ def profile():
             profile_picture.save(
                 os.path.join(
                     profile_folder,
-                    new_filename
+                    new_filename,
                 )
             )
 
             current_user.profile_picture = new_filename
 
-        db.session.commit()
+        try:
+            db.session.commit()
+
+        except Exception:
+            db.session.rollback()
+
+            current_app.logger.exception(
+                "Failed to update user profile."
+            )
+
+            flash(
+                "Unable to update your profile.",
+                "danger",
+            )
+
+            return redirect(url_for("main.profile"))
 
         flash(
             "Profile updated successfully!",
-            "success"
+            "success",
         )
 
-        return redirect(
-            url_for("main.profile")
-        )
+        return redirect(url_for("main.profile"))
 
-        total_projects = Project.query.filter_by(
-           user_id=current_user.id
-        ).count()
+    total_projects = Project.query.filter_by(
+        user_id=current_user.id
+    ).count()
 
-        total_analyses = Analysis.query.filter_by(
-           user_id=current_user.id
-        ).count()
+    total_analyses = Analysis.query.filter_by(
+        user_id=current_user.id
+    ).count()
 
-        total_reviews = Review.query.filter_by(
-           user_id=current_user.id
-        ).count()
+    total_reviews = Review.query.filter_by(
+        user_id=current_user.id
+    ).count()
 
-        recent_projects = (
-           Project.query
-           .filter_by(user_id=current_user.id)
-           .order_by(Project.upload_date.desc())
-           .limit(5)
-           .all()
+    recent_projects = (
+        Project.query
+        .filter_by(user_id=current_user.id)
+        .order_by(Project.upload_date.desc())
+        .limit(5)
+        .all()
     )
 
     return render_template(
@@ -1134,10 +1079,8 @@ def profile():
         total_projects=total_projects,
         total_analyses=total_analyses,
         total_reviews=total_reviews,
-        recent_projects=recent_projects
+        recent_projects=recent_projects,
     )
-
-
 # CHANGE PASSWORD #
 
 @main.route("/change-password", methods=["GET", "POST"])
@@ -1217,15 +1160,10 @@ def contact():
     if form.validate_on_submit():
 
         try:
-            
-            print("Name:", repr(form.name.data))
-            print("Email:", repr(form.email.data))
-            print("Message:", repr(form.message.data))
-            print("Form data:", request.form)
 
             msg = Message(
                 subject="New Contact Form Message",
-                recipients=["supportcodesentinelai@gmail.com"]
+                recipients=["supportsentrix@gmail.com"]
             )
 
             msg.body = f"""
@@ -1395,7 +1333,7 @@ def remove_review(review_id):
     if review.user_id != current_user.id:
         abort(403)
 
-    delete_review(review)
+    delete_review_record(review)
 
     flash(
         "Review deleted successfully!",
@@ -1404,14 +1342,6 @@ def remove_review(review_id):
 
     return redirect(
         url_for("main.reviews")
-
-        average_rating=review_stats["average_rating"],
-        total_reviews=review_stats["total_reviews"],
-        rating_breakdown=review_stats["rating_breakdown"],
-        recommendation_percentage=review_stats[
-            "recommendation_percentage"
-        ]
-
     )
 
 # REPORT DOWNLOAD #
@@ -1455,91 +1385,3 @@ def download_report(analysis_id):
         download_name=f"{analysis.filename}_report.html",
         mimetype="text/html"
     )
-
-
-
-# ============================================================
-# EDIT REVIEW
-# ============================================================
-
-@main.route("/reviews/edit/<int:review_id>", methods=["GET", "POST"])
-@login_required
-def edit_review(review_id):
-
-    review = Review.query.get_or_404(review_id)
-
-    if review.user_id != current_user.id:
-
-        flash(
-            "You can only edit your own review.",
-            "danger"
-        )
-
-        return redirect(url_for("main.reviews"))
-
-    form = ReviewForm()
-
-    if form.validate_on_submit():
-
-        review.rating = form.rating.data
-        review.title = form.title.data
-        review.comment = form.comment.data
-
-        db.session.commit()
-
-        flash(
-            "Review updated successfully!",
-            "success"
-        )
-
-        return redirect(url_for("main.reviews"))
-
-    form.rating.data = review.rating
-    form.title.data = review.title
-    form.comment.data = review.comment
-
-    return render_template(
-        "edit_review.html",
-        form=form,
-        review=review
-    )
-
-
-
-
-
-# ============================================================
-# DELETE REVIEW
-# ============================================================
-
-@main.route("/reviews/delete/<int:review_id>", methods=["POST"])
-@login_required
-def delete_review(review_id):
-
-    review = Review.query.get_or_404(review_id)
-
-    if review.user_id != current_user.id:
-
-        flash(
-            "You can only delete your own review.",
-            "danger"
-        )
-
-        return redirect(url_for("main.reviews"))
-
-    db.session.delete(review)
-    db.session.commit()
-
-    flash(
-        "Review deleted successfully!",
-        "success"
-    )
-
-    return redirect(url_for("main.reviews"))
-
-
-
-
-
-
-
