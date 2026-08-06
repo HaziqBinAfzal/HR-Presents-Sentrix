@@ -12,7 +12,7 @@ from analyzer.lint import run_pylint
 from analyzer.security import run_bandit
 from analyzer.syntax import check_syntax
 from database import db
-from helpers.report_service import generate_html_report
+from helpers.branded_report_service import generate_html_report
 from models import Analysis
 from settings_models import UserSettings
 
@@ -198,11 +198,7 @@ def run_project_analysis(project, current_user):
         elif isinstance(recommendations, str):
             recommendations = [recommendations]
 
-        if preferences.enable_pylint:
-            quality_base = average_score * 10
-        else:
-            quality_base = 100.0
-
+        quality_base = average_score * 10 if preferences.enable_pylint else 100.0
         security_penalty = min(security_count * 2, 30) if preferences.enable_bandit else 0
         syntax_penalty = min(len(syntax_errors) * 5, 30)
         overall_score = max(0, round(quality_base - security_penalty - syntax_penalty, 2))
