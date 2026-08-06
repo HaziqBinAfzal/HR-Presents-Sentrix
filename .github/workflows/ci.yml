@@ -59,13 +59,74 @@ jobs:
           python -m compileall -q \
             app.py config.py database.py extensions.py \
             forms.py models.py settings_models.py \
-            analyzer helpers tests
+            analyzer helpers migrations tests
 
       - name: Import application factory
         run: python -c "from app import create_app; app = create_app(); print(f'Loaded {len(list(app.url_map.iter_rules()))} routes')"
 
       - name: Run unit and security tests
         run: python -m unittest discover -s tests -p "test_*.py" -v
+
+  migrations:
+    name: Verify Alembic migrations
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      APP_ENV: testing
+      SECRET_KEY: ci-migration-secret
+      DATABASE_AUTO_CREATE: "0"
+      DATABASE_URL: "sqlite:////tmp/sentrix_ci_migration.db"
+      WTF_CSRF_ENABLED: "0"
+      MAIL_SUPPRESS_SEND: "1"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Upgrade blank database to head
+        run: |
+          rm -f /tmp/sentrix_ci_migration.db
+          flask --app app db upgrade
+          flask --app app db current | grep "20260806_0001"
+
+      - name: Verify migrated schema
+        run: |
+          python - <<'PY'
+          import sqlite3
+
+          expected = {
+              "alembic_version",
+              "analyses",
+              "projects",
+              "reviews",
+              "user_settings",
+              "users",
+          }
+          connection = sqlite3.connect("/tmp/sentrix_ci_migration.db")
+          actual = {
+              row[0]
+              for row in connection.execute(
+                  "SELECT name FROM sqlite_master WHERE type = 'table'"
+              )
+          }
+          connection.close()
+          missing = expected - actual
+          if missing:
+              raise SystemExit(f"Missing migrated tables: {sorted(missing)}")
+          print("Migration schema verified:", sorted(expected))
+          PY
 
   docker:
     name: Build production container
