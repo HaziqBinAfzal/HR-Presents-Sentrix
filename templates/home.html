@@ -2,6 +2,39 @@
 
 {% block title %}Sentrix | AI Python Code Analysis{% endblock %}
 
+{% block head %}
+<style>
+    .reports-standards-panel,
+    [data-bs-theme="dark"] .reports-standards-panel {
+        background:#111827 !important;
+        color:#f8fafc !important;
+    }
+    .reports-standards-panel h3,
+    .reports-standards-panel .reports-panel-title,
+    .reports-standards-panel .reports-control-title {
+        color:#f8fafc !important;
+    }
+    .reports-standards-panel .reports-panel-copy,
+    .reports-standards-panel .reports-control-copy {
+        color:#cbd5e1 !important;
+        opacity:1 !important;
+    }
+    .reports-standard-badge,
+    [data-bs-theme="dark"] .reports-standard-badge {
+        background:#f8fafc !important;
+        color:#0f172a !important;
+        border:1px solid #dbe3ee !important;
+        opacity:1 !important;
+    }
+    .reports-control-box,
+    [data-bs-theme="dark"] .reports-control-box {
+        background:#0f172a !important;
+        border-color:#475569 !important;
+        color:#f8fafc !important;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <section class="py-5">
     <div class="container py-lg-4">
@@ -65,19 +98,19 @@
                 </div>
             </div>
             <div class="col-lg-5">
-                <div class="card border-0 shadow-sm h-100 rounded-4 bg-dark text-white">
+                <div class="card border-0 shadow-sm h-100 rounded-4 reports-standards-panel">
                     <div class="card-body p-4 p-lg-5">
                         <div class="d-flex align-items-center gap-3 mb-4">
                             <div class="rounded-3 bg-primary d-inline-flex align-items-center justify-content-center" style="width:52px;height:52px;"><i class="fa-solid fa-scale-balanced fa-xl"></i></div>
-                            <div><h3 class="h4 fw-bold mb-1">Standards & controls mapping</h3><p class="text-white-50 mb-0">Project-specific compliance context, not generic labels.</p></div>
+                            <div><h3 class="h4 fw-bold mb-1 reports-panel-title">Standards & controls mapping</h3><p class="mb-0 reports-panel-copy">Project-specific compliance context, not generic labels.</p></div>
                         </div>
-                        <p class="text-white-50">Relevant findings are connected to the affected project evidence, error location, scanner rule, security control, and recommended fix.</p>
+                        <p class="reports-panel-copy">Relevant findings are connected to the affected project evidence, error location, scanner rule, security control, and recommended fix.</p>
                         <div class="d-flex flex-wrap gap-2 mb-4">
-                            {% for standard in ['OWASP Top 10','OWASP ASVS','CWE Top 25','NIST SSDF','NIST CSF','ISO 27001','SOC 2','PCI DSS'] %}<span class="badge rounded-pill bg-light text-dark px-3 py-2">{{ standard }}</span>{% endfor %}
+                            {% for standard in ['OWASP Top 10','OWASP ASVS','CWE Top 25','NIST SSDF','NIST CSF','ISO 27001','SOC 2','PCI DSS'] %}<span class="badge rounded-pill px-3 py-2 reports-standard-badge">{{ standard }}</span>{% endfor %}
                         </div>
-                        <div class="border border-secondary rounded-3 p-3">
-                            <div class="fw-semibold mb-2"><i class="fa-solid fa-shield-check text-primary me-2"></i>Top security controls</div>
-                            <p class="small text-white-50 mb-0">Authentication, authorization, input validation, output encoding, cryptography, secrets management, logging, secure configuration, dependency security, and secure error handling.</p>
+                        <div class="border rounded-3 p-3 reports-control-box">
+                            <div class="fw-semibold mb-2 reports-control-title"><i class="fa-solid fa-shield-check text-primary me-2"></i>Top security controls</div>
+                            <p class="small mb-0 reports-control-copy">Authentication, authorization, input validation, output encoding, cryptography, secrets management, logging, secure configuration, dependency security, and secure error handling.</p>
                         </div>
                     </div>
                 </div>
