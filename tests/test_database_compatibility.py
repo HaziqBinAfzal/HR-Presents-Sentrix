@@ -54,10 +54,24 @@ class DatabaseCompatibilityTests(unittest.TestCase):
             )
 
             user_columns = {column["name"] for column in inspector.get_columns("users")}
-            self.assertIn("email_verified", user_columns)
-            self.assertIn("email_verified_at", user_columns)
+            expected_columns = {
+                "id",
+                "username",
+                "email",
+                "password_hash",
+                "full_name",
+                "organization",
+                "bio",
+                "role",
+                "workspace",
+                "profile_picture",
+                "created_at",
+            }
+            self.assertTrue(expected_columns.issubset(user_columns))
+            self.assertNotIn("email_verified", user_columns)
+            self.assertNotIn("email_verified_at", user_columns)
 
-    def test_legacy_user_is_preserved_when_verification_columns_are_added(self):
+    def test_legacy_user_is_preserved_when_current_tables_are_created(self):
         connection = sqlite3.connect(self.database_path)
         try:
             connection.execute(
@@ -103,29 +117,37 @@ class DatabaseCompatibilityTests(unittest.TestCase):
 
         with app.app_context():
             inspector = inspect(db.engine)
-            user_columns = {column["name"] for column in inspector.get_columns("users")}
-            self.assertIn("email_verified", user_columns)
-            self.assertIn("email_verified_at", user_columns)
+            tables = set(inspector.get_table_names())
+            self.assertTrue(
+                {"users", "projects", "analyses", "reviews", "user_settings"}
+                .issubset(tables)
+            )
 
             user = db.session.get(User, 7)
             self.assertIsNotNone(user)
             self.assertEqual(user.username, "legacy-user")
             self.assertEqual(user.email, "legacy@example.com")
-            self.assertTrue(user.email_verified)
-            self.assertIsNone(user.email_verified_at)
 
-    def test_compatibility_upgrade_is_idempotent(self):
-        app = self._create_app()
-        self._dispose_app(app)
+    def test_schema_initialization_is_idempotent(self):
+        first_app = self._create_app()
+        self._dispose_app(first_app)
 
         second_app = create_app(self._config())
         self.addCleanup(self._dispose_app, second_app)
 
         with second_app.app_context():
             inspector = inspect(db.engine)
+            tables = inspector.get_table_names()
+            self.assertEqual(tables.count("users"), 1)
+            self.assertEqual(tables.count("projects"), 1)
+            self.assertEqual(tables.count("analyses"), 1)
+            self.assertEqual(tables.count("reviews"), 1)
+            self.assertEqual(tables.count("user_settings"), 1)
+
             user_columns = [column["name"] for column in inspector.get_columns("users")]
-            self.assertEqual(user_columns.count("email_verified"), 1)
-            self.assertEqual(user_columns.count("email_verified_at"), 1)
+            self.assertEqual(len(user_columns), len(set(user_columns)))
+            self.assertNotIn("email_verified", user_columns)
+            self.assertNotIn("email_verified_at", user_columns)
 
 
 if __name__ == "__main__":
