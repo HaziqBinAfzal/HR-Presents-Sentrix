@@ -1,6 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Sentrix shield">
-  <defs><linearGradient id="g" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse"><stop stop-color="#1677ff"/><stop offset="1" stop-color="#18c7d9"/></linearGradient></defs>
-  <rect width="64" height="64" rx="14" fill="#0f172a"/>
-  <path d="M32 8 50 18v14c0 12-7.6 20.9-18 25-10.4-4.1-18-13-18-25V18L32 8Z" fill="url(#g)"/>
-  <path d="M32 17v30c6.6-3.5 11-9.4 11-16.8v-8.1L32 17Z" fill="#fff" opacity=".94"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 72" role="img" aria-label="Sentrix electric spark wing">
+  <defs>
+    <linearGradient id="wing" x1="8" y1="8" x2="88" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0ea5ff"/>
+      <stop offset="0.55" stop-color="#1677ff"/>
+      <stop offset="1" stop-color="#4f46e5"/>
+    </linearGradient>
+  </defs>
+  <path d="M45 18 21 8l8 12-19-5 13 14-14-1 22 17 12-8-8-6 10 1Z" fill="url(#wing)"/>
+  <path d="m51 18 24-10-8 12 19-5-13 14 14-1-22 17-12-8 8-6-10 1Z" fill="url(#wing)"/>
+  <path d="M52 13 38 38h11l-7 22 22-30H53l8-17Z" fill="#1677ff"/>
+  <path d="m47 21-5 10h6l-3 10 10-14h-6l4-6Z" fill="#ffffff" opacity="0.95"/>
 </svg>
