@@ -59,7 +59,7 @@ jobs:
           python -m compileall -q \
             app.py config.py database.py extensions.py \
             forms.py models.py settings_models.py \
-            analyzer helpers migrations tests
+            analyzer helpers migrations scripts tests
 
       - name: Import application factory
         run: python -c "from app import create_app; app = create_app(); print(f'Loaded {len(list(app.url_map.iter_rules()))} routes')"
@@ -182,6 +182,27 @@ jobs:
               raise SystemExit(f"Missing tables after re-upgrade: {sorted(missing)}")
           print("Migration round trip verified")
           PY
+
+  performance:
+    name: Guard extractor performance
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Run 1000-file extraction benchmark
+        run: |
+          python scripts/benchmark_extractor.py \
+            --counts 1000 \
+            --max-extract-seconds 10 \
+            --max-peak-memory-mib 64
 
   docker:
     name: Build production container
