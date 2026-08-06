@@ -40,6 +40,15 @@ class Config:
         ENVIRONMENT != "production",
     )
 
+    BACKGROUND_ANALYSIS_ENABLED = _env_bool(
+        "BACKGROUND_ANALYSIS_ENABLED",
+        ENVIRONMENT == "production",
+    )
+    ANALYSIS_JOB_MAX_ATTEMPTS = int(os.getenv("ANALYSIS_JOB_MAX_ATTEMPTS", "3"))
+    ANALYSIS_WORKER_POLL_SECONDS = float(
+        os.getenv("ANALYSIS_WORKER_POLL_SECONDS", "2")
+    )
+
     UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
     TEMP_FOLDER = os.path.join(UPLOAD_FOLDER, "temp")
     PROJECT_FOLDER = os.path.join(UPLOAD_FOLDER, "projects")
