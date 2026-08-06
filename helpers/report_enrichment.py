@@ -7,6 +7,8 @@ headings, branding, styling, charts, tables, or report flow.
 
 from html import escape
 
+from helpers.report_project_mapping import render_security_controls, render_standards_mapping
+
 
 def _safe(value, fallback="Not available"):
     text = str(value or "").strip()
@@ -48,22 +50,10 @@ def build_report_enrichment(project, analysis):
 <p>Cyclomatic complexity estimates independent execution paths and therefore testing effort. High complexity increases maintenance cost, slows delivery, reduces reliability, hides security checks, and makes production failures harder to diagnose.</p>
 """
 
-    security = """
+    security = f"""
 <h3>Static security-analysis interpretation</h3>
 <p>Security analysis reviews dangerous functions and imports, hardcoded credentials, API keys, cloud keys, tokens, JWT secrets, OAuth credentials, SSH material, database passwords, certificates, private keys, authentication and authorization logic, input validation, output encoding, SQL injection, command injection, XSS, SSRF, XXE, path traversal, insecure deserialization, unsafe file handling, race conditions, weak cryptography, weak hashing, sensitive logging, error disclosure, resource leaks, and thread-safety or memory-safety indicators where applicable.</p>
-<h3>Top 10 security controls</h3>
-<table class="table">
-<tr><th>Secure Authentication</th><td>Protect credentials, sessions, reset flows, verification, and identity checks.</td></tr>
-<tr><th>Authorization & Access Control</th><td>Enforce least privilege, deny by default, and object- and function-level permissions.</td></tr>
-<tr><th>Input Validation</th><td>Validate type, length, format, range, and business rules before sensitive operations.</td></tr>
-<tr><th>Output Encoding</th><td>Apply context-specific encoding for browser, template, command, and document output.</td></tr>
-<tr><th>Cryptography</th><td>Use modern reviewed algorithms with secure key generation, storage, and rotation.</td></tr>
-<tr><th>Secrets Management</th><td>Keep secrets out of source and use protected variables or managed vaults with rotation.</td></tr>
-<tr><th>Logging & Monitoring</th><td>Record security events without exposing secrets or personal data.</td></tr>
-<tr><th>Secure Configuration</th><td>Harden framework, container, server, CI/CD, and environment defaults.</td></tr>
-<tr><th>Dependency Security</th><td>Inventory direct and transitive packages, monitor CVEs, validate provenance, and upgrade safely.</td></tr>
-<tr><th>Secure Error Handling</th><td>Fail safely, avoid sensitive disclosure, preserve auditability, and avoid broad exception suppression.</td></tr>
-</table>
+{render_security_controls(analysis)}
 """
 
     complexity = """
@@ -71,18 +61,7 @@ def build_report_enrichment(project, analysis):
 <p>Review deeply nested conditions, repeated branches, oversized functions, large classes, duplicated logic, hidden state changes, tight coupling, cleanup paths, locks, resources, and object lifecycle. Refactor incrementally into cohesive units with explicit inputs, outputs, ownership, and focused tests. Measure bottlenecks before optimization.</p>
 """
 
-    appendix = """
-<h3>Standards and compliance interpretation</h3>
-<table class="table">
-<tr><th>OWASP Top 10 / ASVS</th><td>Maps web-application risks and verifiable controls for architecture, authentication, sessions, access control, validation, cryptography, logging, and configuration.</td></tr>
-<tr><th>CWE Top 25 / MITRE CAPEC / ATT&CK</th><td>Relates implementation weaknesses to attack patterns and techniques where evidence supports a credible exploitation path.</td></tr>
-<tr><th>NIST SSDF / CSF / SP 800-53</th><td>Connects findings to secure development, risk management, protective controls, detection, verification, and evidence retention.</td></tr>
-<tr><th>CIS / SANS / CERT</th><td>Provides secure configuration, coding, dependency, logging, and defensive-development guidance.</td></tr>
-<tr><th>PCI DSS / ISO 27001 / ISO 27002 / SOC 2</th><td>Highlights relevant secure development, access control, vulnerability management, supplier, operations, confidentiality, availability, and audit expectations.</td></tr>
-<tr><th>GDPR / HIPAA</th><td>Applies only when regulated personal or health data is in scope; relevant findings may affect confidentiality, integrity, access control, auditability, and breach risk.</td></tr>
-</table>
-<p class="appendix-note">Mappings are educational guidance, not certification, legal advice, or proof that a control is implemented.</p>
-"""
+    appendix = render_standards_mapping(analysis)
 
     return {
         "executive": executive,
