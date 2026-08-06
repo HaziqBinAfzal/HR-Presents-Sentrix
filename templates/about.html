@@ -1,707 +1,170 @@
 {% extends "base.html" %}
 
-{% block title %}About Us | CodeSentinel AI{% endblock %}
+{% block title %}About Sentrix{% endblock %}
 
 {% block content %}
-
-<!-- Hero Section -->
-
 <section class="py-5">
-
     <div class="container">
-
         <div class="row align-items-center g-5">
-
             <div class="col-lg-6">
-
-                <span class="badge bg-primary px-3 py-2 mb-3">
-
-                    About CodeSentinel AI
-
-                </span>
-
-                <h1 class="display-4 fw-bold mb-4">
-
-                    Smarter Code Analysis,
-
-                    <span class="text-primary">
-
-                        Powered by AI
-
-                    </span>
-
-                </h1>
-
-                <p class="lead text-muted mb-4">
-
-                    CodeSentinel AI is an intelligent code review platform
-                    designed to help developers build secure, maintainable,
-                    and high-quality software through AI-powered analysis,
-                    automated security scanning, and detailed project reports.
-
-                </p>
-
+                <span class="badge bg-primary px-3 py-2 mb-3">About Sentrix</span>
+                <h1 class="display-4 fw-bold mb-4">Smarter Python analysis with practical, secure results</h1>
+                <p class="lead text-muted mb-4">Sentrix helps developers inspect Python projects for code quality, complexity, formatting, security findings, and maintainability from one focused workspace.</p>
                 <div class="d-flex flex-wrap gap-3 mb-4">
-
-                    <span class="badge bg-success px-3 py-2">
-
-                        AI Analysis
-
-                    </span>
-
-                    <span class="badge bg-danger px-3 py-2">
-
-                        Security Review
-
-                    </span>
-
-                    <span class="badge bg-warning text-dark px-3 py-2">
-
-                        Code Quality
-
-                    </span>
-
-                    <span class="badge bg-info px-3 py-2">
-
-                        Professional Reports
-
-                    </span>
-
+                    <span class="badge bg-success px-3 py-2">Quality Analysis</span>
+                    <span class="badge bg-danger px-3 py-2">Security Review</span>
+                    <span class="badge bg-warning text-dark px-3 py-2">Complexity Metrics</span>
+                    <span class="badge bg-info px-3 py-2">Professional Reports</span>
                 </div>
-
-                <a href="{{ url_for('main.register') }}"
-                   class="btn btn-primary btn-lg">
-
-                    Get Started
-
-                </a>
-
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('main.upload') }}" class="btn btn-primary btn-lg">Analyze a Project</a>
+                {% else %}
+                    <a href="{{ url_for('main.register') }}" class="btn btn-primary btn-lg">Get Started</a>
+                {% endif %}
             </div>
-
             <div class="col-lg-6">
-
                 <div class="card border-0 shadow-lg">
-
                     <div class="card-body p-5">
-
-                        <h3 class="fw-bold mb-4">
-
-                            Our Story
-
-                        </h3>
-
-                        <p class="text-muted">
-
-                            CodeSentinel AI was created to simplify code
-                            analysis by combining modern static analysis,
-                            AI-generated insights, and security scanning
-                            into one easy-to-use platform.
-
-                        </p>
-
-                        <p class="text-muted">
-
-                            Whether you're a student, software developer,
-                            freelancer, or enterprise team, our goal is to
-                            help you write cleaner, safer, and more reliable
-                            code with confidence.
-
-                        </p>
-
+                        <h2 class="h3 fw-bold mb-4">Our purpose</h2>
+                        <p class="text-muted">Sentrix was created to make professional code review accessible without forcing users to assemble several disconnected tools.</p>
+                        <p class="text-muted mb-0">The platform combines established Python analysis engines with clear project history, user-scoped results, security checks, and downloadable reports.</p>
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
 </section>
-
-<!-- Mission & Vision -->
 
 <section class="py-5 bg-light">
-
     <div class="container">
-
         <div class="text-center mb-5">
-
-            <h2 class="fw-bold">
-
-                Our Mission & Vision
-
-            </h2>
-
-            <p class="text-muted">
-
-                Building a future where every developer can create secure
-                and maintainable software with the assistance of AI.
-
-            </p>
-
+            <h2 class="fw-bold">Core Sentrix capabilities</h2>
+            <p class="text-muted">A consistent workflow from upload to report.</p>
         </div>
-
         <div class="row g-4">
-
-            <div class="col-md-6">
-
-                <div class="card border-0 shadow-sm h-100">
-
+            {% set capabilities = [
+                ('fa-bug','Static analysis','Find quality issues and actionable diagnostics with Pylint-backed checks.'),
+                ('fa-shield-halved','Security scanning','Detect common insecure Python patterns with Bandit-backed analysis.'),
+                ('fa-chart-column','Complexity metrics','Measure maintainability and highlight difficult code with Radon.'),
+                ('fa-file-lines','Reports','Review and download structured analysis results for each project.')
+            ] %}
+            {% for icon, title, description in capabilities %}
+            <div class="col-md-6 col-xl-3">
+                <div class="card border-0 shadow-sm h-100 text-center">
                     <div class="card-body p-4">
-
-                        <i class="fa-solid fa-bullseye fa-3x text-primary mb-3"></i>
-
-                        <h4 class="fw-bold">
-
-                            Our Mission
-
-                        </h4>
-
-                        <p class="text-muted mb-0">
-
-                            To empower developers with intelligent code
-                            analysis, automated security reviews, and
-                            actionable insights that improve software quality.
-
-                        </p>
-
+                        <i class="fa-solid {{ icon }} fa-3x text-primary mb-3"></i>
+                        <h3 class="h5 fw-bold">{{ title }}</h3>
+                        <p class="text-muted mb-0">{{ description }}</p>
                     </div>
-
                 </div>
-
             </div>
-
-            <div class="col-md-6">
-
-                <div class="card border-0 shadow-sm h-100">
-
-                    <div class="card-body p-4">
-
-                        <i class="fa-solid fa-eye fa-3x text-success mb-3"></i>
-
-                        <h4 class="fw-bold">
-
-                            Our Vision
-
-                        </h4>
-
-                        <p class="text-muted mb-0">
-
-                            To become a trusted AI-powered platform that helps
-                            developers and organizations build secure,
-                            scalable, and reliable software worldwide.
-
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
+            {% endfor %}
         </div>
-
-
-
-<div class="row mt-5 g-4">
-
-            <div class="col-lg-3 col-md-6">
-
-                <div class="card border-0 shadow-sm h-100 text-center">
-
-                    <div class="card-body p-4">
-
-                        <i class="fa-solid fa-robot fa-3x text-primary mb-3"></i>
-
-                        <h4 class="fw-bold">
-
-                            AI Code Analysis
-
-                        </h4>
-
-                        <p class="text-muted mb-0">
-
-                            Analyze your projects using intelligent AI to
-                            identify code quality issues, best practices,
-                            and improvement opportunities.
-
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="col-lg-3 col-md-6">
-
-                <div class="card border-0 shadow-sm h-100 text-center">
-
-                    <div class="card-body p-4">
-
-                        <i class="fa-solid fa-shield-halved fa-3x text-danger mb-3"></i>
-
-                        <h4 class="fw-bold">
-
-                            Security Scanning
-
-                        </h4>
-
-                        <p class="text-muted mb-0">
-
-                            Detect vulnerabilities, insecure coding
-                            patterns, and potential security risks before
-                            deployment.
-
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="col-lg-3 col-md-6">
-
-                <div class="card border-0 shadow-sm h-100 text-center">
-
-                    <div class="card-body p-4">
-
-                        <i class="fa-solid fa-chart-column fa-3x text-success mb-3"></i>
-
-                        <h4 class="fw-bold">
-
-                            Code Quality Metrics
-
-                        </h4>
-
-                        <p class="text-muted mb-0">
-
-                            Measure maintainability, complexity, code
-                            quality scores, and project health through
-                            comprehensive metrics.
-
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="col-lg-3 col-md-6">
-
-                <div class="card border-0 shadow-sm h-100 text-center">
-
-                    <div class="card-body p-4">
-
-                        <i class="fa-solid fa-file-lines fa-3x text-warning mb-3"></i>
-
-                        <h4 class="fw-bold">
-
-                            Professional Reports
-
-                        </h4>
-
-                        <p class="text-muted mb-0">
-
-                            Download detailed reports containing AI
-                            summaries, charts, recommendations, and
-                            security findings.
-
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
     </div>
-
 </section>
-
-<!-- Why Choose Us -->
 
 <section class="py-5">
-
     <div class="container">
-
         <div class="text-center mb-5">
-
-            <h2 class="fw-bold">
-
-                Why Choose CodeSentinel AI?
-
-            </h2>
-
-            <p class="text-muted">
-
-                Everything you need to analyze, improve, and secure your software in one intelligent platform.
-
-            </p>
-
+            <h2 class="fw-bold">Why choose Sentrix?</h2>
+            <p class="text-muted">Everything needed to analyze, improve, and secure Python software in one platform.</p>
         </div>
-
-        <div class="row g-4">
-
+        <div class="row g-4 justify-content-center">
             <div class="col-md-4">
-
                 <div class="card border-0 shadow-sm h-100">
-
                     <div class="card-body p-4">
-
                         <i class="fa-solid fa-gauge-high fa-2x text-primary mb-3"></i>
-
-                        <h5 class="fw-bold">
-
-                            Fast Performance
-
-                        </h5>
-
-                        <p class="text-muted mb-0">
-
-                            Analyze projects quickly with an optimized
-                            workflow designed for developers and teams.
-
-                        </p>
-
+                        <h3 class="h5 fw-bold">Fast performance</h3>
+                        <p class="text-muted mb-0">Analyze projects through an optimized workflow designed for developers and teams.</p>
                     </div>
-
                 </div>
-
             </div>
-
             <div class="col-md-4">
-
                 <div class="card border-0 shadow-sm h-100">
-
                     <div class="card-body p-4">
-
-                        <i class="fa-solid fa-key fa-2x text-success mb-3"></i>
-
-                        <h5 class="fw-bold">
-
-                            Bring Your Own AI
-
-                        </h5>
-
-                        <p class="text-muted mb-0">
-
-                            Connect your preferred AI provider and model
-                            securely using your own API key.
-
-                        </p>
-
+                        <i class="fa-solid fa-database fa-2x text-success mb-3"></i>
+                        <h3 class="h5 fw-bold">Persistent project history</h3>
+                        <p class="text-muted mb-0">Keep user-scoped projects, analyses, and reports available across sessions.</p>
                     </div>
-
                 </div>
-
             </div>
-
             <div class="col-md-4">
-
                 <div class="card border-0 shadow-sm h-100">
-
                     <div class="card-body p-4">
-
                         <i class="fa-solid fa-users fa-2x text-warning mb-3"></i>
-
-                        <h5 class="fw-bold">
-
-                            Built for Everyone
-
-                        </h5>
-
-                        <p class="text-muted mb-0">
-
-                            Ideal for students, freelancers, software
-                            engineers, educators, and enterprise teams.
-
-                        </p>
-
+                        <h3 class="h5 fw-bold">Built for everyone</h3>
+                        <p class="text-muted mb-0">Useful for students, freelancers, engineers, educators, and development teams.</p>
                     </div>
-
                 </div>
-
             </div>
-
         </div>
 
-
-<div class="row mt-5">
-
+        <div class="row mt-5">
             <div class="col-lg-10 mx-auto">
-
                 <div class="card border-0 shadow-sm">
-
                     <div class="card-body p-5">
-
-                        <div class="row align-items-center">
-
+                        <div class="row align-items-center g-4">
                             <div class="col-lg-6">
-
-                                <h3 class="fw-bold mb-4">
-
-                                    Built with Modern Technologies
-
-                                </h3>
-
-                                <p class="text-muted">
-
-                                    CodeSentinel AI combines powerful open-source
-                                    technologies with modern AI capabilities to
-                                    deliver an intelligent and scalable code
-                                    analysis platform.
-
-                                </p>
-
+                                <h2 class="h3 fw-bold mb-4">Built with modern technologies</h2>
+                                <p class="text-muted mb-0">Sentrix combines proven open-source Python tools with a modern Flask application, responsive interface, database-backed workflows, and production-ready deployment support.</p>
                             </div>
-
                             <div class="col-lg-6">
-
                                 <div class="row g-3">
-
-                                    <div class="col-6">
-
-                                        <div class="border rounded p-3 text-center">
-
-                                            <i class="fa-brands fa-python fa-2x text-primary mb-2"></i>
-
-                                            <h6 class="fw-bold mb-0">
-
-                                                Python
-
-                                            </h6>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="col-6">
-
-                                        <div class="border rounded p-3 text-center">
-
-                                            <i class="fa-solid fa-fire fa-2x text-danger mb-2"></i>
-
-                                            <h6 class="fw-bold mb-0">
-
-                                                Flask
-
-                                            </h6>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="col-6">
-
-                                        <div class="border rounded p-3 text-center">
-
-                                            <i class="fa-brands fa-bootstrap fa-2x text-purple mb-2"></i>
-
-                                            <h6 class="fw-bold mb-0">
-
-                                                Bootstrap 5
-
-                                            </h6>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="col-6">
-
-                                        <div class="border rounded p-3 text-center">
-
-                                            <i class="fa-solid fa-brain fa-2x text-success mb-2"></i>
-
-                                            <h6 class="fw-bold mb-0">
-
-                                                AI APIs
-
-                                            </h6>
-
-                                        </div>
-
-                                    </div>
-
+                                    <div class="col-6"><div class="border rounded p-3 text-center"><i class="fa-brands fa-python fa-2x text-primary mb-2"></i><h3 class="h6 fw-bold mb-0">Python</h3></div></div>
+                                    <div class="col-6"><div class="border rounded p-3 text-center"><i class="fa-solid fa-fire fa-2x text-danger mb-2"></i><h3 class="h6 fw-bold mb-0">Flask</h3></div></div>
+                                    <div class="col-6"><div class="border rounded p-3 text-center"><i class="fa-brands fa-bootstrap fa-2x text-primary mb-2"></i><h3 class="h6 fw-bold mb-0">Bootstrap 5</h3></div></div>
+                                    <div class="col-6"><div class="border rounded p-3 text-center"><i class="fa-solid fa-shield-halved fa-2x text-success mb-2"></i><h3 class="h6 fw-bold mb-0">Security Tools</h3></div></div>
                                 </div>
-
                             </div>
-
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
 </section>
-
-
-<!-- Meet the Developers -->
 
 <section class="py-5 bg-light">
-
     <div class="container">
-
         <div class="text-center mb-5">
-
-            <h2 class="fw-bold">
-
-                Meet the Developers
-
-            </h2>
-
-            <p class="text-muted">
-
-                CodeSentinel AI is proudly designed and developed by two passionate software developers dedicated to building intelligent, secure, and modern development tools.
-
-            </p>
-
+            <h2 class="fw-bold">Meet the developers</h2>
+            <p class="text-muted">Sentrix is developed and maintained by HR-Presents.</p>
         </div>
-
         <div class="row justify-content-center g-4">
-
             <div class="col-lg-5">
-
                 <div class="card border-0 shadow-sm h-100 text-center">
-
                     <div class="card-body p-5">
-
                         <i class="fa-solid fa-user fa-4x text-primary mb-4"></i>
-
-                        <h3 class="fw-bold">
-
-                            Ruveeha Ashfaq
-
-                        </h3>
-
-                        <p class="text-muted">
-
-                            Co-Founder & Developer
-
-                        </p>
-
-                        <p class="mb-0">
-
-                            Focused on frontend development, user experience,
-                            UI design, and AI platform integration to create a
-                            modern and intuitive application.
-
-                        </p>
-
+                        <h3 class="fw-bold">Ruveeha Ashfaq</h3>
+                        <p class="text-muted">Co-Founder & Developer</p>
+                        <p class="mb-0">Focused on frontend development, user experience, UI design, and application integration.</p>
                     </div>
-
                 </div>
-
             </div>
-
             <div class="col-lg-5">
-
                 <div class="card border-0 shadow-sm h-100 text-center">
-
                     <div class="card-body p-5">
-
                         <i class="fa-solid fa-user-gear fa-4x text-success mb-4"></i>
-
-                        <h3 class="fw-bold">
-
-                            Haziq Afzal
-
-                        </h3>
-
-                        <p class="text-muted">
-
-                            Co-Founder & Developer
-
-                        </p>
-
-                        <p class="mb-0">
-
-                            Focused on backend development, AI integration,
-                            system architecture, and security to power reliable
-                            and scalable code analysis.
-
-                        </p>
-
+                        <h3 class="fw-bold">Haziq Afzal</h3>
+                        <p class="text-muted">Co-Founder & Developer</p>
+                        <p class="mb-0">Focused on backend development, system architecture, analysis workflows, and security.</p>
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
 </section>
-
-<!-- Call To Action -->
 
 <section class="py-5 bg-primary text-white">
-
     <div class="container text-center">
-
-        <h2 class="fw-bold mb-3">
-
-            Ready to Improve Your Code?
-
-        </h2>
-
-        <p class="lead mb-4">
-
-            Join CodeSentinel AI today and start analyzing your projects with
-            intelligent AI insights, security scanning, and professional reports.
-
-        </p>
-
-        <div class="d-flex justify-content-center flex-wrap gap-3">
-
-            <a href="{{ url_for('main.register') }}"
-               class="btn btn-light btn-lg">
-
-                Create Free Account
-
-            </a>
-
-            <a href="{{ url_for('main.contact') }}"
-               class="btn btn-outline-light btn-lg">
-
-                Contact Us
-
-            </a>
-
-        </div>
-
+        <h2 class="fw-bold mb-3">Ready to improve your Python project?</h2>
+        <p class="lead mb-4">Use Sentrix to analyze quality, security, complexity, and maintainability.</p>
+        {% if current_user.is_authenticated %}
+            <a href="{{ url_for('main.upload') }}" class="btn btn-light btn-lg">Analyze a Project</a>
+        {% else %}
+            <a href="{{ url_for('main.register') }}" class="btn btn-light btn-lg">Create Free Account</a>
+        {% endif %}
+        <a href="{{ url_for('main.contact') }}" class="btn btn-outline-light btn-lg ms-md-2 mt-2 mt-md-0">Contact Us</a>
     </div>
-
 </section>
-
-<!-- Footer -->
-
-<section class="py-4">
-
-    <div class="container text-center">
-
-        <p class="text-muted mb-0">
-
-            © {{ current_year or 2026 }} CodeSentinel AI. All Rights Reserved.
-
-        </p>
-
-    </div>
-
-</section>
-
 {% endblock %}
