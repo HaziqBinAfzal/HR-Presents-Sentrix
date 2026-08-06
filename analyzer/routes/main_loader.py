@@ -3,7 +3,6 @@
 from pathlib import Path
 
 from helpers.community_routes import install_community_routes
-from helpers.password_reset import install_password_reset_routes
 
 
 _SOURCE_PATH = Path(__file__).with_name("main.py")
@@ -36,8 +35,27 @@ def _remove_duplicate_remove_review(source: str) -> str:
     return source[:second] + source[end:]
 
 
+def _remove_legacy_forgot_password(source: str) -> str:
+    """Remove the obsolete placeholder forgot-password route before registration."""
+    start_marker = "# ============================================================\n# FORGOT PASSWORD\n# ============================================================\n"
+    end_marker = "# ============================================================\n# DASHBOARD\n# ============================================================\n"
+
+    start = source.find(start_marker)
+    if start == -1:
+        return source
+
+    end = source.find(end_marker, start)
+    if end == -1:
+        raise RuntimeError(
+            "Forgot-password section was found without its dashboard boundary."
+        )
+
+    return source[:start] + source[end:]
+
+
 _source = _SOURCE_PATH.read_text(encoding="utf-8")
 _source = _remove_duplicate_remove_review(_source)
+_source = _remove_legacy_forgot_password(_source)
 _namespace = {
     "__name__": "analyzer.routes.main_runtime",
     "__file__": str(_SOURCE_PATH),
@@ -46,5 +64,4 @@ _namespace = {
 exec(compile(_source, str(_SOURCE_PATH), "exec"), _namespace)
 
 main = _namespace["main"]
-install_password_reset_routes(main)
 install_community_routes(main)
