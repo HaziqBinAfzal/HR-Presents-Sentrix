@@ -1,0 +1,17 @@
+{
+  "name": "Sentrix",
+  "short_name": "Sentrix",
+  "description": "Python code quality and security analysis by HR-Presents.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#07152f",
+  "theme_color": "#07152f",
+  "icons": [
+    {
+      "src": "/static/images/sentrix-electric-wing-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
