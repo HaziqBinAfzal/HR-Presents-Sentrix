@@ -5,10 +5,12 @@ from flask_login import LoginManager
 from sqlalchemy import inspect, text
 
 from analyzer.routes.account import account_bp
+from analyzer.routes.analysis_jobs import analysis_jobs_bp
 from analyzer.routes.main_loader import main
 from analyzer.routes.settings import settings_bp
 from analyzer.routes.settings_alias import settings_page
 from analyzer.routes.upload import upload_bp
+from background_models import AnalysisJob  # noqa: F401 - registers queue model
 from config import Config
 from database import db
 from extensions import csrf, mail, migrate
@@ -100,6 +102,7 @@ def create_app(config_class=Config):
     login_manager.init_app(app)
 
     app.register_blueprint(account_bp)
+    app.register_blueprint(analysis_jobs_bp)
     app.register_blueprint(settings_bp)
     app.register_blueprint(settings_page)
     app.register_blueprint(upload_bp)
