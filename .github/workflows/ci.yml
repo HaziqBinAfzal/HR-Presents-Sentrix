@@ -4,11 +4,14 @@ on:
   push:
     branches:
       - main
+      - develop-v1.1
       - "release/**"
       - "agent/**"
+      - "feature/**"
   pull_request:
     branches:
       - main
+      - develop-v1.1
       - "release/**"
   workflow_dispatch:
 
@@ -57,8 +60,8 @@ jobs:
       - name: Compile application and tests
         run: |
           python -m compileall -q \
-            app.py config.py database.py extensions.py \
-            forms.py models.py settings_models.py \
+            app.py worker.py config.py database.py extensions.py \
+            forms.py models.py background_models.py settings_models.py \
             analyzer helpers migrations tests
 
       - name: Import application factory
@@ -90,6 +93,11 @@ jobs:
       - name: Check formatting baseline
         run: |
           black --check \
+            background_models.py \
+            helpers/background_analysis.py \
+            analyzer/routes/analysis_jobs.py \
+            worker.py \
+            tests/test_background_analysis.py \
             database.py \
             tests/test_email_verification.py \
             tests/test_extractor_limits.py \
@@ -99,7 +107,7 @@ jobs:
       - name: Check syntax and undefined names
         run: |
           flake8 \
-            app.py config.py database.py extensions.py forms.py models.py settings_models.py \
+            app.py worker.py config.py database.py extensions.py forms.py models.py background_models.py settings_models.py \
             analyzer helpers migrations scripts tests \
             --select=E9,F63,F7,F82 \
             --show-source \
@@ -108,7 +116,7 @@ jobs:
       - name: Scan for high-severity security findings
         run: |
           bandit -r \
-            app.py config.py database.py extensions.py forms.py models.py settings_models.py \
+            app.py worker.py config.py database.py extensions.py forms.py models.py background_models.py settings_models.py \
             analyzer helpers scripts \
             --severity-level high \
             --confidence-level high \
@@ -146,7 +154,7 @@ jobs:
         run: |
           rm -f /tmp/sentrix_ci_migration.db
           flask --app app db upgrade
-          flask --app app db current | grep "20260806_0001"
+          flask --app app db current | grep "20260806_0002"
 
       - name: Verify migrated schema
         run: |
@@ -156,6 +164,7 @@ jobs:
           expected = {
               "alembic_version",
               "analyses",
+              "analysis_jobs",
               "projects",
               "reviews",
               "user_settings",
@@ -183,6 +192,7 @@ jobs:
 
           application_tables = {
               "analyses",
+              "analysis_jobs",
               "projects",
               "reviews",
               "user_settings",
@@ -205,12 +215,13 @@ jobs:
       - name: Re-upgrade to head
         run: |
           flask --app app db upgrade
-          flask --app app db current | grep "20260806_0001"
+          flask --app app db current | grep "20260806_0002"
           python - <<'PY'
           import sqlite3
 
           expected = {
               "analyses",
+              "analysis_jobs",
               "projects",
               "reviews",
               "user_settings",
@@ -268,6 +279,6 @@ jobs:
         with:
           context: .
           push: false
-          tags: sentrix:rc1
+          tags: sentrix:v1.1-dev
           cache-from: type=gha
           cache-to: type=gha,mode=max
