@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Sentrix shield">
+  <rect width="64" height="64" rx="14" fill="#0f172a"/>
+  <path d="M32 8 50 16v13c0 13-7.7 22.7-18 27-10.3-4.3-18-14-18-27V16Z" fill="#1677ff"/>
+  <path d="M32 14v35c7.3-4 12-11.4 12-20V20Z" fill="#ffffff" opacity=".95"/>
+</svg>
