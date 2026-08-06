@@ -32,6 +32,7 @@ class EmailVerificationFlowTests(unittest.TestCase):
         with self.app.app_context():
             db.session.remove()
             db.drop_all()
+            db.engine.dispose()
 
     def _create_user(self, *, verified=False):
         with self.app.app_context():
