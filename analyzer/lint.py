@@ -1,19 +1,16 @@
 import json
+import re
 import subprocess
 
 
-ISSUE_PATTERN = re.compile(
-    r"^[CRWEFI]:\s*\d+,\d+:"
-)
-
 SCORE_PATTERN = re.compile(
-    r"rated at ([0-9]+\.[0-9]+)/10"
+    r"rated at ([0-9]+(?:\.[0-9]+)?)/10"
 )
 
 
 def run_pylint(file_path):
     """
-    Run Pylint on a Python file.
+    Run Pylint on a Python file and return structured results.
 
     Returns:
         {
@@ -21,128 +18,71 @@ def run_pylint(file_path):
             "issues": list,
             "output": str
         }
-    Run pylint and return structured results.
- (Complete Milestone 1 analysis engine)
     """
 
     try:
-
-        result = subprocess.run(
+        json_result = subprocess.run(
             [
                 "pylint",
                 file_path,
-                "--output-format=json"
+                "--output-format=json",
             ],
             capture_output=True,
-
             text=True,
-            check=False
-        )
-
-        output = (
-            result.stdout +
-            "\n" +
-            result.stderr
-        ).strip()
-
-        score = 0.0
-
-        match = SCORE_PATTERN.search(
-            output
-        )
-
-        if match:
-
-            score = float(
-                match.group(1)
-            )
-
-
-            text=True
+            check=False,
         )
 
         issues = []
 
-        score = 10.0
-
-
-            line = line.strip()
-
-            if ISSUE_PATTERN.match(line):
-
-                issues.append(line)
-
         try:
-            data = json.loads(result.stdout)
-
-            for item in data:
-
-                issues.append(
-                    {
-                        "file": item.get("path"),
-                        "line": item.get("line"),
-                        "column": item.get("column"),
-                        "type": item.get("type"),
-                        "symbol": item.get("symbol"),
-                        "message": item.get("message"),
-                        "message_id": item.get("message-id")
-                    }
-                )
-
-        except Exception:
+            data = json.loads(json_result.stdout or "[]")
+        except json.JSONDecodeError:
             data = []
+
+        for item in data:
+            issues.append(
+                {
+                    "file": item.get("path"),
+                    "line": item.get("line"),
+                    "column": item.get("column"),
+                    "type": item.get("type"),
+                    "symbol": item.get("symbol"),
+                    "message": item.get("message"),
+                    "message_id": item.get("message-id"),
+                }
+            )
 
         text_result = subprocess.run(
             [
                 "pylint",
-                file_path
+                file_path,
             ],
             capture_output=True,
-            text=True
+            text=True,
+            check=False,
         )
 
-        for line in text_result.stdout.splitlines():
+        output = (
+            text_result.stdout
+            + "\n"
+            + text_result.stderr
+        ).strip()
 
-            if "rated at" in line:
+        score = 0.0
+        match = SCORE_PATTERN.search(output)
 
-                try:
-
-                    score = float(
-                        line.split("rated at")[1]
-                        .split("/")[0]
-                        .strip()
-                    )
-
-                except Exception:
-
-                    pass
- 
+        if match:
+            score = float(match.group(1))
 
         return {
-
             "score": score,
-
             "issues": issues,
-
-            "output": output
-
-
-            "output": text_result.stdout
-
-
+            "output": output,
         }
 
     except Exception as error:
-
         return {
             "score": 0.0,
             "issues": [str(error)],
-            "output": ""
-
-            "score": 0,
-
-            "issues": [],
-
-            "output": str(error)
-
+            "output": str(error),
         }

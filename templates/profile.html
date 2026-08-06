@@ -1,938 +1,258 @@
 {% extends "base.html" %}
 
-{% block title %}My Profile | CodeSentinel AI{% endblock %}
+{% block title %}My Profile | Sentrix{% endblock %}
 
 {% block content %}
-
 <section class="py-5">
-
     <div class="container">
+        {% set completed_fields = 2 %}
+        {% if current_user.full_name %}{% set completed_fields = completed_fields + 1 %}{% endif %}
+        {% if current_user.organization %}{% set completed_fields = completed_fields + 1 %}{% endif %}
+        {% if current_user.bio %}{% set completed_fields = completed_fields + 1 %}{% endif %}
+        {% if current_user.profile_picture and current_user.profile_picture != 'default.png' %}{% set completed_fields = completed_fields + 1 %}{% endif %}
+        {% set profile_completion = (completed_fields / 6 * 100)|round|int %}
 
-        <!-- Profile Header -->
-
-        <div class="card border-0 shadow-sm mb-5">
-
-            <div class="card-body">
-
-                <div class="row align-items-center">
-
+        <div class="card border-0 shadow-sm mb-4 overflow-hidden">
+            <div class="card-body p-4 p-lg-5">
+                <div class="row align-items-center g-4">
                     <div class="col-lg-8">
-
-                        <div class="d-flex align-items-center">
-
-                            <div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center me-4"
-                                 style="width:90px;height:90px;font-size:34px;font-weight:bold;">
-
-                                {{ current_user.username[0]|upper }}
-
+                        <div class="d-flex flex-column flex-sm-row align-items-sm-center gap-4">
+                            <div class="position-relative flex-shrink-0">
+                                {% if current_user.profile_picture and current_user.profile_picture != 'default.png' %}
+                                    <img src="{{ url_for('main.profile_picture', filename=current_user.profile_picture) }}"
+                                         alt="{{ current_user.username }} profile picture"
+                                         class="rounded-circle border shadow-sm"
+                                         style="width:110px;height:110px;object-fit:cover;">
+                                {% else %}
+                                    <div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center shadow-sm"
+                                         style="width:110px;height:110px;font-size:42px;font-weight:700;">
+                                        {{ current_user.username[0]|upper }}
+                                    </div>
+                                {% endif %}
+                                <span class="position-absolute bottom-0 end-0 bg-success border border-3 border-white rounded-circle"
+                                      style="width:24px;height:24px;" title="Active account"></span>
                             </div>
-
                             <div>
-
-                                <h2 class="fw-bold mb-1">
-
-                                    {{ current_user.username }}
-
-                                </h2>
-
-                                <p class="text-muted mb-2">
-
-                                    {{ current_user.email }}
-
-                                </p>
-
-                                <span class="badge bg-success me-2">
-
-                                    Active Account
-
-                                </span>
-
-                                <span class="badge bg-primary">
-
-                                    Member Since
-                                    {{ current_user.created_at.strftime('%b %Y') }}
-
-                                </span>
-
+                                <span class="badge bg-primary-subtle text-primary mb-2">Sentrix Member</span>
+                                <h1 class="h2 fw-bold mb-1">{{ current_user.full_name or current_user.username }}</h1>
+                                <p class="text-muted mb-2">@{{ current_user.username }} · {{ current_user.email }}</p>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <span class="badge bg-success">Active Account</span>
+                                    <span class="badge bg-light text-dark border">{{ current_user.role|default('User')|title }}</span>
+                                    <span class="badge bg-light text-dark border">Member since {{ current_user.created_at.strftime('%b %Y') }}</span>
+                                </div>
                             </div>
-
                         </div>
-
                     </div>
-
-                    <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
-
-                        <a href="#profileForm"
-                           class="btn btn-primary">
-
-                            <i class="fa-solid fa-user-pen me-2"></i>
-
-                            Edit Profile
-
+                    <div class="col-lg-4 text-lg-end">
+                        <a href="#profileForm" class="btn btn-primary me-2">
+                            <i class="fa-solid fa-user-pen me-2"></i>Edit Profile
                         </a>
-
-                        <a href="{{ url_for('main.settings') }}"
-                           class="btn btn-outline-secondary ms-2">
-
-                            <i class="fa-solid fa-gear me-2"></i>
-
-                            Settings
-
+                        <a href="{{ url_for('main.settings') }}" class="btn btn-outline-secondary">
+                            <i class="fa-solid fa-gear me-2"></i>Settings
                         </a>
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
 
-        <!-- Statistics -->
-
-        <div class="row g-4 mb-5">
-
+        <div class="row g-4 mb-4">
             <div class="col-md-6 col-xl-3">
-
-                <div class="card border-0 shadow-sm h-100">
-
-                    <div class="card-body">
-
-                        <div class="d-flex justify-content-between align-items-center">
-
-                            <div>
-
-                                <h6 class="text-muted">
-
-                                    Projects
-
-                                </h6>
-
-                                <h2 class="fw-bold">
-
-                                    {{ total_projects }}
-
-                                </h2>
-
-                            </div>
-
-                            <i class="fa-solid fa-folder-open fa-2x text-primary"></i>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
+                <a href="{{ url_for('main.history') }}" class="text-decoration-none text-reset">
+                    <div class="card border-0 shadow-sm h-100"><div class="card-body d-flex justify-content-between align-items-center">
+                        <div><small class="text-muted">Projects</small><h3 class="fw-bold mb-0">{{ total_projects|default(0) }}</h3></div>
+                        <div class="bg-primary bg-opacity-10 rounded-circle p-3"><i class="fa-solid fa-folder-open text-primary"></i></div>
+                    </div></div>
+                </a>
             </div>
-
             <div class="col-md-6 col-xl-3">
-
-                <div class="card border-0 shadow-sm h-100">
-
-                    <div class="card-body">
-
-                        <div class="d-flex justify-content-between align-items-center">
-
-                            <div>
-
-                                <h6 class="text-muted">
-
-                                    Analyses
-
-                                </h6>
-
-                                <h2 class="fw-bold">
-
-                                    {{ total_analyses }}
-
-                                </h2>
-
-                            </div>
-
-                            <i class="fa-solid fa-chart-column fa-2x text-success"></i>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
+                <a href="{{ url_for('main.history') }}" class="text-decoration-none text-reset">
+                    <div class="card border-0 shadow-sm h-100"><div class="card-body d-flex justify-content-between align-items-center">
+                        <div><small class="text-muted">Analyses</small><h3 class="fw-bold mb-0">{{ total_analyses|default(0) }}</h3></div>
+                        <div class="bg-success bg-opacity-10 rounded-circle p-3"><i class="fa-solid fa-chart-column text-success"></i></div>
+                    </div></div>
+                </a>
             </div>
-
             <div class="col-md-6 col-xl-3">
-
-                <div class="card border-0 shadow-sm h-100">
-
-                    <div class="card-body">
-
-                        <div class="d-flex justify-content-between align-items-center">
-
-                            <div>
-
-                                <h6 class="text-muted">
-
-                                    Reports
-
-                                </h6>
-
-                                <h2 class="fw-bold">
-
-                                    {{ total_reports }}
-
-                                </h2>
-
-                            </div>
-
-                            <i class="fa-solid fa-file-lines fa-2x text-warning"></i>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
+                <a href="{{ url_for('main.reviews') }}" class="text-decoration-none text-reset">
+                    <div class="card border-0 shadow-sm h-100"><div class="card-body d-flex justify-content-between align-items-center">
+                        <div><small class="text-muted">Reviews</small><h3 class="fw-bold mb-0">{{ total_reviews|default(0) }}</h3></div>
+                        <div class="bg-warning bg-opacity-10 rounded-circle p-3"><i class="fa-solid fa-star text-warning"></i></div>
+                    </div></div>
+                </a>
             </div>
-
             <div class="col-md-6 col-xl-3">
-
-                <div class="card border-0 shadow-sm h-100">
-
-                    <div class="card-body">
-
-                        <div class="d-flex justify-content-between align-items-center">
-
-                            <div>
-
-                                <h6 class="text-muted">
-
-                                    Overall Score
-
-                                </h6>
-
-                                <h2 class="fw-bold text-success">
-
-                                    {{ overall_score }}%
-
-                                </h2>
-
-                            </div>
-
-                            <i class="fa-solid fa-award fa-2x text-success"></i>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
+                <div class="card border-0 shadow-sm h-100"><div class="card-body d-flex justify-content-between align-items-center">
+                    <div><small class="text-muted">Profile Complete</small><h3 class="fw-bold mb-0">{{ profile_completion }}%</h3></div>
+                    <div class="bg-info bg-opacity-10 rounded-circle p-3"><i class="fa-solid fa-user-check text-info"></i></div>
+                </div></div>
             </div>
-
         </div>
 
-
-<!-- Personal Information -->
-
-        <div class="row g-4 mb-5">
-
+        <div class="row g-4 mb-4">
             <div class="col-lg-8">
-
                 <div class="card border-0 shadow-sm" id="profileForm">
-
-                    <div class="card-header bg-white">
-
-                        <h4 class="mb-0">
-
-                            <i class="fa-solid fa-id-card text-primary me-2"></i>
-
-                            Personal Information
-
-                        </h4>
-
+                    <div class="card-header bg-white py-3">
+                        <h4 class="mb-0"><i class="fa-solid fa-id-card text-primary me-2"></i>Personal Information</h4>
                     </div>
-
-                    <div class="card-body">
-
-                        <form method="POST">
-
-
-                            <div class="row">
-
-                                <div class="col-md-6 mb-4">
-
-                                    <label class="form-label fw-semibold">
-
-                                        Username
-
-                                    </label>
-
-                                    <input
-    type="text"
-    name="username"
-    class="form-control"
-    value="{{ current_user.username }}"
-    required>
-
-                                </div>
-
-                                <div class="col-md-6 mb-4">
-
-                                    <label class="form-label fw-semibold">
-
-                                        Email Address
-
-                                    </label>
-
-                                    <input
-    type="text"
-    name="username"
-    class="form-control"
-    value="{{ current_user.username }}"
-    required>
-
-                                </div>
-
-                            </div>
-
-                            <div class="row">
-
-                                <div class="col-md-6 mb-4">
-
-                                    <label class="form-label fw-semibold">
-
-                                        Full Name
-
-                                    </label>
-
-                                    <input
-    type="text"
-    name="full_name"
-    class="form-control"
-    value="{{ current_user.full_name or '' }}">
-
-                                </div>
-
-                                <div class="col-md-6 mb-4">
-
-                                    <label class="form-label fw-semibold">
-
-                                        Organization
-
-                                    </label>
-
-                                    <input
-    type="text"
-    name="organization"
-    class="form-control"
-    value="{{ current_user.organization or '' }}">
-
-                                </div>
-
-                            </div>
+                    <div class="card-body p-4">
+                        <form method="POST" enctype="multipart/form-data">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                             <div class="mb-4">
-
-                                <label class="form-label fw-semibold">
-
-                                    Bio
-
-                                </label>
-
-                                <textarea
-    name="bio"
-    class="form-control"
-    rows="5"
-    placeholder="Tell us something about yourself...">{{ current_user.bio or '' }}</textarea>
-
+                                <label class="form-label fw-semibold">Profile Picture</label>
+                                <input type="file" name="profile_picture" class="form-control" accept="image/png,image/jpeg,image/gif,image/webp">
+                                <div class="form-text">PNG, JPG, GIF, or WEBP. Your old custom image is replaced when a new one is uploaded.</div>
                             </div>
 
-                            <div class="d-flex justify-content-end">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Username</label>
+                                    <input type="text" name="username" class="form-control" value="{{ current_user.username }}" required maxlength="80">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Email Address</label>
+                                    <input type="email" name="email" class="form-control" value="{{ current_user.email }}" required maxlength="120">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Full Name</label>
+                                    <input type="text" name="full_name" class="form-control" value="{{ current_user.full_name or '' }}" maxlength="160" placeholder="Your full name">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Organization</label>
+                                    <input type="text" name="organization" class="form-control" value="{{ current_user.organization or '' }}" maxlength="160" placeholder="Company, team, or organization">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Bio</label>
+                                    <textarea name="bio" class="form-control" rows="5" maxlength="1000" placeholder="Tell the Sentrix community about yourself...">{{ current_user.bio or '' }}</textarea>
+                                    <div class="form-text">Maximum 1,000 characters.</div>
+                                </div>
+                            </div>
 
-                                <button type="submit"
-                                        class="btn btn-primary">
-
-                                    <i class="fa-solid fa-floppy-disk me-2"></i>
-
-                                    Save Changes
-
+                            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-4">
+                                <span class="text-muted small"><i class="fa-solid fa-shield-halved me-1"></i>Your profile information is visible only inside your Sentrix account.</span>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa-solid fa-floppy-disk me-2"></i>Save Profile
                                 </button>
-
                             </div>
-
                         </form>
-
                     </div>
-
                 </div>
-
             </div>
-
-            <!-- Profile Overview -->
 
             <div class="col-lg-4">
-
-                <div class="card border-0 shadow-sm h-100">
-
-                    <div class="card-header bg-white">
-
-                        <h4 class="mb-0">
-
-                            <i class="fa-solid fa-circle-info text-success me-2"></i>
-
-                            Profile Overview
-
-                        </h4>
-
-                    </div>
-
-                    <div class="card-body">
-
-                        <div class="mb-4">
-
-                            <small class="text-muted d-block">
-
-                                Username
-
-                            </small>
-
-                            <strong>
-
-                                {{ current_user.username }}
-
-                            </strong>
-
-                        </div>
-
-                        <div class="mb-4">
-
-                            <small class="text-muted d-block">
-
-                                Email
-
-                            </small>
-
-                            <strong>
-
-                                {{ current_user.email }}
-
-                            </strong>
-
-                        </div>
-
-                        <div class="mb-4">
-
-                            <small class="text-muted d-block">
-
-                                Member Since
-
-                            </small>
-
-                            <strong>
-
-                                {{ current_user.created_at.strftime('%d %B %Y') }}
-
-                            </strong>
-
-                        </div>
-
-                        <div>
-
-                            <small class="text-muted d-block">
-
-                                Account Status
-
-                            </small>
-
-                            <span class="badge bg-success">
-
-                                Active
-
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-<!-- Security & AI Provider -->
-
-        <div class="row g-4 mb-5">
-
-            <!-- Account Security -->
-
-            <div class="col-lg-6">
-
-                <div class="card border-0 shadow-sm h-100">
-
-                    <div class="card-header bg-white">
-
-                        <h4 class="mb-0">
-
-                            <i class="fa-solid fa-shield-halved text-danger me-2"></i>
-
-                            Account Security
-
-                        </h4>
-
-                    </div>
-
-                    <div class="card-body">
-
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-
-                            <div>
-
-                                <h6 class="mb-1">
-
-                                    Password
-
-                                </h6>
-
-                                <small class="text-muted">
-
-                                    Keep your account secure by updating your password regularly.
-
-                                </small>
-
-                            </div>
-
-                            <a href="{{ url_for('main.change_password') }}"
-                               class="btn btn-outline-primary btn-sm">
-
-                                Change
-
-                            </a>
-
-                        </div>
-
-                        <hr>
-
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-
-                            <div>
-
-                                <h6 class="mb-1">
-
-                                    Two-Factor Authentication
-
-                                </h6>
-
-                                <small class="text-muted">
-
-                                    Add an extra layer of protection to your account.
-
-                                </small>
-
-                            </div>
-
-                            <span class="badge bg-secondary">
-
-                                Coming Soon
-
-                            </span>
-
-                        </div>
-
-                        <hr>
-
-                        <div class="mb-4">
-
-                            <h6 class="mb-1">
-
-                                Last Login
-
-                            </h6>
-
-                            <p class="text-muted mb-0">
-
-                                {{ last_login or "Not Available" }}
-
-                            </p>
-
-                        </div>
-
-                        <hr>
-
-                        <div>
-
-                            <h6 class="mb-1">
-
-                                Account Status
-
-                            </h6>
-
-                            <span class="badge bg-success">
-
-                                Active
-
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <!-- AI Provider (BYOK) -->
-
-            <div class="col-lg-6">
-
-                <div class="card border-0 shadow-sm h-100">
-
-                    <div class="card-header bg-white">
-
-                        <h4 class="mb-0">
-
-                            <i class="fa-solid fa-key text-warning me-2"></i>
-
-                            AI Provider (BYOK)
-
-                        </h4>
-
-                    </div>
-
-                    <div class="card-body">
-
-                        <div class="mb-4">
-
-                            <small class="text-muted d-block">
-
-                                Current Provider
-
-                            </small>
-
-                            <strong>
-
-                                {{ ai_provider or "Gemini" }}
-
-                            </strong>
-
-                        </div>
-
-                        <div class="mb-4">
-
-                            <small class="text-muted d-block">
-
-                                AI Model
-
-                            </small>
-
-                            <strong>
-
-                                {{ ai_model or "gemini-2.5-pro" }}
-
-                            </strong>
-
-                        </div>
-
-                        <div class="mb-4">
-
-                            <small class="text-muted d-block">
-
-                                API Key Status
-
-                            </small>
-
-                            <span class="badge bg-success">
-
-                                Connected
-
-                            </span>
-
-                        </div>
-
-                        <div class="mb-4">
-
-                            <small class="text-muted d-block">
-
-                                AI Features
-
-                            </small>
-
-                            <ul class="small text-muted mb-0">
-
-                                <li>Code Review</li>
-
-                                <li>Security Analysis</li>
-
-                                <li>Bug Detection</li>
-
-                                <li>AI Recommendations</li>
-
-                            </ul>
-
-                        </div>
-
-                        <a href="{{ url_for('main.settings') }}"
-                           class="btn btn-primary w-100">
-
-                            <i class="fa-solid fa-gear me-2"></i>
-
-                            Configure AI Settings
-
-                        </a>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-
-<!-- Recent Activity & Quick Actions -->
-
-        <div class="row g-4">
-
-            <!-- Recent Activity -->
-
-            <div class="col-lg-8">
-
-                <div class="card border-0 shadow-sm h-100">
-
-                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
-
-                        <h4 class="mb-0">
-
-                            <i class="fa-solid fa-clock-rotate-left text-primary me-2"></i>
-
-                            Recent Activity
-
-                        </h4>
-
-                        <a href="{{ url_for('main.history') }}"
-                           class="btn btn-sm btn-outline-primary">
-
-                            View History
-
-                        </a>
-
-                    </div>
-
-                    <div class="card-body">
-
-                        {% if recent_activities %}
-
-                            {% for activity in recent_activities[:6] %}
-
-                            <div class="d-flex align-items-start mb-3">
-
-                                <div class="me-3">
-
-                                    <i class="fa-solid fa-circle-check text-success"></i>
-
-                                </div>
-
-                                <div class="flex-grow-1">
-
-                                    <strong>
-
-                                        {{ activity.title }}
-
-                                    </strong>
-
-                                    <br>
-
-                                    <small class="text-muted">
-
-                                        {{ activity.time }}
-
-                                    </small>
-
-                                </div>
-
-                            </div>
-
-                            {% if not loop.last %}
-
-                            <hr>
-
-                            {% endif %}
-
-                            {% endfor %}
-
-                        {% else %}
-
-                        <div class="text-center py-5">
-
-                            <i class="fa-solid fa-clock fa-3x text-secondary mb-3"></i>
-
-                            <p class="text-muted mb-0">
-
-                                No recent account activity available.
-
-                            </p>
-
-                        </div>
-
-                        {% endif %}
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <!-- Quick Actions -->
-
-            <div class="col-lg-4">
-
                 <div class="card border-0 shadow-sm mb-4">
-
-                    <div class="card-header bg-white">
-
-                        <h4 class="mb-0">
-
-                            <i class="fa-solid fa-bolt text-warning me-2"></i>
-
-                            Quick Actions
-
-                        </h4>
-
-                    </div>
-
+                    <div class="card-header bg-white py-3"><h4 class="mb-0"><i class="fa-solid fa-chart-pie text-success me-2"></i>Profile Completion</h4></div>
                     <div class="card-body">
-
-                        <div class="d-grid gap-3">
-
-                            <a href="{{ url_for('main.dashboard') }}"
-                               class="btn btn-primary">
-
-                                <i class="fa-solid fa-gauge-high me-2"></i>
-
-                                Dashboard
-
-                            </a>
-
-                            <a href="{{ url_for('main.upload') }}"
-                               class="btn btn-outline-success">
-
-                                <i class="fa-solid fa-cloud-arrow-up me-2"></i>
-
-                                Upload Project
-
-                            </a>
-
-                            <a href="{{ url_for('main.history') }}"
-                               class="btn btn-outline-secondary">
-
-                                <i class="fa-solid fa-file-lines me-2"></i>
-
-                                Analysis History
-
-                            </a>
-
-                            <a href="{{ url_for('main.settings') }}"
-                               class="btn btn-outline-primary">
-
-                                <i class="fa-solid fa-gear me-2"></i>
-
-                                Account Settings
-
-                            </a>
-
-                        </div>
-
+                        <div class="d-flex justify-content-between mb-2"><span>Completion</span><strong>{{ profile_completion }}%</strong></div>
+                        <div class="progress mb-3" style="height:10px;"><div class="progress-bar" style="width:{{ profile_completion }}%"></div></div>
+                        <ul class="list-unstyled small mb-0">
+                            <li class="mb-2"><i class="fa-solid fa-circle-check text-success me-2"></i>Username and email</li>
+                            <li class="mb-2"><i class="fa-solid {{ 'fa-circle-check text-success' if current_user.full_name else 'fa-circle text-secondary' }} me-2"></i>Full name</li>
+                            <li class="mb-2"><i class="fa-solid {{ 'fa-circle-check text-success' if current_user.organization else 'fa-circle text-secondary' }} me-2"></i>Organization</li>
+                            <li class="mb-2"><i class="fa-solid {{ 'fa-circle-check text-success' if current_user.bio else 'fa-circle text-secondary' }} me-2"></i>Bio</li>
+                            <li><i class="fa-solid {{ 'fa-circle-check text-success' if current_user.profile_picture and current_user.profile_picture != 'default.png' else 'fa-circle text-secondary' }} me-2"></i>Profile picture</li>
+                        </ul>
                     </div>
-
                 </div>
 
                 <div class="card border-0 shadow-sm">
-
-                    <div class="card-header bg-white">
-
-                        <h4 class="mb-0">
-
-                            <i class="fa-solid fa-circle-info text-success me-2"></i>
-
-                            Account Summary
-
-                        </h4>
-
-                    </div>
-
+                    <div class="card-header bg-white py-3"><h4 class="mb-0"><i class="fa-solid fa-address-card text-info me-2"></i>Account Overview</h4></div>
                     <div class="card-body">
-
-                        <div class="d-flex justify-content-between mb-3">
-
-                            <span>Status</span>
-
-                            <span class="badge bg-success">
-
-                                Active
-
-                            </span>
-
-                        </div>
-
-                        <div class="d-flex justify-content-between mb-3">
-
-                            <span>Projects</span>
-
-                            <strong>
-
-                                {{ total_projects }}
-
-                            </strong>
-
-                        </div>
-
-                        <div class="d-flex justify-content-between mb-3">
-
-                            <span>Analyses</span>
-
-                            <strong>
-
-                                {{ total_analyses }}
-
-                            </strong>
-
-                        </div>
-
-                        <div class="d-flex justify-content-between mb-3">
-
-                            <span>Reports</span>
-
-                            <strong>
-
-                                {{ total_reports }}
-
-                            </strong>
-
-                        </div>
-
-                        <div class="d-flex justify-content-between">
-
-                            <span>Overall Score</span>
-
-                            <strong class="text-success">
-
-                                {{ overall_score }}%
-
-                            </strong>
-
-                        </div>
-
+                        <div class="mb-3"><small class="text-muted d-block">Username</small><strong>@{{ current_user.username }}</strong></div>
+                        <div class="mb-3"><small class="text-muted d-block">Email</small><strong class="text-break">{{ current_user.email }}</strong></div>
+                        <div class="mb-3"><small class="text-muted d-block">Role</small><strong>{{ current_user.role|default('User')|title }}</strong></div>
+                        <div class="mb-3"><small class="text-muted d-block">Workspace</small><strong>{{ current_user.workspace|default('Personal')|replace('_', ' ')|title }}</strong></div>
+                        <div><small class="text-muted d-block">Member Since</small><strong>{{ current_user.created_at.strftime('%d %B %Y') }}</strong></div>
                     </div>
-
                 </div>
-
             </div>
-
         </div>
 
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0"><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i>Recent Projects</h4>
+                        <a href="{{ url_for('main.history') }}" class="btn btn-sm btn-outline-primary">View History</a>
+                    </div>
+                    <div class="card-body">
+                        {% if recent_projects %}
+                            <div class="list-group list-group-flush">
+                                {% for project in recent_projects %}
+                                    <div class="list-group-item px-0 py-3 d-flex justify-content-between align-items-center gap-3">
+                                        <div class="d-flex align-items-center min-w-0">
+                                            <div class="bg-primary bg-opacity-10 rounded-3 p-3 me-3"><i class="fa-solid fa-file-code text-primary"></i></div>
+                                            <div class="min-w-0">
+                                                <strong class="d-block text-truncate">{{ project.project_name }}</strong>
+                                                <small class="text-muted">{{ project.original_filename }} · {{ project.upload_date.strftime('%d %b %Y') }}</small>
+                                            </div>
+                                        </div>
+                                        <span class="badge bg-light text-dark border">{{ project.file_type|upper }}</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fa-solid fa-folder-open fa-3x text-secondary mb-3"></i>
+                                <h5>No projects yet</h5>
+                                <p class="text-muted">Upload your first project to begin building your Sentrix activity history.</p>
+                                <a href="{{ url_for('main.upload') }}" class="btn btn-primary">Upload Project</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3"><h4 class="mb-0"><i class="fa-solid fa-shield-halved text-danger me-2"></i>Account & Security</h4></div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div><strong>Password</strong><small class="text-muted d-block">Update your account password.</small></div>
+                            <a href="{{ url_for('main.change_password') }}" class="btn btn-sm btn-outline-primary">Change</a>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div><strong>Account Status</strong><small class="text-muted d-block">Your account is active.</small></div>
+                            <span class="badge bg-success">Active</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div><strong>Data & Preferences</strong><small class="text-muted d-block">Manage analysis, notifications, and storage.</small></div>
+                            <a href="{{ url_for('main.settings') }}" class="btn btn-sm btn-outline-secondary">Open</a>
+                        </div>
+                        <hr>
+                        <div class="d-grid gap-2">
+    <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">
+        <i class="fa-solid fa-gauge-high me-2"></i>Open Dashboard
+    </a>
+
+    <a href="{{ url_for('main.upload') }}" class="btn btn-outline-success">
+        <i class="fa-solid fa-cloud-arrow-up me-2"></i>Upload Project
+    </a>
+
+    <a href="{{ url_for('main.reviews') }}" class="btn btn-outline-warning">
+        <i class="fa-solid fa-star me-2"></i>My Reviews
+    </a>
+
+    <hr>
+
+    <a href="{{ url_for('account.delete_account') }}"
+       class="btn btn-danger">
+        <i class="fa-solid fa-trash-can me-2"></i>
+        Delete Account
+    </a>
+
+    <small class="text-muted text-center">
+        Permanently delete your Sentrix account, projects,
+        analyses, reports, reviews, and profile data.
+    </small>
+</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-
 </section>
-
 {% endblock %}

@@ -1,0 +1,273 @@
+name: Sentrix CI
+
+on:
+  push:
+    branches:
+      - main
+      - "release/**"
+      - "agent/**"
+  pull_request:
+    branches:
+      - main
+      - "release/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sentrix-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Python ${{ matrix.python-version }} validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - "3.11"
+          - "3.13"
+
+    env:
+      APP_ENV: testing
+      SECRET_KEY: ci-only-secret
+      DATABASE_URL: "sqlite:///:memory:"
+      WTF_CSRF_ENABLED: "0"
+      MAIL_SUPPRESS_SEND: "1"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Compile application and tests
+        run: |
+          python -m compileall -q \
+            app.py config.py database.py extensions.py \
+            forms.py models.py settings_models.py \
+            analyzer helpers migrations tests
+
+      - name: Import application factory
+        run: python -c "from app import create_app; app = create_app(); print(f'Loaded {len(list(app.url_map.iter_rules()))} routes')"
+
+      - name: Run unit and security tests
+        run: python -m unittest discover -s tests -p "test_*.py" -v
+
+  quality:
+    name: Python quality and security
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install quality tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install black flake8 bandit[toml]
+
+      - name: Check formatting baseline
+        run: |
+          black --check \
+            database.py \
+            tests/test_email_verification.py \
+            tests/test_extractor_limits.py \
+            tests/test_extractor_security.py \
+            tests/test_production_security.py
+
+      - name: Check syntax and undefined names
+        run: |
+          flake8 \
+            app.py config.py database.py extensions.py forms.py models.py settings_models.py \
+            analyzer helpers migrations scripts tests \
+            --select=E9,F63,F7,F82 \
+            --show-source \
+            --statistics
+
+      - name: Scan for high-severity security findings
+        run: |
+          bandit -r \
+            app.py config.py database.py extensions.py forms.py models.py settings_models.py \
+            analyzer helpers scripts \
+            --severity-level high \
+            --confidence-level high \
+            --quiet
+
+  migrations:
+    name: Verify Alembic migration round trip
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      APP_ENV: testing
+      SECRET_KEY: ci-migration-secret
+      DATABASE_AUTO_CREATE: "0"
+      DATABASE_URL: "sqlite:////tmp/sentrix_ci_migration.db"
+      WTF_CSRF_ENABLED: "0"
+      MAIL_SUPPRESS_SEND: "1"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Upgrade blank database to head
+        run: |
+          rm -f /tmp/sentrix_ci_migration.db
+          flask --app app db upgrade
+          flask --app app db current | grep "20260806_0001"
+
+      - name: Verify migrated schema
+        run: |
+          python - <<'PY'
+          import sqlite3
+
+          expected = {
+              "alembic_version",
+              "analyses",
+              "projects",
+              "reviews",
+              "user_settings",
+              "users",
+          }
+          connection = sqlite3.connect("/tmp/sentrix_ci_migration.db")
+          actual = {
+              row[0]
+              for row in connection.execute(
+                  "SELECT name FROM sqlite_master WHERE type = 'table'"
+              )
+          }
+          connection.close()
+          missing = expected - actual
+          if missing:
+              raise SystemExit(f"Missing migrated tables: {sorted(missing)}")
+          print("Migration schema verified:", sorted(expected))
+          PY
+
+      - name: Downgrade to base
+        run: |
+          flask --app app db downgrade base
+          python - <<'PY'
+          import sqlite3
+
+          application_tables = {
+              "analyses",
+              "projects",
+              "reviews",
+              "user_settings",
+              "users",
+          }
+          connection = sqlite3.connect("/tmp/sentrix_ci_migration.db")
+          actual = {
+              row[0]
+              for row in connection.execute(
+                  "SELECT name FROM sqlite_master WHERE type = 'table'"
+              )
+          }
+          connection.close()
+          remaining = application_tables & actual
+          if remaining:
+              raise SystemExit(f"Tables remained after downgrade: {sorted(remaining)}")
+          print("Downgrade removed all application tables")
+          PY
+
+      - name: Re-upgrade to head
+        run: |
+          flask --app app db upgrade
+          flask --app app db current | grep "20260806_0001"
+          python - <<'PY'
+          import sqlite3
+
+          expected = {
+              "analyses",
+              "projects",
+              "reviews",
+              "user_settings",
+              "users",
+          }
+          connection = sqlite3.connect("/tmp/sentrix_ci_migration.db")
+          actual = {
+              row[0]
+              for row in connection.execute(
+                  "SELECT name FROM sqlite_master WHERE type = 'table'"
+              )
+          }
+          connection.close()
+          missing = expected - actual
+          if missing:
+              raise SystemExit(f"Missing tables after re-upgrade: {sorted(missing)}")
+          print("Migration round trip verified")
+          PY
+
+  performance:
+    name: Guard extractor performance
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Run 1,000-file extractor benchmark
+        run: |
+          python scripts/benchmark_extractor.py \
+            --counts 1000 \
+            --max-extract-seconds 10 \
+            --max-peak-memory-mib 64
+
+  docker:
+    name: Build production container
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: sentrix:rc1
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
