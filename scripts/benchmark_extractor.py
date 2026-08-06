@@ -51,7 +51,10 @@ def _build_archive(path: Path, file_count: int, lines_per_file: int) -> tuple[fl
         for index in range(file_count):
             content = _python_source(index, lines_per_file).encode("utf-8")
             expanded_size += len(content)
-            archive.writestr(f"project/package_{index // 100:04d}/module_{index:05d}.py", content)
+            archive.writestr(
+                f"project/package_{index // 100:04d}/module_{index:05d}.py",
+                content,
+            )
     return time.perf_counter() - started, expanded_size
 
 
@@ -108,6 +111,41 @@ def _human_bytes(value: int) -> str:
     return f"{value} B"
 
 
+def _enforce_thresholds(
+    results: list[dict[str, int | float]],
+    max_extract_seconds: float | None,
+    max_peak_memory_mib: float | None,
+) -> None:
+    failures = []
+    memory_limit_bytes = (
+        int(max_peak_memory_mib * 1024 * 1024)
+        if max_peak_memory_mib is not None
+        else None
+    )
+
+    for result in results:
+        if (
+            max_extract_seconds is not None
+            and float(result["extract_seconds"]) > max_extract_seconds
+        ):
+            failures.append(
+                f"{result['files']} files took {result['extract_seconds']}s "
+                f"(limit {max_extract_seconds}s)"
+            )
+        if (
+            memory_limit_bytes is not None
+            and int(result["peak_traced_memory_bytes"]) > memory_limit_bytes
+        ):
+            failures.append(
+                f"{result['files']} files used "
+                f"{_human_bytes(int(result['peak_traced_memory_bytes']))} peak traced memory "
+                f"(limit {_human_bytes(memory_limit_bytes)})"
+            )
+
+    if failures:
+        raise SystemExit("Performance threshold failure:\n- " + "\n- ".join(failures))
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -124,6 +162,16 @@ def main() -> int:
         help=f"Generated lines per Python file (default: {DEFAULT_LINES_PER_FILE}).",
     )
     parser.add_argument(
+        "--max-extract-seconds",
+        type=float,
+        help="Fail if any case exceeds this extraction duration.",
+    )
+    parser.add_argument(
+        "--max-peak-memory-mib",
+        type=float,
+        help="Fail if any case exceeds this peak traced Python memory.",
+    )
+    parser.add_argument(
         "--json",
         action="store_true",
         help="Print machine-readable JSON instead of a formatted table.",
@@ -131,6 +179,11 @@ def main() -> int:
     args = parser.parse_args()
 
     results = [run_case(count, args.lines_per_file) for count in args.counts]
+    _enforce_thresholds(
+        results,
+        args.max_extract_seconds,
+        args.max_peak_memory_mib,
+    )
 
     if args.json:
         print(json.dumps(results, indent=2))
