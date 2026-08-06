@@ -1,10 +1,52 @@
+# Virtual environments
 venv/
+.venv/
+
+# Python caches and compiled files
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+
+# Test and tool caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local databases and runtime data
 *.db
-.env
+*.sqlite
+*.sqlite3
 instance/
 uploads/
 reports/
 corrected/
+
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# Editor and operating-system files
 .vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Backup and temporary artifacts
+*.bak
+*.backup
+*.orig
+*.save
+*.tmp
+
+# Legacy development artifacts
+models_backup/
+test_extract/
