@@ -85,8 +85,14 @@ def password_reset_request():
         token = _generate_token(user)
         reset_url = url_for("account.reset_password", token=token, _external=True)
         expires_minutes = int(current_app.config.get("PASSWORD_RESET_MAX_AGE", 3600)) // 60
+        sender = (
+            current_app.config.get("MAIL_DEFAULT_SENDER")
+            or current_app.config.get("MAIL_USERNAME")
+            or current_app.config.get("SUPPORT_EMAIL")
+        )
         message = Message(
             subject="Reset your Sentrix password",
+            sender=sender,
             recipients=[user.email],
             body=(
                 f"Hello {user.username},\n\n"
