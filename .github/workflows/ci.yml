@@ -62,17 +62,10 @@ jobs:
             analyzer helpers tests
 
       - name: Import application factory
-        run: |
-          python - <<'PY'
-          from app import create_app
-
-          app = create_app()
-          print(f"Loaded {len(list(app.url_map.iter_rules()))} routes")
-          PY
+        run: python -c "from app import create_app; app = create_app(); print(f'Loaded {len(list(app.url_map.iter_rules()))} routes')"
 
       - name: Run unit and security tests
-        run: |
-          python -m unittest discover -s tests -p "test_*.py" -v
+        run: python -m unittest discover -s tests -p "test_*.py" -v
 
   docker:
     name: Build production container
