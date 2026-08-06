@@ -1,7 +1,7 @@
 import os
 
 from flask import Flask, render_template
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 
 from analyzer.routes.account import account_bp
 from analyzer.routes.main_loader import main
@@ -11,7 +11,7 @@ from analyzer.routes.upload import upload_bp
 from config import Config
 from database import db
 from extensions import csrf, mail, migrate
-from models import User
+from models import Analysis, Project, User
 from settings_models import UserSettings  # noqa: F401 - registers the model before schema checks
 
 
@@ -74,6 +74,26 @@ def create_app(config_class=Config):
     app.register_blueprint(settings_page)
     app.register_blueprint(upload_bp)
     app.register_blueprint(main)
+
+    @app.context_processor
+    def inject_authenticated_metrics():
+        """Expose user-scoped project, analysis and report totals to templates."""
+        if not current_user.is_authenticated:
+            return {
+                "total_projects": 0,
+                "total_analyses": 0,
+                "total_reports": 0,
+            }
+
+        user_id = current_user.id
+        return {
+            "total_projects": Project.query.filter_by(user_id=user_id).count(),
+            "total_analyses": Analysis.query.filter_by(user_id=user_id).count(),
+            "total_reports": Analysis.query.filter(
+                Analysis.user_id == user_id,
+                Analysis.report_path.isnot(None),
+            ).count(),
+        }
 
     @app.after_request
     def apply_sentrix_response_policies(response):
