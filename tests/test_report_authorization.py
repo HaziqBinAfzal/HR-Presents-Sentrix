@@ -42,14 +42,12 @@ class ReportAuthorizationTests(unittest.TestCase):
         owner = User(
             username="report-owner",
             email="owner@example.com",
-            email_verified=True,
         )
         owner.set_password("StrongPass123!")
 
         other = User(
             username="other-user",
             email="other@example.com",
-            email_verified=True,
         )
         other.set_password("StrongPass123!")
 
