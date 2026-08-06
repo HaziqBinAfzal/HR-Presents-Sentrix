@@ -3,195 +3,77 @@
 {% block title %}Upload Project | Sentrix{% endblock %}
 
 {% block content %}
-<section class="py-4 py-lg-5">
-    <div class="container">
-        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
-            <div>
-                <span class="badge bg-primary-subtle text-primary mb-2">
-                    <i class="fa-solid fa-cloud-arrow-up me-2"></i>New analysis
-                </span>
-                <h1 class="fw-bold mb-2">Analyze a Python project</h1>
-                <p class="text-muted mb-0">Upload a Python file or ZIP archive. Sentrix will apply your saved analysis preferences automatically.</p>
-            </div>
-            <div class="d-flex flex-wrap gap-2">
-                <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-primary">
-                    <i class="fa-solid fa-gauge-high me-2"></i>Dashboard
-                </a>
-                <a href="{{ url_for('main.history') }}" class="btn btn-outline-secondary">
-                    <i class="fa-solid fa-clock-rotate-left me-2"></i>History
-                </a>
-                <a href="{{ url_for('settings_page.settings') }}" class="btn btn-outline-dark">
-                    <i class="fa-solid fa-sliders me-2"></i>Preferences
-                </a>
-            </div>
+<section class="py-5">
+    <div class="container" style="max-width:1180px;">
+        <div class="text-center mb-5">
+            <span class="badge bg-primary-subtle text-primary px-3 py-2 mb-3"><i class="fa-solid fa-cloud-arrow-up me-2"></i>New analysis</span>
+            <h1 class="fw-bold mb-3">Analyze a Python project</h1>
+            <p class="text-muted mx-auto mb-0" style="max-width:720px;">Upload one Python file or a ZIP archive. Sentrix will validate it, run the enabled checks, and save the result to your history.</p>
         </div>
 
-        <div class="row g-3 mb-4">
-            <div class="col-6 col-xl-3">
-                <div class="card border-0 shadow-sm h-100"><div class="card-body">
-                    <small class="text-muted">Projects</small>
-                    <div class="d-flex justify-content-between align-items-end"><h3 class="fw-bold mb-0">{{ total_projects }}</h3><i class="fa-solid fa-folder-open text-primary fa-lg"></i></div>
-                </div></div>
-            </div>
-            <div class="col-6 col-xl-3">
-                <div class="card border-0 shadow-sm h-100"><div class="card-body">
-                    <small class="text-muted">Analyses</small>
-                    <div class="d-flex justify-content-between align-items-end"><h3 class="fw-bold mb-0">{{ total_analyses }}</h3><i class="fa-solid fa-magnifying-glass-chart text-success fa-lg"></i></div>
-                </div></div>
-            </div>
-            <div class="col-6 col-xl-3">
-                <div class="card border-0 shadow-sm h-100"><div class="card-body">
-                    <small class="text-muted">Reports</small>
-                    <div class="d-flex justify-content-between align-items-end"><h3 class="fw-bold mb-0">{{ total_reports }}</h3><i class="fa-solid fa-file-lines text-warning fa-lg"></i></div>
-                </div></div>
-            </div>
-            <div class="col-6 col-xl-3">
-                <div class="card border-0 shadow-sm h-100"><div class="card-body">
-                    <small class="text-muted">Storage Used</small>
-                    <div class="d-flex justify-content-between align-items-end"><h3 class="fw-bold mb-0">{{ storage_used }}</h3><i class="fa-solid fa-hard-drive text-info fa-lg"></i></div>
-                </div></div>
-            </div>
+        <div class="row g-4 mb-4">
+            <div class="col-6 col-lg-3"><div class="card border-0 shadow-sm h-100 text-center"><div class="card-body p-4"><i class="fa-solid fa-folder-open text-primary fa-2x mb-3"></i><h3 class="fw-bold mb-1">{{ total_projects|default(0) }}</h3><small class="text-muted">Projects</small></div></div></div>
+            <div class="col-6 col-lg-3"><div class="card border-0 shadow-sm h-100 text-center"><div class="card-body p-4"><i class="fa-solid fa-magnifying-glass-chart text-success fa-2x mb-3"></i><h3 class="fw-bold mb-1">{{ total_analyses|default(0) }}</h3><small class="text-muted">Analyses</small></div></div></div>
+            <div class="col-6 col-lg-3"><div class="card border-0 shadow-sm h-100 text-center"><div class="card-body p-4"><i class="fa-solid fa-file-lines text-warning fa-2x mb-3"></i><h3 class="fw-bold mb-1">{{ total_reports|default(0) }}</h3><small class="text-muted">Reports</small></div></div></div>
+            <div class="col-6 col-lg-3"><div class="card border-0 shadow-sm h-100 text-center"><div class="card-body p-4"><i class="fa-solid fa-hard-drive text-info fa-2x mb-3"></i><h3 class="fw-bold mb-1">{{ storage_used|default('0 MB') }}</h3><small class="text-muted">Storage used</small></div></div></div>
         </div>
 
         <form method="POST" enctype="multipart/form-data" id="uploadForm" novalidate>
             {{ form.hidden_tag() }}
-            <div class="row g-4">
+            <div class="row g-4 align-items-start">
                 <div class="col-lg-8">
-                    <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                            <h4 class="mb-0"><i class="fa-solid fa-upload text-primary me-2"></i>Project upload</h4>
-                            <span class="badge bg-light text-dark border">Max {{ max_upload_mb }} MB</span>
-                        </div>
-                        <div class="card-body">
-                            <div id="dropZone" class="border border-2 border-primary border-dashed rounded-4 p-4 p-lg-5 text-center bg-light position-relative">
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body p-4 p-lg-5">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div><h2 class="h4 fw-bold mb-1">Project upload</h2><p class="text-muted mb-0">Accepted formats: .py and .zip</p></div>
+                                <span class="badge bg-light text-dark border">Max {{ max_upload_mb|default(100) }} MB</span>
+                            </div>
+                            <div id="dropZone" class="rounded-4 border border-2 border-primary border-dashed bg-light text-center p-5 mb-4">
                                 <i class="fa-solid fa-cloud-arrow-up fa-4x text-primary mb-3"></i>
-                                <h4 class="fw-bold">Drag and drop your project here</h4>
-                                <p class="text-muted mb-3">Supported formats: <code>.py</code> and <code>.zip</code></p>
-                                {{ form.file(class="form-control", accept=".py,.zip", id="projectFile") }}
+                                <h3 class="h5 fw-bold">Choose or drop your project</h3>
+                                <p class="text-muted mb-3">Select a Python file or ZIP archive from your computer.</p>
+                                {{ form.file(class="form-control form-control-lg", accept=".py,.zip", id="projectFile") }}
                                 {% for error in form.file.errors %}<div class="text-danger small mt-2">{{ error }}</div>{% endfor %}
                             </div>
-
-                            <div id="filePreview" class="border rounded-3 p-3 mt-3 d-none">
-                                <div class="d-flex align-items-center justify-content-between gap-3">
-                                    <div class="d-flex align-items-center min-w-0">
-                                        <div class="bg-primary-subtle text-primary rounded-3 p-3 me-3"><i class="fa-solid fa-file-code fa-lg"></i></div>
-                                        <div class="min-w-0"><strong id="fileName" class="d-block text-truncate"></strong><small id="fileMeta" class="text-muted"></small></div>
-                                    </div>
-                                    <button type="button" class="btn btn-sm btn-outline-danger" id="removeFile"><i class="fa-solid fa-xmark me-1"></i>Remove</button>
-                                </div>
+                            <div class="mb-4">
+                                {{ form.project_name.label(class="form-label fw-semibold") }}
+                                {{ form.project_name(class="form-control form-control-lg", placeholder="Example: Customer Portal API", id="projectName") }}
+                                <div class="form-text">This name appears in your dashboard, history, and reports.</div>
+                                {% for error in form.project_name.errors %}<div class="text-danger small mt-2">{{ error }}</div>{% endfor %}
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-header bg-white py-3"><h4 class="mb-0"><i class="fa-solid fa-folder-tree text-success me-2"></i>Project details</h4></div>
-                        <div class="card-body">
-                            <label class="form-label fw-semibold">Project name</label>
-                            {{ form.project_name(class="form-control", placeholder="Example: Customer Portal API", id="projectName") }}
-                            <div class="form-text">This name appears in your project history and reports.</div>
-                            {% for error in form.project_name.errors %}<div class="text-danger small mt-2">{{ error }}</div>{% endfor %}
-                        </div>
-                    </div>
-
-                    <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-header bg-white py-3"><h4 class="mb-0"><i class="fa-solid fa-circle-info text-info me-2"></i>Before you upload</h4></div>
-                        <div class="card-body">
-                            <div class="row g-3">
-                                <div class="col-md-4"><div class="border rounded-3 p-3 h-100"><i class="fa-solid fa-shield-halved text-success mb-2"></i><strong class="d-block">Private workspace</strong><small class="text-muted">Projects are attached only to your account.</small></div></div>
-                                <div class="col-md-4"><div class="border rounded-3 p-3 h-100"><i class="fa-solid fa-file-zipper text-warning mb-2"></i><strong class="d-block">Clean archives</strong><small class="text-muted">Exclude virtual environments, caches, and build files.</small></div></div>
-                                <div class="col-md-4"><div class="border rounded-3 p-3 h-100"><i class="fa-solid fa-key text-danger mb-2"></i><strong class="d-block">Remove secrets</strong><small class="text-muted">Do not upload passwords, tokens, or private keys.</small></div></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-white py-3 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
-                            <h4 class="mb-0"><i class="fa-solid fa-diagram-project text-primary me-2"></i>What happens after upload</h4>
-                            <span class="badge bg-primary-subtle text-primary">Automatic workflow</span>
-                        </div>
-                        <div class="card-body">
-                            <p class="text-muted mb-4">Sentrix prepares, scans, scores, and reports on your project without modifying the file you uploaded.</p>
-                            <div class="row g-3">
-                                <div class="col-sm-6">
-                                    <div class="border rounded-3 p-3 h-100 d-flex gap-3">
-                                        <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:42px;height:42px;"><strong>1</strong></div>
-                                        <div><strong class="d-block mb-1">Validate and extract</strong><small class="text-muted">The file type and size are checked, then ZIP projects are safely extracted.</small></div>
-                                    </div>
+                            <div id="filePreview" class="alert alert-light border d-none mb-4"><strong id="fileName"></strong><div id="fileMeta" class="small text-muted"></div></div>
+                            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 pt-3 border-top">
+                                <small class="text-muted"><i class="fa-solid fa-lock me-2"></i>Your upload stays inside your Sentrix workspace.</small>
+                                <div class="d-flex gap-2">
+                                    <button type="reset" class="btn btn-outline-secondary">Reset</button>
+                                    <button type="submit" id="submitBtn" class="btn btn-primary btn-lg"><i class="fa-solid fa-play me-2"></i>{{ 'Analyze project' if preferences.auto_run_analysis else 'Upload project' }}</button>
                                 </div>
-                                <div class="col-sm-6">
-                                    <div class="border rounded-3 p-3 h-100 d-flex gap-3">
-                                        <div class="bg-success-subtle text-success rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:42px;height:42px;"><strong>2</strong></div>
-                                        <div><strong class="d-block mb-1">Discover source files</strong><small class="text-muted">Python files are collected while caches, virtual environments, Git data, and dependencies are ignored.</small></div>
-                                    </div>
-                                </div>
-                                <div class="col-sm-6">
-                                    <div class="border rounded-3 p-3 h-100 d-flex gap-3">
-                                        <div class="bg-warning-subtle text-warning rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:42px;height:42px;"><strong>3</strong></div>
-                                        <div><strong class="d-block mb-1">Run configured checks</strong><small class="text-muted">Sentrix applies your enabled quality, security, complexity, formatting, and syntax checks.</small></div>
-                                    </div>
-                                </div>
-                                <div class="col-sm-6">
-                                    <div class="border rounded-3 p-3 h-100 d-flex gap-3">
-                                        <div class="bg-info-subtle text-info rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:42px;height:42px;"><strong>4</strong></div>
-                                        <div><strong class="d-block mb-1">Build results and report</strong><small class="text-muted">Scores, findings, recommendations, and a downloadable report are saved to your history.</small></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="alert alert-light border mt-3 mb-0 d-flex align-items-start gap-2">
-                                <i class="fa-solid fa-circle-check text-success mt-1"></i>
-                                <small class="text-muted">Processing time depends on archive size and the number of enabled analyzers. Keep this tab open until the results page appears.</small>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-lg-4">
-                    <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-header bg-white py-3"><h4 class="mb-0"><i class="fa-solid fa-sliders text-primary me-2"></i>Current analysis plan</h4></div>
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between py-2 border-bottom"><span>Analysis mode</span><strong class="text-capitalize">{{ preferences.analysis_mode }}</strong></div>
-                            <div class="d-flex justify-content-between py-2 border-bottom"><span>Pylint quality</span><span class="badge {{ 'bg-success' if preferences.enable_pylint else 'bg-secondary' }}">{{ 'Enabled' if preferences.enable_pylint else 'Disabled' }}</span></div>
-                            <div class="d-flex justify-content-between py-2 border-bottom"><span>Bandit security</span><span class="badge {{ 'bg-success' if preferences.enable_bandit else 'bg-secondary' }}">{{ 'Enabled' if preferences.enable_bandit else 'Disabled' }}</span></div>
-                            <div class="d-flex justify-content-between py-2 border-bottom"><span>Radon complexity</span><span class="badge {{ 'bg-success' if preferences.enable_radon else 'bg-secondary' }}">{{ 'Enabled' if preferences.enable_radon else 'Disabled' }}</span></div>
-                            <div class="d-flex justify-content-between py-2 border-bottom"><span>Black formatting</span><span class="badge {{ 'bg-success' if preferences.enable_black else 'bg-secondary' }}">{{ 'Enabled' if preferences.enable_black else 'Disabled' }}</span></div>
-                            <div class="d-flex justify-content-between py-2 border-bottom"><span>AI recommendations</span><span class="badge {{ 'bg-success' if preferences.enable_ai else 'bg-secondary' }}">{{ 'Enabled' if preferences.enable_ai else 'Disabled' }}</span></div>
-                            <div class="d-flex justify-content-between py-2"><span>Automatic analysis</span><span class="badge {{ 'bg-primary' if preferences.auto_run_analysis else 'bg-warning text-dark' }}">{{ 'On' if preferences.auto_run_analysis else 'Off' }}</span></div>
-                            <a href="{{ url_for('settings_page.settings') }}" class="btn btn-outline-primary w-100 mt-3"><i class="fa-solid fa-gear me-2"></i>Change preferences</a>
+                    <div class="card border-0 shadow-sm rounded-4 mb-4">
+                        <div class="card-body p-4">
+                            <h2 class="h5 fw-bold mb-3"><i class="fa-solid fa-sliders text-primary me-2"></i>Analysis plan</h2>
+                            <div class="d-flex justify-content-between py-2 border-bottom"><span>Mode</span><strong class="text-capitalize">{{ preferences.analysis_mode }}</strong></div>
+                            <div class="d-flex justify-content-between py-2 border-bottom"><span>Pylint</span><span class="badge {{ 'bg-success' if preferences.enable_pylint else 'bg-secondary' }}">{{ 'On' if preferences.enable_pylint else 'Off' }}</span></div>
+                            <div class="d-flex justify-content-between py-2 border-bottom"><span>Bandit</span><span class="badge {{ 'bg-success' if preferences.enable_bandit else 'bg-secondary' }}">{{ 'On' if preferences.enable_bandit else 'Off' }}</span></div>
+                            <div class="d-flex justify-content-between py-2 border-bottom"><span>Radon</span><span class="badge {{ 'bg-success' if preferences.enable_radon else 'bg-secondary' }}">{{ 'On' if preferences.enable_radon else 'Off' }}</span></div>
+                            <div class="d-flex justify-content-between py-2"><span>Formatting</span><span class="badge {{ 'bg-success' if preferences.enable_black else 'bg-secondary' }}">{{ 'On' if preferences.enable_black else 'Off' }}</span></div>
+                            <a href="{{ url_for('settings_page.settings') }}" class="btn btn-outline-primary w-100 mt-3">Change preferences</a>
                         </div>
                     </div>
-
-                    <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-header bg-white py-3"><h4 class="mb-0"><i class="fa-solid fa-bars-progress text-success me-2"></i>Upload progress</h4></div>
-                        <div class="card-body">
-                            <div class="progress mb-2" style="height:12px;"><div id="uploadProgress" class="progress-bar progress-bar-striped progress-bar-animated" style="width:0%">0%</div></div>
-                            <small id="uploadStatus" class="text-muted">Waiting for a project.</small>
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body p-4">
+                            <h2 class="h5 fw-bold mb-3"><i class="fa-solid fa-circle-check text-success me-2"></i>Before uploading</h2>
+                            <ul class="text-muted ps-3 mb-0">
+                                <li class="mb-2">Remove passwords, keys, and tokens.</li>
+                                <li class="mb-2">Exclude virtual environments and caches.</li>
+                                <li>Keep this tab open until results appear.</li>
+                            </ul>
                         </div>
-                    </div>
-
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-white py-3"><h4 class="mb-0"><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i>Recent projects</h4></div>
-                        <div class="card-body">
-                            {% if recent_projects %}
-                                {% for project in recent_projects %}
-                                <div class="d-flex justify-content-between align-items-center {% if not loop.last %}pb-3 mb-3 border-bottom{% endif %}">
-                                    <div class="me-3 min-w-0"><strong class="d-block text-truncate">{{ project.project_name }}</strong><small class="text-muted">{{ project.upload_date.strftime('%d %b %Y') }} · {{ project.file_type|upper }}</small></div>
-                                    <span class="badge bg-light text-dark border">{{ (project.file_size / 1024)|round(1) }} KB</span>
-                                </div>
-                                {% endfor %}
-                            {% else %}
-                                <div class="text-center py-3"><i class="fa-solid fa-folder-open fa-2x text-secondary mb-2"></i><p class="text-muted mb-0">No projects uploaded yet.</p></div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card border-0 shadow-sm mt-4">
-                <div class="card-body d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
-                    <small class="text-muted"><i class="fa-solid fa-lock me-2"></i>Your upload is processed inside your Sentrix workspace.</small>
-                    <div class="d-flex gap-2">
-                        <button type="reset" id="resetBtn" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-rotate-left me-2"></i>Reset</button>
-                        <button type="submit" id="submitBtn" class="btn btn-primary btn-lg"><i class="fa-solid fa-play me-2"></i>{{ 'Analyze project' if preferences.auto_run_analysis else 'Upload project' }}</button>
                     </div>
                 </div>
             </div>
@@ -202,91 +84,24 @@
 
 {% block scripts %}
 <script>
-const form = document.getElementById('uploadForm');
-const fileInput = document.getElementById('projectFile');
+const input = document.getElementById('projectFile');
+const preview = document.getElementById('filePreview');
+const nameEl = document.getElementById('fileName');
+const metaEl = document.getElementById('fileMeta');
 const projectName = document.getElementById('projectName');
-const dropZone = document.getElementById('dropZone');
-const filePreview = document.getElementById('filePreview');
-const fileName = document.getElementById('fileName');
-const fileMeta = document.getElementById('fileMeta');
-const removeFile = document.getElementById('removeFile');
-const progressBar = document.getElementById('uploadProgress');
-const uploadStatus = document.getElementById('uploadStatus');
+const form = document.getElementById('uploadForm');
 const submitBtn = document.getElementById('submitBtn');
-const resetBtn = document.getElementById('resetBtn');
-const maxBytes = {{ max_upload_mb }} * 1024 * 1024;
-
-function formatSize(bytes) {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
-}
-
-function clearSelection() {
-    fileInput.value = '';
-    filePreview.classList.add('d-none');
-    uploadStatus.textContent = 'Waiting for a project.';
-    progressBar.style.width = '0%';
-    progressBar.textContent = '0%';
-}
-
-function inspectFile(file) {
-    const lowerName = file.name.toLowerCase();
-    const validType = lowerName.endsWith('.py') || lowerName.endsWith('.zip');
-    if (!validType) {
-        alert('Please select a .py file or .zip archive.');
-        clearSelection();
-        return;
-    }
-    if (file.size > maxBytes) {
-        alert(`This file exceeds the {{ max_upload_mb }} MB upload limit.`);
-        clearSelection();
-        return;
-    }
-    fileName.textContent = file.name;
-    fileMeta.textContent = `${formatSize(file.size)} · ${lowerName.endsWith('.zip') ? 'ZIP archive' : 'Python source file'}`;
-    filePreview.classList.remove('d-none');
-    uploadStatus.textContent = `${file.name} is ready.`;
-    if (!projectName.value.trim()) {
-        projectName.value = file.name.replace(/\.(py|zip)$/i, '').replace(/[_-]+/g, ' ');
-    }
-}
-
-['dragenter', 'dragover'].forEach(name => dropZone.addEventListener(name, event => {
-    event.preventDefault();
-    dropZone.classList.add('border-success', 'bg-success-subtle');
-}));
-['dragleave', 'drop'].forEach(name => dropZone.addEventListener(name, event => {
-    event.preventDefault();
-    dropZone.classList.remove('border-success', 'bg-success-subtle');
-}));
-dropZone.addEventListener('drop', event => {
-    if (!event.dataTransfer.files.length) return;
-    fileInput.files = event.dataTransfer.files;
-    inspectFile(event.dataTransfer.files[0]);
+input.addEventListener('change', function () {
+    const file = this.files[0];
+    if (!file) { preview.classList.add('d-none'); return; }
+    nameEl.textContent = file.name;
+    metaEl.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+    preview.classList.remove('d-none');
+    if (!projectName.value.trim()) projectName.value = file.name.replace(/\.(py|zip)$/i, '');
 });
-fileInput.addEventListener('change', () => {
-    if (fileInput.files.length) inspectFile(fileInput.files[0]);
-});
-removeFile.addEventListener('click', clearSelection);
-resetBtn.addEventListener('click', () => setTimeout(clearSelection, 0));
-
-form.addEventListener('submit', event => {
-    if (!fileInput.files.length) {
-        event.preventDefault();
-        alert('Select a Python file or ZIP archive first.');
-        return;
-    }
+form.addEventListener('submit', function () {
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Processing…';
-    uploadStatus.textContent = 'Uploading and preparing your Sentrix analysis…';
-    let value = 5;
-    const timer = setInterval(() => {
-        value = Math.min(value + 4, 95);
-        progressBar.style.width = `${value}%`;
-        progressBar.textContent = `${value}%`;
-        if (value >= 95) clearInterval(timer);
-    }, 180);
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
 });
 </script>
 {% endblock %}
