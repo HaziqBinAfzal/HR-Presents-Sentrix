@@ -35,7 +35,7 @@ jobs:
     env:
       APP_ENV: testing
       SECRET_KEY: ci-only-secret
-      DATABASE_URL: sqlite:///:memory:
+      DATABASE_URL: "sqlite:///:memory:"
       WTF_CSRF_ENABLED: "0"
       MAIL_SUPPRESS_SEND: "1"
 
