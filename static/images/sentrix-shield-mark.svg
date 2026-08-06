@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Sentrix shield">
+  <defs><linearGradient id="g" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse"><stop stop-color="#1677ff"/><stop offset="1" stop-color="#18c7d9"/></linearGradient></defs>
+  <rect width="64" height="64" rx="14" fill="#0f172a"/>
+  <path d="M32 8 50 18v14c0 12-7.6 20.9-18 25-10.4-4.1-18-13-18-25V18L32 8Z" fill="url(#g)"/>
+  <path d="M32 17v30c6.6-3.5 11-9.4 11-16.8v-8.1L32 17Z" fill="#fff" opacity=".94"/>
+</svg>
