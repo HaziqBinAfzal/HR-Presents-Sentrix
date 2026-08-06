@@ -39,10 +39,20 @@
             </div>
         </div>
 
+        {% if current_user.is_authenticated %}
+            {% set user_projects = current_user.projects|length %}
+            {% set user_analyses = current_user.analyses|length %}
+            {% set user_reports = current_user.analyses|selectattr('report_path')|list|length %}
+        {% else %}
+            {% set user_projects = 0 %}
+            {% set user_analyses = 0 %}
+            {% set user_reports = 0 %}
+        {% endif %}
+
         <div class="row g-4 mt-4">
-            <div class="col-6 col-xl-3"><div class="card border-0 shadow-sm text-center h-100"><div class="card-body p-4"><i class="fa-solid fa-folder-open fa-2x text-primary mb-3"></i><h3 class="fw-bold">{{ total_projects|default(0) }}</h3><p class="text-muted mb-0">Projects analyzed</p></div></div></div>
-            <div class="col-6 col-xl-3"><div class="card border-0 shadow-sm text-center h-100"><div class="card-body p-4"><i class="fa-solid fa-magnifying-glass-chart fa-2x text-success mb-3"></i><h3 class="fw-bold">{{ total_analyses|default(0) }}</h3><p class="text-muted mb-0">Analyses completed</p></div></div></div>
-            <div class="col-6 col-xl-3"><div class="card border-0 shadow-sm text-center h-100"><div class="card-body p-4"><i class="fa-solid fa-file-lines fa-2x text-warning mb-3"></i><h3 class="fw-bold">{{ total_reports|default(0) }}</h3><p class="text-muted mb-0">Reports generated</p></div></div></div>
+            <div class="col-6 col-xl-3"><div class="card border-0 shadow-sm text-center h-100"><div class="card-body p-4"><i class="fa-solid fa-folder-open fa-2x text-primary mb-3"></i><h3 class="fw-bold">{{ user_projects }}</h3><p class="text-muted mb-0">Projects analyzed</p></div></div></div>
+            <div class="col-6 col-xl-3"><div class="card border-0 shadow-sm text-center h-100"><div class="card-body p-4"><i class="fa-solid fa-magnifying-glass-chart fa-2x text-success mb-3"></i><h3 class="fw-bold">{{ user_analyses }}</h3><p class="text-muted mb-0">Analyses completed</p></div></div></div>
+            <div class="col-6 col-xl-3"><div class="card border-0 shadow-sm text-center h-100"><div class="card-body p-4"><i class="fa-solid fa-file-lines fa-2x text-warning mb-3"></i><h3 class="fw-bold">{{ user_reports }}</h3><p class="text-muted mb-0">Reports generated</p></div></div></div>
             <div class="col-6 col-xl-3"><div class="card border-0 shadow-sm text-center h-100"><div class="card-body p-4"><i class="fa-brands fa-python fa-2x text-info mb-3"></i><h3 class="fw-bold">Python</h3><p class="text-muted mb-0">Focused analysis</p></div></div></div>
         </div>
     </div>
