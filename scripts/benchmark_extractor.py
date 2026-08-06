@@ -11,11 +11,16 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 import tempfile
 import time
 import tracemalloc
 import zipfile
 from pathlib import Path
+
+REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
+if str(REPOSITORY_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPOSITORY_ROOT))
 
 from analyzer.extractor import MAX_ARCHIVE_MEMBERS, extract_project
 
