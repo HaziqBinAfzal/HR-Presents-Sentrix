@@ -11,7 +11,7 @@ from analyzer.routes.settings_alias import settings_page
 from analyzer.routes.upload import upload_bp
 from config import Config
 from database import db
-from extensions import mail, csrf
+from extensions import csrf, mail, migrate
 from models import User
 from settings_models import UserSettings  # noqa: F401 - registers the model before create_all
 
@@ -94,6 +94,7 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
 
     db.init_app(app)
+    migrate.init_app(app, db)
     mail.init_app(app)
     csrf.init_app(app)
     login_manager.init_app(app)
