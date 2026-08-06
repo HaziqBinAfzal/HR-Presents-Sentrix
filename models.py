@@ -18,14 +18,6 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False, index=True)
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(255), nullable=False)
-    email_verified = db.Column(
-        db.Boolean,
-        nullable=False,
-        default=True,
-        server_default="1",
-        index=True,
-    )
-    email_verified_at = db.Column(db.DateTime, nullable=True)
     full_name = db.Column(db.String(160), nullable=True)
     organization = db.Column(db.String(160), nullable=True)
     bio = db.Column(db.Text, nullable=True)
@@ -65,10 +57,6 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
-
-    def mark_email_verified(self):
-        self.email_verified = True
-        self.email_verified_at = utcnow()
 
     def __repr__(self):
         return f"<User {self.username}>"
