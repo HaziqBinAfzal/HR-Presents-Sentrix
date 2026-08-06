@@ -3,8 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Sentrix Python code quality and security analysis platform by HR-Presents.">
-    <title>{% block title %}Sentrix{% endblock %}</title>
+    <meta name="description" content="Sentrix AI-powered Python code quality and security analysis platform by HR-Presents.">
+    <meta name="theme-color" content="#0f172a">
+    <meta property="og:title" content="Sentrix — AI Python Code Analysis">
+    <meta property="og:description" content="Analyze Python projects for quality, security, complexity and maintainability.">
+    <meta property="og:image" content="{{ url_for('static', filename='images/sentrix-shield-mark.svg', _external=True) }}">
+    <meta name="twitter:card" content="summary">
+    <title>{% block title %}Sentrix | AI Python Code Analysis{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/sentrix-shield-mark.svg') }}?v=1">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/sentrix-shield-mark.svg') }}?v=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -13,18 +20,13 @@
     <style>
         :root{--sentrix-primary:#1677ff;--sentrix-dark:#0f172a;--sentrix-cyan:#18c7d9}
         body{font-family:'Poppins',sans-serif;background:#f7f9fc;color:#111827;min-height:100vh;display:flex;flex-direction:column}
-        main{flex:1}
-        .navbar{box-shadow:0 2px 18px rgba(15,23,42,.08)}
+        main{flex:1}.navbar{box-shadow:0 2px 18px rgba(15,23,42,.08)}
         .navbar-brand{display:flex;align-items:center;gap:.7rem;font-weight:700;color:var(--sentrix-primary)!important;line-height:1.05}
-        .brand-lockup{display:flex;flex-direction:column}
-        .brand-name{font-size:1.2rem;letter-spacing:.01em}
-        .brand-subtitle{display:block;font-size:.54rem;letter-spacing:.15em;color:#64748b;margin-top:.2rem}
+        .brand-lockup{display:flex;flex-direction:column}.brand-name{font-size:1.2rem;letter-spacing:.01em}.brand-subtitle{display:block;font-size:.54rem;letter-spacing:.15em;color:#64748b;margin-top:.2rem}
         .sentrix-logo{width:34px;height:34px;flex:0 0 auto;filter:drop-shadow(0 5px 12px rgba(22,119,255,.22))}
-        .nav-link{font-weight:500}
-        .card{border-radius:1rem}
-        footer{background:var(--sentrix-dark);color:#fff}
-        .developer-link{display:flex;align-items:center;gap:.7rem;color:#fff;text-decoration:none;padding:.65rem .8rem;border:1px solid rgba(255,255,255,.18);border-radius:.75rem;transition:.2s ease}
-        .developer-link:hover{color:#fff;background:rgba(255,255,255,.08);transform:translateY(-1px)}
+        .nav-link{font-weight:500}.card{border-radius:1rem}footer{background:var(--sentrix-dark);color:#fff}
+        .footer-brand{display:flex;align-items:center;gap:.8rem;margin-bottom:1rem}.footer-brand .sentrix-logo{width:42px;height:42px}.footer-brand-name{font-size:1.35rem;font-weight:700;color:#fff;line-height:1}.footer-brand-subtitle{display:block;font-size:.58rem;letter-spacing:.14em;color:#cbd5e1;margin-top:.35rem}
+        footer h4,footer h5{color:#fff!important}.developer-link{display:flex;align-items:center;gap:.7rem;color:#fff;text-decoration:none;padding:.65rem .8rem;border:1px solid rgba(255,255,255,.18);border-radius:.75rem;transition:.2s ease}.developer-link:hover{color:#fff;background:rgba(255,255,255,.08);transform:translateY(-1px)}
     </style>
     {% block head %}{% endblock %}
 </head>
@@ -32,117 +34,27 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top py-3">
     <div class="container">
         <a class="navbar-brand" href="{{ url_for('main.home') }}" aria-label="Sentrix home">
-            <svg class="sentrix-logo" viewBox="0 0 64 64" role="img" aria-hidden="true">
-                <defs>
-                    <linearGradient id="sentrixGradient" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="#1677ff"/>
-                        <stop offset="1" stop-color="#18c7d9"/>
-                    </linearGradient>
-                </defs>
-                <path d="M32 4 54 16v24L32 60 10 40V16L32 4Z" fill="url(#sentrixGradient)"/>
-                <path d="M22 20h24l-6 8H28l-4 4 4 4h12l6 8H22L12 32l10-12Z" fill="#fff"/>
-                <circle cx="43" cy="20" r="3" fill="#fff"/>
-                <circle cx="21" cy="44" r="3" fill="#fff"/>
-            </svg>
-            <span class="brand-lockup">
-                <span class="brand-name">Sentrix</span>
-                <small class="brand-subtitle">PRESENTED BY HR-PRESENTS</small>
-            </span>
+            <svg class="sentrix-logo" viewBox="0 0 64 64" role="img" aria-hidden="true"><defs><linearGradient id="navSentrixGradient" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse"><stop stop-color="#1677ff"/><stop offset="1" stop-color="#18c7d9"/></linearGradient></defs><path d="M32 4 54 16v24L32 60 10 40V16L32 4Z" fill="url(#navSentrixGradient)"/><path d="M22 20h24l-6 8H28l-4 4 4 4h12l6 8H22L12 32l10-12Z" fill="#fff"/><circle cx="43" cy="20" r="3" fill="#fff"/><circle cx="21" cy="44" r="3" fill="#fff"/></svg>
+            <span class="brand-lockup"><span class="brand-name">Sentrix</span><small class="brand-subtitle">PRESENTED BY HR-PRESENTS</small></span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.home') }}">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.about') }}">About</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.contact') }}">Contact</a></li>
-                {% if current_user.is_authenticated %}
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.upload') }}">Upload</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.history') }}">History</a></li>
-                    <li class="nav-item dropdown ms-lg-2">
-                        <button class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-user-circle me-2"></i>{{ current_user.username }}</button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
-                            <li><a class="dropdown-item" href="{{ url_for('main.profile') }}"><i class="fa-solid fa-user me-2"></i>Profile</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('main.settings') }}"><i class="fa-solid fa-gear me-2"></i>Settings</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="{{ url_for('main.logout') }}"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
-                        </ul>
-                    </li>
-                {% else %}
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.login') }}">Login</a></li>
-                    <li class="nav-item ms-lg-2"><a class="btn btn-primary" href="{{ url_for('main.register') }}">Get Started</a></li>
-                {% endif %}
-            </ul>
-        </div>
+        <div class="collapse navbar-collapse" id="navbarNav"><ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('main.home') }}">Home</a></li><li class="nav-item"><a class="nav-link" href="{{ url_for('main.about') }}">About</a></li><li class="nav-item"><a class="nav-link" href="{{ url_for('main.contact') }}">Contact</a></li>
+            {% if current_user.is_authenticated %}<li class="nav-item"><a class="nav-link" href="{{ url_for('main.dashboard') }}">Dashboard</a></li><li class="nav-item"><a class="nav-link" href="{{ url_for('main.upload') }}">Upload</a></li><li class="nav-item"><a class="nav-link" href="{{ url_for('main.history') }}">History</a></li><li class="nav-item dropdown ms-lg-2"><button class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-user-circle me-2"></i>{{ current_user.username }}</button><ul class="dropdown-menu dropdown-menu-end shadow border-0"><li><a class="dropdown-item" href="{{ url_for('main.profile') }}"><i class="fa-solid fa-user me-2"></i>Profile</a></li><li><a class="dropdown-item" href="{{ url_for('main.settings') }}"><i class="fa-solid fa-gear me-2"></i>Settings</a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item text-danger" href="{{ url_for('main.logout') }}"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li></ul></li>{% else %}<li class="nav-item"><a class="nav-link" href="{{ url_for('main.login') }}">Login</a></li><li class="nav-item ms-lg-2"><a class="btn btn-primary" href="{{ url_for('main.register') }}">Get Started</a></li>{% endif %}
+        </ul></div>
     </div>
 </nav>
-
-<div class="container mt-4">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                {% set alert_category = 'danger' if category == 'error' else category %}
-                <div class="alert alert-{{ alert_category }} alert-dismissible fade show shadow-sm" role="alert">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-</div>
-
+<div class="container mt-4">{% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}{% for category, message in messages %}{% set alert_category = 'danger' if category == 'error' else category %}<div class="alert alert-{{ alert_category }} alert-dismissible fade show shadow-sm" role="alert">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}{% endif %}{% endwith %}</div>
 <main>{% block content %}{% endblock %}</main>
-
-<footer class="pt-5 pb-3 mt-5">
-    <div class="container">
-        <div class="row g-4">
-            <div class="col-lg-4">
-                <h4 class="fw-bold">Sentrix</h4>
-                <p class="text-light opacity-75 mb-2">Python project analysis for code quality, security, complexity and maintainability.</p>
-                <p class="small text-light opacity-75 mb-0">Presented and maintained by HR-Presents.</p>
-            </div>
-            <div class="col-6 col-lg-2">
-                <h5 class="fw-bold">Product</h5>
-                <ul class="list-unstyled">
-                    <li class="mb-2"><a class="text-light opacity-75 text-decoration-none" href="{{ url_for('main.home') }}">Home</a></li>
-                    {% if current_user.is_authenticated %}<li class="mb-2"><a class="text-light opacity-75 text-decoration-none" href="{{ url_for('main.dashboard') }}">Dashboard</a></li><li><a class="text-light opacity-75 text-decoration-none" href="{{ url_for('main.history') }}">History</a></li>{% else %}<li><a class="text-light opacity-75 text-decoration-none" href="{{ url_for('main.register') }}">Register</a></li>{% endif %}
-                </ul>
-            </div>
-            <div class="col-6 col-lg-2">
-                <h5 class="fw-bold">Company</h5>
-                <ul class="list-unstyled"><li class="mb-2"><a class="text-light opacity-75 text-decoration-none" href="{{ url_for('main.about') }}">About</a></li><li><a class="text-light opacity-75 text-decoration-none" href="{{ url_for('main.contact') }}">Contact</a></li></ul>
-            </div>
-            <div class="col-lg-4">
-                <h5 class="fw-bold">Connect with the developers</h5>
-                <div class="row g-2">
-                    <div class="col-sm-6">
-                        <p class="small text-light opacity-75 mb-2">Ruveeha Ashfaq</p>
-                        <a class="developer-link mb-2" href="https://github.com/ruveeha33" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github"></i><span>GitHub</span></a>
-                        <a class="developer-link" href="https://www.linkedin.com/in/ruveeha-ashfaq-632b15378" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-linkedin"></i><span>LinkedIn</span></a>
-                    </div>
-                    <div class="col-sm-6">
-                        <p class="small text-light opacity-75 mb-2">Haziq Afzal</p>
-                        <a class="developer-link mb-2" href="https://github.com/HaziqBinAfzal" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github"></i><span>GitHub</span></a>
-                        <a class="developer-link" href="https://www.linkedin.com/in/haziq-afzal-010b6636a" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-linkedin"></i><span>LinkedIn</span></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <hr class="border-secondary my-4">
-        <div class="d-flex flex-column flex-md-row justify-content-between gap-2 text-light opacity-75 small"><span>© 2026 HR-Presents. All rights reserved.</span><span>Sentrix v1.0</span></div>
-    </div>
-</footer>
-
+<footer class="pt-5 pb-3 mt-5"><div class="container"><div class="row g-4"><div class="col-lg-4">
+    <div class="footer-brand"><svg class="sentrix-logo" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="footerSentrixGradient" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse"><stop stop-color="#1677ff"/><stop offset="1" stop-color="#18c7d9"/></linearGradient></defs><path d="M32 4 54 16v24L32 60 10 40V16L32 4Z" fill="url(#footerSentrixGradient)"/><path d="M22 20h24l-6 8H28l-4 4 4 4h12l6 8H22L12 32l10-12Z" fill="#fff"/></svg><span><span class="footer-brand-name">Sentrix</span><small class="footer-brand-subtitle">PRESENTED BY HR-PRESENTS</small></span></div>
+    <p class="text-light opacity-75 mb-2">Python project analysis for code quality, security, complexity and maintainability.</p><p class="small text-light opacity-75 mb-0">Presented and maintained by HR-Presents.</p></div>
+    <div class="col-6 col-lg-2"><h5 class="fw-bold">Product</h5><ul class="list-unstyled"><li class="mb-2"><a class="text-light opacity-75 text-decoration-none" href="{{ url_for('main.home') }}">Home</a></li>{% if current_user.is_authenticated %}<li class="mb-2"><a class="text-light opacity-75 text-decoration-none" href="{{ url_for('main.dashboard') }}">Dashboard</a></li><li><a class="text-light opacity-75 text-decoration-none" href="{{ url_for('main.history') }}">History</a></li>{% else %}<li><a class="text-light opacity-75 text-decoration-none" href="{{ url_for('main.register') }}">Register</a></li>{% endif %}</ul></div>
+    <div class="col-6 col-lg-2"><h5 class="fw-bold">Company</h5><ul class="list-unstyled"><li class="mb-2"><a class="text-light opacity-75 text-decoration-none" href="{{ url_for('main.about') }}">About</a></li><li><a class="text-light opacity-75 text-decoration-none" href="{{ url_for('main.contact') }}">Contact</a></li></ul></div>
+    <div class="col-lg-4"><h5 class="fw-bold">Connect with the developers</h5><div class="row g-2"><div class="col-sm-6"><p class="small text-light opacity-75 mb-2">Ruveeha Ashfaq</p><a class="developer-link mb-2" href="https://github.com/ruveeha33" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github"></i><span>GitHub</span></a><a class="developer-link" href="https://www.linkedin.com/in/ruveeha-ashfaq-632b15378" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-linkedin"></i><span>LinkedIn</span></a></div><div class="col-sm-6"><p class="small text-light opacity-75 mb-2">Haziq Afzal</p><a class="developer-link mb-2" href="https://github.com/HaziqBinAfzal" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github"></i><span>GitHub</span></a><a class="developer-link" href="https://www.linkedin.com/in/haziq-afzal-010b6636a" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-linkedin"></i><span>LinkedIn</span></a></div></div></div></div>
+    <hr class="border-secondary my-4"><div class="d-flex flex-column flex-md-row justify-content-between gap-2 text-light opacity-75 small"><span>© 2026 HR-Presents. All rights reserved.</span><span>Sentrix v1.0</span></div></div></footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-setTimeout(function(){document.querySelectorAll('.alert').forEach(function(el){bootstrap.Alert.getOrCreateInstance(el).close();});},5000);
-document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function(el){new bootstrap.Tooltip(el);});
-document.querySelectorAll('.user-local-time').forEach(function(el){const value=el.dataset.time;if(value){el.textContent=new Date(value).toLocaleString();}});
-
-document.querySelectorAll('.card-header h4').forEach(function(heading){
-    if (heading.textContent.trim() === 'AI Recommendations') {
-        const card = heading.closest('.card');
-        if (card) card.remove();
-    }
-});
-</script>
+<script>setTimeout(function(){document.querySelectorAll('.alert').forEach(function(el){bootstrap.Alert.getOrCreateInstance(el).close();});},5000);document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function(el){new bootstrap.Tooltip(el);});document.querySelectorAll('.user-local-time').forEach(function(el){const value=el.dataset.time;if(value){el.textContent=new Date(value).toLocaleString();}});document.querySelectorAll('.card-header h4').forEach(function(heading){if(heading.textContent.trim()==='AI Recommendations'){const card=heading.closest('.card');if(card)card.remove();}});</script>
 {% block scripts %}{% endblock %}
 </body>
 </html>
