@@ -1,403 +1,71 @@
 {% extends "base.html" %}
 
-{% block title %}Login | CodeSentinel AI{% endblock %}
+{% block title %}Login | Sentrix{% endblock %}
 
 {% block content %}
-
 <section class="py-5">
-
     <div class="container">
-
         <div class="row align-items-center g-5">
-
-            <!-- Left Information Panel -->
-
             <div class="col-lg-6">
+                <span class="badge bg-primary px-3 py-2 mb-3">Secure authentication</span>
+                <h1 class="display-5 fw-bold mb-4">Welcome back to <span class="text-primary">Sentrix</span></h1>
+                <p class="lead text-muted mb-4">Sign in to access your dashboard, upload projects, review code analysis, monitor security findings, and download reports.</p>
 
-                <span class="badge bg-primary px-3 py-2 mb-3">
-
-                    Secure Authentication
-
-                </span>
-
-                <h1 class="display-5 fw-bold mb-4">
-
-                    Welcome Back to
-
-                    <span class="text-primary">
-
-                        CodeSentinel AI
-
-                    </span>
-
-                </h1>
-
-                <p class="lead text-muted mb-4">
-
-                    Sign in to access your dashboard, upload projects,
-                    review AI-powered code analysis, monitor security
-                    findings, and download professional reports.
-
-                </p>
-
-                <div class="card border-0 shadow-sm mb-4">
-
-                    <div class="card-body">
-
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
                         <div class="d-flex mb-4">
-
                             <i class="fa-solid fa-shield-halved fa-2x text-primary me-3"></i>
-
-                            <div>
-
-                                <h5 class="fw-bold">
-
-                                    Secure Platform
-
-                                </h5>
-
-                                <p class="text-muted mb-0">
-
-                                    Your projects and AI API keys remain
-                                    protected with secure authentication.
-
-                                </p>
-
-                            </div>
-
+                            <div><h5 class="fw-bold">Secure platform</h5><p class="text-muted mb-0">Your account and project data are protected with secure authentication.</p></div>
                         </div>
-
                         <div class="d-flex mb-4">
-
-                            <i class="fa-solid fa-robot fa-2x text-success me-3"></i>
-
-                            <div>
-
-                                <h5 class="fw-bold">
-
-                                    AI-Powered Analysis
-
-                                </h5>
-
-                                <p class="text-muted mb-0">
-
-                                    Receive intelligent code reviews,
-                                    security analysis, and recommendations.
-
-                                </p>
-
-                            </div>
-
+                            <i class="fa-solid fa-magnifying-glass-chart fa-2x text-success me-3"></i>
+                            <div><h5 class="fw-bold">Detailed analysis</h5><p class="text-muted mb-0">Review code quality, complexity, formatting, and security findings.</p></div>
                         </div>
-
                         <div class="d-flex">
-
-                            <i class="fa-solid fa-chart-line fa-2x text-warning me-3"></i>
-
-                            <div>
-
-                                <h5 class="fw-bold">
-
-                                    Professional Reports
-
-                                </h5>
-
-                                <p class="text-muted mb-0">
-
-                                    Access detailed dashboards, charts,
-                                    metrics, and downloadable reports.
-
-                                </p>
-
-                            </div>
-
+                            <i class="fa-solid fa-file-lines fa-2x text-warning me-3"></i>
+                            <div><h5 class="fw-bold">Professional reports</h5><p class="text-muted mb-0">Access dashboards, metrics, history, and downloadable reports.</p></div>
                         </div>
-
                     </div>
-
                 </div>
-
-                <div class="d-flex flex-wrap gap-3">
-
-                    <span class="badge bg-success px-3 py-2">
-
-                        AI Review
-
-                    </span>
-
-                    <span class="badge bg-danger px-3 py-2">
-
-                        Security Scan
-
-                    </span>
-
-                    <span class="badge bg-warning text-dark px-3 py-2">
-
-                        BYOK Support
-
-                    </span>
-
-                    <span class="badge bg-info px-3 py-2">
-
-                        PDF Reports
-
-                    </span>
-
-                </div>
-
             </div>
 
-            <!-- Login Form -->
-
             <div class="col-lg-6">
-
-                <div class="card border-0 shadow-lg">
-
-                    <div class="card-body p-5">
-
+                <div class="card border-0 shadow-lg rounded-4">
+                    <div class="card-body p-4 p-lg-5">
                         <div class="text-center mb-4">
-
-                            <h2 class="fw-bold">
-
-                                Sign In
-
-                            </h2>
-
-                            <p class="text-muted">
-
-                                Enter your credentials to continue.
-
-                            </p>
-
+                            <h2 class="fw-bold">Sign in</h2>
+                            <p class="text-muted">Enter your credentials to continue.</p>
                         </div>
 
                         <form method="POST">
-
                             {{ form.hidden_tag() }}
-
-
-
-<div class="mb-4">
-
-                                <label class="form-label fw-semibold">
-
-                                    Email Address
-
-                                </label>
-
-                                {{ form.email(
-                                    class="form-control form-control-lg",
-                                    placeholder="Enter your email"
-                                ) }}
-
+                            <div class="mb-4">
+                                {{ form.email.label(class="form-label fw-semibold") }}
+                                {{ form.email(class="form-control form-control-lg", placeholder="Enter your email", autocomplete="email") }}
+                                {% for error in form.email.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
                             </div>
-
                             <div class="mb-3">
-
-                                <label class="form-label fw-semibold">
-
-                                    Password
-
-                                </label>
-
-                                {{ form.password(
-                                    class="form-control form-control-lg",
-                                    placeholder="Enter your password"
-                                ) }}
-
+                                {{ form.password.label(class="form-label fw-semibold") }}
+                                {{ form.password(class="form-control form-control-lg", placeholder="Enter your password", autocomplete="current-password") }}
+                                {% for error in form.password.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
                             </div>
-
                             <div class="d-flex justify-content-between align-items-center mb-4">
-
                                 <div class="form-check">
-
                                     {{ form.remember(class="form-check-input") }}
-
-                                    <label class="form-check-label">
-
-                                        Remember Me
-
-                                    </label>
-
+                                    {{ form.remember.label(class="form-check-label") }}
                                 </div>
-
-                                <a href="{{ url_for('main.forgot_password') }}"
-                                   class="text-decoration-none">
-
-                                    Forgot Password?
-
-                                </a>
-
+                                <a href="{{ url_for('account.forgot_password') }}" class="text-decoration-none">Forgot password?</a>
                             </div>
-
-                            <div class="d-grid mb-4">
-
-                                {{ form.submit(
-                                    class="btn btn-primary btn-lg",
-                                    value="Sign In"
-                                ) }}
-
-                            </div>
-
+                            <div class="d-grid mb-4">{{ form.submit(class="btn btn-primary btn-lg", value="Sign In") }}</div>
                             <div class="text-center">
-
-                                <span class="text-muted">
-
-                                    Don't have an account?
-
-                                </span>
-
-                                <a href="{{ url_for('main.register') }}"
-                                   class="text-decoration-none fw-semibold">
-
-                                    Create Account
-
-                                </a>
-
+                                <span class="text-muted">Don't have an account?</span>
+                                <a href="{{ url_for('main.register') }}" class="text-decoration-none fw-semibold">Create account</a>
                             </div>
-
                         </form>
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
 </section>
-
-
-
-<!-- Trusted Features -->
-
-<section class="py-5 bg-light">
-
-    <div class="container">
-
-        <div class="text-center mb-5">
-
-            <h2 class="fw-bold">
-
-                Why Choose CodeSentinel AI?
-
-            </h2>
-
-            <p class="text-muted">
-
-                Trusted by developers, students, and teams for intelligent code analysis.
-
-            </p>
-
-        </div>
-
-        <div class="row g-4">
-
-            <div class="col-md-4">
-
-                <div class="card border-0 shadow-sm h-100 text-center">
-
-                    <div class="card-body">
-
-                        <i class="fa-solid fa-lock fa-3x text-primary mb-3"></i>
-
-                        <h4 class="fw-bold">
-
-                            Secure Authentication
-
-                        </h4>
-
-                        <p class="text-muted mb-0">
-
-                            Your account, projects, and API keys are protected
-                            using secure authentication practices.
-
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="col-md-4">
-
-                <div class="card border-0 shadow-sm h-100 text-center">
-
-                    <div class="card-body">
-
-                        <i class="fa-solid fa-brain fa-3x text-success mb-3"></i>
-
-                        <h4 class="fw-bold">
-
-                            AI-Powered Insights
-
-                        </h4>
-
-                        <p class="text-muted mb-0">
-
-                            Get intelligent recommendations, code quality
-                            analysis, and security reviews in one platform.
-
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="col-md-4">
-
-                <div class="card border-0 shadow-sm h-100 text-center">
-
-                    <div class="card-body">
-
-                        <i class="fa-solid fa-file-shield fa-3x text-warning mb-3"></i>
-
-                        <h4 class="fw-bold">
-
-                            Professional Reports
-
-                        </h4>
-
-                        <p class="text-muted mb-0">
-
-                            Generate comprehensive reports with metrics,
-                            charts, vulnerabilities, and AI recommendations.
-
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="text-center mt-5">
-
-            <p class="text-muted mb-2">
-
-                By signing in, you agree to use CodeSentinel AI responsibly and
-                help build more secure, maintainable software.
-
-            </p>
-
-            <small class="text-muted">
-
-                © {{ current_year or 2026 }} CodeSentinel AI. All Rights Reserved.
-
-            </small>
-
-        </div>
-
-    </div>
-
-</section>
-
 {% endblock %}
