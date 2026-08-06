@@ -42,6 +42,14 @@ class ProductionSecurityTests(unittest.TestCase):
             db.session.remove()
             db.engine.dispose()
 
+    @staticmethod
+    def _production_environment(**overrides):
+        environment = os.environ.copy()
+        environment["PYTHON_DOTENV_DISABLED"] = "1"
+        environment["APP_ENV"] = "production"
+        environment.update(overrides)
+        return environment
+
     def test_security_headers_are_applied(self):
         client = self._make_client(SecureTestConfig)
         response = client.get("/")
@@ -90,9 +98,7 @@ class ProductionSecurityTests(unittest.TestCase):
             self.assertNotIn(header, response.headers)
 
     def test_production_requires_secret_key(self):
-        environment = os.environ.copy()
-        environment["APP_ENV"] = "production"
-        environment.pop("SECRET_KEY", None)
+        environment = self._production_environment(SECRET_KEY="")
 
         result = subprocess.run(
             [sys.executable, "-c", "import config"],
@@ -107,12 +113,8 @@ class ProductionSecurityTests(unittest.TestCase):
         self.assertIn("SECRET_KEY must be set", result.stderr)
 
     def test_production_defaults_enable_https_controls(self):
-        environment = os.environ.copy()
-        environment.update(
-            {
-                "APP_ENV": "production",
-                "SECRET_KEY": "ci-production-secret",
-            }
+        environment = self._production_environment(
+            SECRET_KEY="ci-production-secret",
         )
         for variable in (
             "SESSION_COOKIE_SECURE",
