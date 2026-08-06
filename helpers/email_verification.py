@@ -119,9 +119,7 @@ def install_email_verification_routes(blueprint) -> None:
                     "be sent. Use the resend form after SMTP is configured.",
                     "warning",
                 )
-            return redirect(
-                url_for("main.verification_pending", email=user.email)
-            )
+            return redirect(url_for("main.verification_pending", email=user.email))
 
         return render_template("register.html", form=form)
 
@@ -155,8 +153,12 @@ def install_email_verification_routes(blueprint) -> None:
 
         return render_template("login.html", form=form)
 
-    blueprint.view_functions["register"] = verified_register
-    blueprint.view_functions["login"] = verified_login
+    @blueprint.record_once
+    def replace_legacy_auth_handlers(state):
+        """Replace handlers after Flask has registered the blueprint endpoints."""
+        endpoint_prefix = blueprint.name
+        state.app.view_functions[f"{endpoint_prefix}.register"] = verified_register
+        state.app.view_functions[f"{endpoint_prefix}.login"] = verified_login
 
     @blueprint.get("/verify-email/<token>", endpoint="verify_email")
     def verify_email(token):
