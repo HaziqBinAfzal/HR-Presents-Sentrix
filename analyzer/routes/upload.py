@@ -6,6 +6,7 @@ from flask_login import current_user, login_required
 from database import db
 from forms import UploadForm
 from helpers.analysis_service import run_project_analysis
+from helpers.background_analysis import enqueue_analysis
 from helpers.upload_service import (
     build_metadata,
     create_project_workspace,
@@ -117,6 +118,18 @@ def upload():
                 "success",
             )
             return redirect(url_for("main.history"))
+
+        if current_app.config.get("BACKGROUND_ANALYSIS_ENABLED", False):
+            job = enqueue_analysis(
+                project,
+                current_user,
+                max_attempts=current_app.config.get("ANALYSIS_JOB_MAX_ATTEMPTS", 3),
+            )
+            flash(
+                "Project uploaded successfully. Sentrix queued the analysis in the background.",
+                "success",
+            )
+            return redirect(url_for("main.history", analysis_job=job.id))
 
         analysis_result = run_project_analysis(project, current_user)
 
