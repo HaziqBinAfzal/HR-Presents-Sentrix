@@ -97,13 +97,6 @@ def create_app(config_class=Config):
 
     @app.after_request
     def apply_sentrix_response_policies(response):
-        if response.mimetype == "text/html" and not response.direct_passthrough:
-            body = response.get_data(as_text=True)
-            body = body.replace("Sentrix", "Sentrix")
-            body = body.replace("Sentrix", "Sentrix")
-            response.set_data(body)
-            response.headers["Content-Length"] = len(response.get_data())
-
         return _apply_security_headers(app, response)
 
     @app.errorhandler(403)
