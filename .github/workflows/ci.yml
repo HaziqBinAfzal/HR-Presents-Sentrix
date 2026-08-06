@@ -67,6 +67,49 @@ jobs:
       - name: Run unit and security tests
         run: python -m unittest discover -s tests -p "test_*.py" -v
 
+  quality:
+    name: Python quality and security
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install quality tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install black flake8 bandit[toml]
+
+      - name: Check maintained code formatting
+        run: |
+          black --check \
+            app.py config.py database.py extensions.py \
+            analyzer/extractor.py helpers/email_verification.py \
+            migrations scripts tests
+
+      - name: Check syntax and undefined names
+        run: |
+          flake8 \
+            --select=E9,F63,F7,F82 \
+            --show-source \
+            app.py config.py database.py extensions.py \
+            analyzer helpers migrations scripts tests
+
+      - name: Scan for high-severity security findings
+        run: |
+          bandit -r \
+            app.py config.py database.py extensions.py \
+            analyzer helpers scripts \
+            -c pyproject.toml \
+            -lll
+
   migrations:
     name: Verify Alembic migration round trip
     runs-on: ubuntu-latest
@@ -197,7 +240,7 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Run 1000-file extraction benchmark
+      - name: Run 1,000-file extractor benchmark
         run: |
           python scripts/benchmark_extractor.py \
             --counts 1000 \
