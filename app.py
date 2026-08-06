@@ -99,8 +99,8 @@ def create_app(config_class=Config):
     def apply_sentrix_response_policies(response):
         if response.mimetype == "text/html" and not response.direct_passthrough:
             body = response.get_data(as_text=True)
-            body = body.replace("CodeSentinel AI", "Sentrix")
-            body = body.replace("CodeSentinel", "Sentrix")
+            body = body.replace("Sentrix", "Sentrix")
+            body = body.replace("Sentrix", "Sentrix")
             response.set_data(body)
             response.headers["Content-Length"] = len(response.get_data())
 

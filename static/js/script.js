@@ -1,6 +1,6 @@
 /*
 ====================================================
-CodeSentinel AI
+Sentrix
 Global JavaScript
 Part 1
 ====================================================
@@ -159,7 +159,7 @@ Console Message
 ====================================================
 */
 
-console.log("CodeSentinel AI Loaded Successfully");
+console.log("Sentrix Loaded Successfully");
 
 /*
 ====================================================
@@ -684,10 +684,10 @@ Application Ready
 ====================================================
 */
 
-console.log("CodeSentinel AI JavaScript Initialized Successfully");
+console.log("Sentrix JavaScript Initialized Successfully");
 
 /* ==========================================
-   CodeSentinel AI - Upload Module
+   Sentrix - Upload Module
 ========================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
