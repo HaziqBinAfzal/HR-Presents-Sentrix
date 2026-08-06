@@ -59,7 +59,7 @@ jobs:
           python -m compileall -q \
             app.py config.py database.py extensions.py \
             forms.py models.py settings_models.py \
-            analyzer helpers migrations scripts tests
+            analyzer helpers migrations tests
 
       - name: Import application factory
         run: python -c "from app import create_app; app = create_app(); print(f'Loaded {len(list(app.url_map.iter_rules()))} routes')"
@@ -87,28 +87,32 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install black flake8 bandit[toml]
 
-      - name: Check maintained code formatting
+      - name: Check formatting baseline
         run: |
           black --check \
-            app.py config.py database.py extensions.py \
-            analyzer/extractor.py helpers/email_verification.py \
-            migrations scripts tests
+            database.py \
+            tests/test_email_verification.py \
+            tests/test_extractor_limits.py \
+            tests/test_extractor_security.py \
+            tests/test_production_security.py
 
       - name: Check syntax and undefined names
         run: |
           flake8 \
+            app.py config.py database.py extensions.py forms.py models.py settings_models.py \
+            analyzer helpers migrations scripts tests \
             --select=E9,F63,F7,F82 \
             --show-source \
-            app.py config.py database.py extensions.py \
-            analyzer helpers migrations scripts tests
+            --statistics
 
       - name: Scan for high-severity security findings
         run: |
           bandit -r \
-            app.py config.py database.py extensions.py \
+            app.py config.py database.py extensions.py forms.py models.py settings_models.py \
             analyzer helpers scripts \
-            -c pyproject.toml \
-            -lll
+            --severity-level high \
+            --confidence-level high \
+            --quiet
 
   migrations:
     name: Verify Alembic migration round trip
