@@ -1,21 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 240" role="img" aria-labelledby="title desc">
-<title id="title">Sentrix Electric Wing</title>
-<desc id="desc">Electric blue and violet wing emblem with the continuous Sentrix wordmark, Analyze Secure Elevate tagline, and Made by HR-Presents attribution.</desc>
-<defs>
-  <linearGradient id="wingA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#bff8ff"/><stop offset=".22" stop-color="#22d3ee"/><stop offset=".58" stop-color="#2563eb"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient>
-  <linearGradient id="wingB" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#e0fbff"/><stop offset=".45" stop-color="#38bdf8"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
-  <linearGradient id="tag" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#2563eb"/><stop offset=".5" stop-color="#06b6d4"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient>
-  <filter id="glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-</defs>
-<g transform="translate(18 8)" filter="url(#glow)">
-  <path d="M118 15 62 48 20 111l72-29-56 80 73-42-30 70 62-74-19 7 42-49-51 23 60-55-53 21 34-48Z" fill="url(#wingA)"/>
-  <path d="M113 20 68 52 40 91l53-20-39 55 58-31-20 47 45-53-14 4 27-31-37 16 43-39-39 15 23-34Z" fill="url(#wingB)" opacity=".72"/>
-  <path d="M18 112h30M31 96l18 16-18 16M143 87l31-9M142 109l34 5M133 133l28 17" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" opacity=".8"/>
-</g>
-<g transform="translate(202 47)">
-  <text x="0" y="57" font-family="Arial,Helvetica,sans-serif" font-size="64" font-weight="800" letter-spacing="4" fill="#0f172a">SENTRI</text>
-  <text x="290" y="57" font-family="Arial,Helvetica,sans-serif" font-size="64" font-weight="800" fill="url(#tag)">X</text>
-  <text x="4" y="98" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" letter-spacing="7" fill="url(#tag)">ANALYZE. SECURE. ELEVATE.</text>
-  <text x="4" y="140" font-family="Arial,Helvetica,sans-serif" font-size="21" font-weight="800" letter-spacing="1.5" fill="#475569">Made by <tspan fill="#2563eb">HR-Presents</tspan></text>
-</g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" role="img" aria-labelledby="title desc">
+  <title id="title">Sentrix Electric Wing</title>
+  <desc id="desc">A premium electric-blue wing and shield mark with the Sentrix wordmark.</desc>
+  <defs>
+    <linearGradient id="wing" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7dd3fc"/>
+      <stop offset="0.48" stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#4f46e5"/>
+    </linearGradient>
+    <linearGradient id="core" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#93c5fd"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <g transform="translate(10 12)">
+    <path d="M72 18 32 38 6 76l44-15-31 42 48-25-12 47 37-39V26Z" fill="url(#wing)" opacity=".92"/>
+    <path d="M88 18 128 38l26 38-44-15 31 42-48-25 12 47-37-39V26Z" fill="url(#wing)" opacity=".92"/>
+    <path d="M80 14 104 27v39c0 29-18 48-24 53-6-5-24-24-24-53V27Z" fill="#07152f" stroke="#60a5fa" stroke-width="4" filter="url(#glow)"/>
+    <path d="m82 32-18 31h14l-8 30 27-39H84l10-22Z" fill="url(#core)"/>
+  </g>
+  <g transform="translate(184 49)">
+    <text x="0" y="45" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="58" font-weight="800" letter-spacing="-2" fill="#0f172a">SENTRIX</text>
+    <text x="3" y="72" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="13" font-weight="700" letter-spacing="4" fill="#2563eb">PRESENTED BY HR-PRESENTS</text>
+  </g>
 </svg>
