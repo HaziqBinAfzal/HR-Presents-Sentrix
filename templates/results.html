@@ -16,6 +16,40 @@
     .finding-card .accordion-button:not(.collapsed) { background: rgba(13,110,253,.06); color: inherit; box-shadow: none; }
     .finding-card .accordion-button:focus { box-shadow: none; }
     .recommendation-item { border-left: 4px solid var(--bs-primary); }
+
+    [data-bs-theme="dark"] .summary-panel { background: #111827 !important; }
+    [data-bs-theme="dark"] .summary-panel h2,
+    [data-bs-theme="dark"] .summary-panel p,
+    [data-bs-theme="dark"] .summary-panel small,
+    [data-bs-theme="dark"] .summary-panel span:not(.badge) { color: #f8fafc !important; }
+    [data-bs-theme="dark"] .summary-panel .text-muted { color: #cbd5e1 !important; }
+    [data-bs-theme="dark"] .score-ring { background: conic-gradient(var(--ring-color) calc(var(--score) * 1%), #334155 0); }
+    [data-bs-theme="dark"] .score-ring::before { background: #0f172a; }
+    [data-bs-theme="dark"] .score-ring span { color: #ffffff !important; }
+    [data-bs-theme="dark"] .health-strip { background: #334155; }
+    [data-bs-theme="dark"] .metric-card,
+    [data-bs-theme="dark"] .summary-panel,
+    [data-bs-theme="dark"] .recommendation-item,
+    [data-bs-theme="dark"] .finding-card .accordion-item,
+    [data-bs-theme="dark"] .finding-card .accordion-body { color: #f8fafc !important; }
+    [data-bs-theme="dark"] .metric-card small,
+    [data-bs-theme="dark"] .metric-card p,
+    [data-bs-theme="dark"] .recommendation-item p,
+    [data-bs-theme="dark"] .finding-card .accordion-body { color: #dbe7f5 !important; }
+    [data-bs-theme="dark"] .card-header.bg-white { background: #172033 !important; color: #ffffff !important; }
+    [data-bs-theme="dark"] .card-header.bg-white h4,
+    [data-bs-theme="dark"] .card-header.bg-white strong,
+    [data-bs-theme="dark"] .card-body span:not(.badge),
+    [data-bs-theme="dark"] .card-body .fw-semibold,
+    [data-bs-theme="dark"] .card-body .fw-bold { color: #f8fafc !important; }
+    [data-bs-theme="dark"] .text-secondary { color: #cbd5e1 !important; }
+    [data-bs-theme="dark"] .recommendation-item.bg-light { background: #172033 !important; }
+    [data-bs-theme="dark"] .finding-card .accordion-button,
+    [data-bs-theme="dark"] .finding-card .accordion-button:not(.collapsed) { background: #172033 !important; color: #ffffff !important; }
+    [data-bs-theme="dark"] .finding-card .accordion-button strong { color: #ffffff !important; }
+    [data-bs-theme="dark"] .finding-card .accordion-body { background: #111827 !important; }
+    [data-bs-theme="dark"] .result-output { background: #060b14; color: #e2ecf8; border: 1px solid #334155; }
+
     @media print {
         nav, footer, .no-print, .accordion-button::after { display: none !important; }
         .accordion-collapse { display: block !important; }
