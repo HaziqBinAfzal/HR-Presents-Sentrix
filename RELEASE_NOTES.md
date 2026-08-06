@@ -1,85 +1,176 @@
 # Sentrix v1.0.0-RC1 Release Notes
 
-**Release candidate date:** August 5, 2026  
-**Target:** First production-oriented Sentrix release candidate
+**Release candidate date:** August 6, 2026  
+**Product:** Sentrix by HR-Presents  
+**Permanent branch:** `production/sentrix-permanent`
 
-## Purpose
+## Release overview
 
-RC1 turns the current Sentrix repository into a reviewable release candidate with a complete documentation baseline and an explicit production-gating checklist. It does not conceal unverified areas: release readiness requires a clean installation, test execution, migration validation, deployment verification, security review, and backup/restore drill.
+Sentrix v1.0.0-RC1 is the consolidated production-oriented release candidate for the HR-Presents Python project analysis platform. It combines authenticated project analysis, secure archive handling, database-backed history, professional security reporting, project-specific standards interpretation, deployment assets, automated tests, and a finalized light/dark user interface.
+
+The permanent application identity is **Sentrix — Presented by HR-Presents**, using the Electric Wing brand asset across the navigation, footer, favicon, metadata, documentation, and generated reports.
 
 ## Included product areas
 
-- Authentication and account workflows
-- Project upload and extraction
-- Python syntax, lint, formatting, complexity, and security analysis
-- Optional AI-assisted recommendations
-- Project, analysis, review, and history views
-- Profile and settings management
-- Report and export services
-- SMTP-backed account email flows
+- Registration, login, logout, sessions, password hashing, profiles, and settings
+- Signed expiring password-reset links with SMTP delivery
+- Immediate sign-in after registration; mandatory email verification is not used
+- Python file and ZIP-project upload
+- Secure ZIP extraction and resource controls
+- Syntax, Pylint, Bandit, Radon, formatting, and structural analysis
+- Optional operator-configured AI-assisted recommendations
+- Dashboard, project history, analysis history, and reviews
+- Owner-scoped results and report access
+- Self-contained branded HTML reports
+- Project-specific standards and security-control interpretation
+- Persistent light and dark appearance modes
+- Docker, Docker Compose, Gunicorn, Nginx, and GitHub Actions support
 
-## Documentation delivered
+## Professional reporting
 
-- Main repository README
-- Installation, user, administrator, developer, API, architecture, deployment, security, troubleshooting, and FAQ guides
-- Changelog, roadmap, contribution guide, code of conduct, and security policy
+The finalized report structure remains visually consistent while containing deeper technical and educational analysis.
 
-## Production gate checklist
+Reports may include:
 
-### Application
+- Executive summary and project health
+- Scope and methodology
+- Quality, security, and complexity findings
+- Scanner evidence, rules, file names, and line numbers when available
+- Root cause and exploitation context
+- Business and technical impact
+- Severity interpretation
+- Secure implementation and remediation guidance
+- Prevention and verification steps
+- Standards and compliance interpretation
+- Top ten security-control analysis
 
-- [ ] Set `debug=False` and verify no development server is used.
-- [ ] Provide a stable production `SECRET_KEY` through the environment.
-- [ ] Confirm secure cookie settings behind HTTPS.
-- [ ] Verify CSRF protection on all state-changing browser forms.
-- [ ] Confirm authorization checks prevent cross-user resource access.
-- [ ] Verify upload size, extension, archive traversal, and extraction limits.
+Standards guidance may reference OWASP Top 10, OWASP ASVS, CWE Top 25, MITRE CAPEC and ATT&CK where applicable, NIST SSDF, NIST CSF, NIST SP 800-53, CIS, SANS, CERT, PCI DSS, ISO/IEC 27001, ISO/IEC 27002, SOC 2, GDPR, and HIPAA.
 
-### Data and migrations
+Mappings are evidence-aware. When retained scanner output does not establish a project-specific relationship or location, Sentrix reports insufficient evidence instead of creating unsupported claims. Standards mapping is guidance and does not constitute certification or legal advice.
 
-- [ ] Verify every expected migration is committed and ordered correctly.
-- [ ] Run upgrade and downgrade tests on disposable databases.
-- [ ] Rehearse migration against a recent production-like backup.
-- [ ] Document database ownership, retention, and restore objectives.
+## Security controls represented
 
-### Deployment
+The reporting engine covers these principal control areas:
 
-- [ ] Add and test a production WSGI server dependency.
-- [ ] Add and test `Dockerfile` and Compose definitions, or formally exclude containers from RC1.
-- [ ] Add and test Nginx and process supervisor examples.
-- [ ] Configure HTTPS and redirect HTTP to HTTPS.
-- [ ] Add health/readiness checks that do not expose secrets.
-- [ ] Confirm generated files use durable storage with correct permissions.
+1. Secure authentication
+2. Authorization and access control
+3. Input validation
+4. Output encoding
+5. Cryptography
+6. Secrets management
+7. Logging and monitoring
+8. Secure configuration management
+9. Dependency and supply-chain security
+10. Secure error handling
 
-### Quality
+## Security protections
 
-- [ ] Run tests from a clean checkout.
-- [ ] Run linting and static analysis.
-- [ ] Test registration, verification, login, logout, password recovery, upload, analysis, review, history, report, export, profile, and settings workflows.
-- [ ] Verify documentation links and commands.
-- [ ] Verify supported Python versions on Windows, Linux, and macOS.
+- Password hashing and authenticated sessions
+- CSRF-protected browser forms
+- Signed password-reset tokens
+- Generic reset responses to reduce account enumeration
+- User ownership checks for projects, analyses, and reports
+- Report-content escaping
+- Environment-based secrets and production configuration
+- Secure-cookie and security-header options
+- ZIP traversal, absolute-path, symlink, nested-archive, duplicate-path, member-count, expanded-size, per-member-size, and compression-ratio controls
 
-### Repository hygiene
+Static analysis is an aid to secure development and does not prove that software is vulnerability-free. Findings require developer review and risk validation.
 
-- [ ] Remove `*.backup`, `*.save`, editor files, caches, generated databases, and generated user artifacts after confirming they are obsolete.
-- [ ] Confirm `.gitignore` covers secrets, virtual environments, caches, local databases, uploads, generated reports, and IDE files.
-- [ ] Confirm no API keys, SMTP credentials, session secrets, or user data exist in Git history intended for distribution.
-- [ ] Select and commit the intended license.
+## User interface
 
-### Operations
+The current interface includes:
 
-- [ ] Configure centralized logs and retention.
-- [ ] Configure monitoring for availability, errors, latency, storage, and database health.
-- [ ] Validate backups and perform a restore drill.
-- [ ] Document rollback, incident response, and responsible contacts.
+- Finalized Sentrix navigation and branding
+- Home, About, Contact, Dashboard, Upload, History, Profile, Settings, authentication, and results pages
+- Professional Reports overview on the home page
+- Persistent light/dark mode toggle
+- Dark-mode readability across headings, paragraphs, cards, forms, tables, dropdowns, accordions, results, report summaries, and badges
+- Responsive Bootstrap-based layouts
+
+## Repository and deployment
+
+The release includes:
+
+- Environment template
+- Versioned database migrations
+- Automated unit tests
+- Secure extraction tests
+- Report enrichment and project-mapping tests
+- GitHub Actions workflow
+- Dockerfile
+- Docker Compose configuration
+- Gunicorn configuration
+- Nginx deployment example
+- Security, contribution, roadmap, release, and operational documentation
+
+## Validation commands
+
+```bash
+python -m compileall -q app.py analyzer helpers forms.py models.py config.py tests
+python -m unittest discover -s tests -v
+```
+
+Focused report validation:
+
+```bash
+python -m unittest tests.test_report_content_enrichment -v
+python -m unittest tests.test_report_project_mapping -v
+```
+
+Focused extraction validation:
+
+```bash
+python -m unittest tests.test_extractor_security -v
+```
+
+## Local startup
+
+```bash
+python app.py
+```
+
+Default local address:
+
+```text
+http://127.0.0.1:5000
+```
+
+## Production requirements
+
+Before production deployment:
+
+- Set a strong stable `SECRET_KEY`
+- Configure the production database and migrations
+- Configure HTTPS
+- Enable secure cookies and appropriate security headers
+- Review SMTP settings
+- Review upload and extraction limits
+- Use a production WSGI server
+- Configure reverse proxy limits and timeouts
+- Use durable protected storage for uploads and reports
+- Configure logging, monitoring, backups, retention, and restore procedures
+- Test authorization and cross-user access controls
+- Run the complete automated test suite
+
+## Database upgrade guidance
+
+Existing populated databases must be backed up and inspected before applying migration changes. Test upgrades against a disposable copy first. Do not stamp a legacy database unless its current schema and migration state are understood.
 
 ## Known limitations
 
-- The current repository still contains cleanup candidates and unverified deployment components.
-- API behavior must be derived from and tested against actual registered routes; this RC1 documentation distinguishes web routes from a guaranteed versioned public API.
-- AI recommendations depend on external provider availability, credentials, model behavior, and configured limits.
-- SQLite is suitable for local and small single-instance use but is not the default recommendation for horizontally scaled production deployment.
+- Optional AI recommendations depend on operator configuration and provider availability.
+- Static scanners can produce false positives and false negatives.
+- Compliance references are technical mappings, not certifications.
+- SQLite is appropriate for local development and smaller single-instance deployments but may not suit horizontally scaled production use.
+- Deployment examples must be adapted to the target domain, operating system, storage, database, certificates, and security requirements.
 
-## Promotion criteria
+## Source of truth
 
-Promote RC1 to `v1.0.0` only after every release-blocking checklist item is complete, critical findings are resolved, deployment and rollback are rehearsed, and the exact release commit is tagged.
+The latest finalized and consolidated application is maintained on:
+
+```text
+production/sentrix-permanent
+```
+
+Use this branch when installing, validating, deploying, or continuing Sentrix development.
