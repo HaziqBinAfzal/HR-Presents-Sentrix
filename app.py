@@ -13,7 +13,7 @@ from config import Config
 from database import db
 from extensions import csrf, mail, migrate
 from models import User
-from settings_models import UserSettings  # noqa: F401 - registers the model before create_all
+from settings_models import UserSettings  # noqa: F401 - registers the model before schema checks
 
 
 login_manager = LoginManager()
@@ -99,7 +99,6 @@ def create_app(config_class=Config):
     csrf.init_app(app)
     login_manager.init_app(app)
 
-    # Register replacement feature blueprints before the legacy main routes.
     app.register_blueprint(account_bp)
     app.register_blueprint(settings_bp)
     app.register_blueprint(settings_page)
@@ -108,7 +107,6 @@ def create_app(config_class=Config):
 
     @app.after_request
     def apply_sentrix_response_policies(response):
-        """Apply branding compatibility and browser security policies."""
         if response.mimetype == "text/html" and not response.direct_passthrough:
             body = response.get_data(as_text=True)
             body = body.replace("CodeSentinel AI", "Sentrix")
@@ -132,8 +130,9 @@ def create_app(config_class=Config):
         return render_template("500.html"), 500
 
     with app.app_context():
-        db.create_all()
-        _ensure_email_verification_columns()
+        if app.config.get("DATABASE_AUTO_CREATE", True):
+            db.create_all()
+            _ensure_email_verification_columns()
 
     return app
 
