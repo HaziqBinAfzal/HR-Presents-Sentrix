@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 110" role="img" aria-labelledby="title desc">
+  <title id="title">Sentrix Electric Spark Wing</title>
+  <desc id="desc">A symmetrical blue wing with a lightning bolt in the center.</desc>
+  <defs>
+    <linearGradient id="wingBlue" x1="18" y1="12" x2="142" y2="98" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0b72ff"/>
+      <stop offset="1" stop-color="#1559e8"/>
+    </linearGradient>
+  </defs>
+  <g fill="url(#wingBlue)">
+    <path d="M74 37 57 28 22 10c3 12 9 21 19 29l-19-5c7 11 17 19 30 23l-17 1c8 9 19 15 33 17l10-23-4-15Z"/>
+    <path d="m86 37 17-9 35-18c-3 12-9 21-19 29l19-5c-7 11-17 19-30 23l17 1c-8 9-19 15-33 17L82 52l4-15Z"/>
+    <path d="m84 28-18 39h14l-5 33 25-43H86l-2-29Z"/>
+  </g>
+</svg>
