@@ -35,6 +35,10 @@ class Config:
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True}
+    DATABASE_AUTO_CREATE = _env_bool(
+        "DATABASE_AUTO_CREATE",
+        ENVIRONMENT != "production",
+    )
 
     UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
     TEMP_FOLDER = os.path.join(UPLOAD_FOLDER, "temp")
