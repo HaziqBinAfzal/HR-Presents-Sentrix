@@ -68,7 +68,7 @@ jobs:
         run: python -m unittest discover -s tests -p "test_*.py" -v
 
   migrations:
-    name: Verify Alembic migrations
+    name: Verify Alembic migration round trip
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -126,6 +126,61 @@ jobs:
           if missing:
               raise SystemExit(f"Missing migrated tables: {sorted(missing)}")
           print("Migration schema verified:", sorted(expected))
+          PY
+
+      - name: Downgrade to base
+        run: |
+          flask --app app db downgrade base
+          python - <<'PY'
+          import sqlite3
+
+          application_tables = {
+              "analyses",
+              "projects",
+              "reviews",
+              "user_settings",
+              "users",
+          }
+          connection = sqlite3.connect("/tmp/sentrix_ci_migration.db")
+          actual = {
+              row[0]
+              for row in connection.execute(
+                  "SELECT name FROM sqlite_master WHERE type = 'table'"
+              )
+          }
+          connection.close()
+          remaining = application_tables & actual
+          if remaining:
+              raise SystemExit(f"Tables remained after downgrade: {sorted(remaining)}")
+          print("Downgrade removed all application tables")
+          PY
+
+      - name: Re-upgrade to head
+        run: |
+          flask --app app db upgrade
+          flask --app app db current | grep "20260806_0001"
+          python - <<'PY'
+          import sqlite3
+
+          expected = {
+              "analyses",
+              "projects",
+              "reviews",
+              "user_settings",
+              "users",
+          }
+          connection = sqlite3.connect("/tmp/sentrix_ci_migration.db")
+          actual = {
+              row[0]
+              for row in connection.execute(
+                  "SELECT name FROM sqlite_master WHERE type = 'table'"
+              )
+          }
+          connection.close()
+          missing = expected - actual
+          if missing:
+              raise SystemExit(f"Missing tables after re-upgrade: {sorted(missing)}")
+          print("Migration round trip verified")
           PY
 
   docker:
