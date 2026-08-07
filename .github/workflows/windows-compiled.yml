@@ -111,6 +111,20 @@ jobs:
               assert isinstance(pylint_result.get("issues"), list), pylint_result
               assert "error" not in pylint_result, pylint_result
 
+              # Regression gate: a deliberately poor file must produce actual
+              # Pylint findings. This prevents the old 0/10 + 0 issues bug.
+              poor_file = root / "poor_sample.py"
+              poor_file.write_text(
+                  'import os\n\n'
+                  'def BAD_NAME(x):\n'
+                  '    unused = 1\n'
+                  '    return x\n',
+                  encoding="utf-8",
+              )
+              poor_pylint = run_pylint(str(poor_file))
+              assert "error" not in poor_pylint, poor_pylint
+              assert len(poor_pylint.get("issues", [])) > 0, poor_pylint
+
               black_result = run_black(str(clean_file))
               assert black_result.get("status") in {"Passed", "Needs Formatting"}, black_result
               assert "error" not in black_result, black_result
@@ -130,6 +144,32 @@ jobs:
           print("Sentrix analyzer preflight passed.")
           '@ | python -
           if ($LASTEXITCODE -ne 0) { throw 'Analyzer preflight failed; compilation intentionally skipped.' }
+
+      - name: Build Windows icon from Sentrix logo
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force -Path build-assets | Out-Null
+          @'
+          from pathlib import Path
+          from PIL import Image
+
+          source = Path("static/images/sentrix-electric-spark-wing.png")
+          target = Path("build-assets/Sentrix.ico")
+          if not source.is_file():
+              raise SystemExit(f"Sentrix logo missing: {source}")
+
+          image = Image.open(source).convert("RGBA")
+          image.save(
+              target,
+              format="ICO",
+              sizes=[(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)],
+          )
+          if not target.is_file() or target.stat().st_size == 0:
+              raise SystemExit("Sentrix.ico was not created.")
+          print(f"Created {target} ({target.stat().st_size} bytes)")
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { throw 'Sentrix Windows icon generation failed.' }
 
       - name: Compile Sentrix
         shell: powershell
@@ -153,6 +193,7 @@ jobs:
             --include-data-dir=templates=templates `
             --include-data-dir=static=static `
             --include-data-dir=migrations=migrations `
+            --windows-icon-from-ico=build-assets/Sentrix.ico `
             --windows-console-mode=force `
             app.py
 
@@ -175,6 +216,7 @@ jobs:
 
           $runtime = Join-Path $stage 'Runtime'
           Copy-Item -LiteralPath $dist.FullName -Destination $runtime -Recurse -Force
+          Copy-Item -LiteralPath 'build-assets\Sentrix.ico' -Destination (Join-Path $stage 'Sentrix.ico') -Force
 
           @'
           @echo off
@@ -238,6 +280,9 @@ jobs:
 
           if (-not (Test-Path (Join-Path $runtime 'Sentrix.exe'))) {
             throw 'Customer package is missing Runtime\Sentrix.exe.'
+          }
+          if (-not (Test-Path (Join-Path $stage 'Sentrix.ico'))) {
+            throw 'Customer package is missing Sentrix.ico.'
           }
 
           $zip = Join-Path $PWD 'release\Sentrix-v1-Windows-Compiled.zip'
