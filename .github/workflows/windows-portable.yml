@@ -1,0 +1,78 @@
+name: Build Portable Windows ZIP
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/sentrix-portable-zip
+    paths:
+      - 'portable/**'
+      - 'app.py'
+      - 'analyzer/**'
+      - 'templates/**'
+      - 'static/**'
+      - 'migrations/**'
+      - 'requirements.txt'
+      - 'config.py'
+      - 'database.py'
+      - 'extensions.py'
+      - 'forms.py'
+      - 'helpers.py'
+      - 'models.py'
+      - 'settings_models.py'
+      - '.github/workflows/windows-portable.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Assemble portable edition
+        shell: powershell
+        run: |
+          $stage = Join-Path $PWD 'dist\Sentrix-v1-Portable-Windows'
+          New-Item -ItemType Directory -Force -Path $stage | Out-Null
+
+          $files = @(
+            'app.py', 'config.py', 'database.py', 'extensions.py',
+            'forms.py', 'helpers.py', 'models.py', 'settings_models.py',
+            'requirements.txt', '.env.example', 'README.md', 'LICENSE', 'LICENSE.md'
+          )
+          foreach ($file in $files) {
+            if (Test-Path $file) { Copy-Item $file $stage -Force }
+          }
+
+          foreach ($dir in @('analyzer', 'templates', 'static', 'migrations')) {
+            if (Test-Path $dir) { Copy-Item $dir $stage -Recurse -Force }
+          }
+
+          Copy-Item 'portable\Start Sentrix.bat' $stage -Force
+          Copy-Item 'portable\Start-Sentrix.ps1' $stage -Force
+
+          @'
+          SENTRIX v1 - PORTABLE WINDOWS EDITION
+
+          1. Extract this ZIP to a normal folder such as Documents or Desktop.
+          2. Double-click "Start Sentrix.bat".
+          3. On first launch, keep the internet connected while Sentrix prepares its private runtime.
+          4. Your browser opens automatically when Sentrix is ready.
+          5. Keep the Sentrix PowerShell window open while using the application.
+
+          No system-wide Python installation is required.
+          '@ | Set-Content (Join-Path $stage 'START-HERE.txt') -Encoding UTF8
+
+          Compress-Archive -Path "$stage\*" -DestinationPath 'dist\Sentrix-v1-Portable-Windows.zip' -CompressionLevel Optimal -Force
+
+      - name: Upload portable ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: Sentrix-v1-Portable-Windows
+          path: dist/Sentrix-v1-Portable-Windows.zip
+          if-no-files-found: error
+          retention-days: 30
