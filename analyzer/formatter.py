@@ -1,53 +1,34 @@
-import subprocess
+from pathlib import Path
+
+import black
 
 
 def run_black(file_path):
-    """
-    Run Black in check mode on a Python file.
-
-    Returns:
-        {
-            "passed": bool,
-            "status": str,
-            "output": str
-        }
-    """
-
+    """Check Black formatting in-process so packaged builds need no external CLI."""
     try:
-
-        result = subprocess.run(
-            [
-                "black",
-                "--check",
-                file_path
-            ],
-            capture_output=True,
-            text=True,
-            check=False
-        )
-
-        passed = result.returncode == 0
-
-        output = (
-            result.stdout +
-            "\n" +
-            result.stderr
-        ).strip()
-
-        return {
-            "passed": passed,
-            "status": (
-                "Passed"
-                if passed
-                else "Needs Formatting"
-            ),
-            "output": output
-        }
-
-    except Exception as error:
+        source = Path(file_path).read_text(encoding="utf-8", errors="ignore")
+        try:
+            black.format_file_contents(
+                source,
+                fast=True,
+                mode=black.FileMode(),
+            )
+        except black.NothingChanged:
+            return {
+                "passed": True,
+                "status": "Passed",
+                "output": "Already formatted with Black.",
+            }
 
         return {
             "passed": False,
+            "status": "Needs Formatting",
+            "output": "Black would reformat this file.",
+        }
+    except Exception as error:
+        return {
+            "passed": False,
             "status": "Error",
-            "output": str(error)
+            "output": f"Black analyzer error: {error}",
+            "error": str(error),
         }
