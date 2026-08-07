@@ -1,0 +1,132 @@
+name: Build Latest Sentrix Portable Windows ZIP
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/sentrix-portable-latest
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout latest Sentrix portable branch
+        uses: actions/checkout@v4
+
+      - name: Assemble latest production portable edition
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $stage = Join-Path $PWD 'dist\Sentrix-v1-Portable-Windows-Latest'
+          Remove-Item $stage -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path $stage | Out-Null
+
+          # Package the actual tracked Sentrix source from this branch instead
+          # of maintaining a fragile hand-written list of application files.
+          $tracked = git ls-files
+          foreach ($file in $tracked) {
+            if ($file -like '.github/*') { continue }
+            if ($file -like 'portable/*') { continue }
+            if ($file -like 'tests/*') { continue }
+            if ($file -eq '.ci-trigger') { continue }
+
+            $source = Join-Path $PWD $file
+            if (-not (Test-Path -LiteralPath $source -PathType Leaf)) { continue }
+            $destination = Join-Path $stage $file
+            $destinationDir = Split-Path $destination -Parent
+            if ($destinationDir) {
+              New-Item -ItemType Directory -Force -Path $destinationDir | Out-Null
+            }
+            Copy-Item -LiteralPath $source -Destination $destination -Force
+          }
+
+          Copy-Item -LiteralPath 'portable\Start Sentrix.bat' -Destination (Join-Path $stage 'Start Sentrix.bat') -Force
+          Copy-Item -LiteralPath 'portable\Start-Sentrix.ps1' -Destination (Join-Path $stage 'Start-Sentrix.ps1') -Force
+
+          @'
+          SENTRIX v1 - LATEST PORTABLE WINDOWS EDITION
+
+          This package is built from the latest production Sentrix website.
+
+          1. Extract this ZIP to Documents or Desktop.
+          2. Double-click "Start Sentrix.bat".
+          3. Keep the internet connected on first launch while the private runtime and dependencies are prepared.
+          4. Your browser opens automatically when Sentrix is ready.
+          5. Keep the Sentrix PowerShell window open while using the application.
+
+          No system-wide Python installation is required.
+          '@ | Set-Content (Join-Path $stage 'START-HERE.txt') -Encoding UTF8
+
+          $required = @(
+            'app.py',
+            'requirements.txt',
+            'Start Sentrix.bat',
+            'Start-Sentrix.ps1',
+            'analyzer\routes\main_loader.py',
+            'helpers\community_routes.py',
+            'templates\home.html',
+            'templates\base.html',
+            'static\css\style.css',
+            'static\images\sentrix-electric-spark-wing.png'
+          )
+          foreach ($item in $required) {
+            $candidate = Join-Path $stage $item
+            if (-not (Test-Path $candidate)) {
+              throw "Latest portable package is incomplete: missing $item"
+            }
+          }
+
+          # Verify key files match the current branch byte-for-byte so an old
+          # website snapshot can never accidentally be packaged again.
+          foreach ($item in @('app.py','templates\home.html','templates\base.html','static\css\style.css')) {
+            $sourceHash = (Get-FileHash -Algorithm SHA256 (Join-Path $PWD $item)).Hash
+            $stageHash = (Get-FileHash -Algorithm SHA256 (Join-Path $stage $item)).Hash
+            if ($sourceHash -ne $stageHash) {
+              throw "Packaged file does not match latest branch: $item"
+            }
+          }
+
+          $zip = Join-Path $PWD 'dist\Sentrix-v1-Portable-Windows-Latest.zip'
+          Remove-Item $zip -Force -ErrorAction SilentlyContinue
+
+          $env:SENTRIX_STAGE = $stage
+          $env:SENTRIX_ZIP = $zip
+          @'
+          import os
+          from pathlib import Path
+          from zipfile import ZIP_DEFLATED, ZipFile
+
+          stage = Path(os.environ['SENTRIX_STAGE'])
+          destination = Path(os.environ['SENTRIX_ZIP'])
+          with ZipFile(destination, 'w', compression=ZIP_DEFLATED) as archive:
+              for path in sorted(stage.rglob('*')):
+                  if path.is_file():
+                      archive.write(path, path.relative_to(stage).as_posix())
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { throw 'Latest portable ZIP creation failed.' }
+
+          python -c "import sys, zipfile; z=zipfile.ZipFile(r'$zip'); names=set(z.namelist()); bad=[n for n in names if '\\' in n]; required={'app.py','templates/home.html','templates/base.html','helpers/community_routes.py','static/images/sentrix-electric-spark-wing.png','Start Sentrix.bat','Start-Sentrix.ps1'}; missing=sorted(required-names); sys.exit('Invalid ZIP separators: '+repr(bad[:10])) if bad else None; sys.exit('Missing latest files: '+repr(missing)) if missing else print('Latest customer ZIP structure validation passed')"
+          if ($LASTEXITCODE -ne 0) { throw 'Latest portable ZIP validation failed.' }
+
+          $verify = Join-Path $PWD 'dist\Sentrix-v1-Portable-Windows-Latest-verify'
+          Remove-Item $verify -Recurse -Force -ErrorAction SilentlyContinue
+          Expand-Archive -LiteralPath $zip -DestinationPath $verify -Force
+          foreach ($item in $required) {
+            if (-not (Test-Path (Join-Path $verify $item))) {
+              throw "Extracted latest portable package is incomplete: missing $item"
+            }
+          }
+
+          Write-Host 'Latest Sentrix production source packaged successfully.'
+
+      - name: Upload latest portable ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: Sentrix-v1-Portable-Windows-Latest
+          path: dist/Sentrix-v1-Portable-Windows-Latest.zip
+          if-no-files-found: error
+          retention-days: 30
