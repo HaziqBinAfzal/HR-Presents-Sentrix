@@ -20,6 +20,8 @@ PrivilegesRequired=admin
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 UninstallDisplayName=Sentrix v1
+UninstallDisplayIcon={app}\Sentrix.ico
+SetupIconFile=payload\Sentrix.ico
 SetupLogging=yes
 
 [InstallDelete]
@@ -36,15 +38,17 @@ Type: filesandordirs; Name: "{app}\static"
 Type: files; Name: "{app}\Start Sentrix.bat"
 Type: files; Name: "{app}\README.txt"
 Type: files; Name: "{app}\Sentrix.exe"
+Type: files; Name: "{app}\Sentrix.ico"
 
 [Files]
 Source: "payload\Runtime\*"; DestDir: "{app}\Runtime"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "payload\Start Sentrix.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "payload\README.txt"; DestDir: "{app}"; Flags: ignoreversion
+Source: "payload\Sentrix.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{autoprograms}\Sentrix"; Filename: "{app}\Start Sentrix.bat"; WorkingDir: "{app}"
-Name: "{autodesktop}\Sentrix"; Filename: "{app}\Start Sentrix.bat"; WorkingDir: "{app}"; Tasks: desktopicon
+Name: "{autoprograms}\Sentrix"; Filename: "{app}\Start Sentrix.bat"; WorkingDir: "{app}"; IconFilename: "{app}\Sentrix.ico"
+Name: "{autodesktop}\Sentrix"; Filename: "{app}\Start Sentrix.bat"; WorkingDir: "{app}"; IconFilename: "{app}\Sentrix.ico"; Tasks: desktopicon
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a &desktop shortcut"; GroupDescription: "Additional shortcuts:"; Flags: unchecked
