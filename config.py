@@ -7,7 +7,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-INSTANCE_DIR = os.path.join(BASE_DIR, "instance")
+# Installed Windows builds live under Program Files, which is not writable by
+# standard users. The launcher sets SENTRIX_DATA_DIR to a per-user writable
+# location (normally %LOCALAPPDATA%\Sentrix). Source/development deployments
+# keep the historical project-local storage unless explicitly overridden.
+DATA_DIR = os.path.abspath(os.getenv("SENTRIX_DATA_DIR", BASE_DIR))
+INSTANCE_DIR = os.path.join(DATA_DIR, "instance")
 os.makedirs(INSTANCE_DIR, exist_ok=True)
 
 
@@ -40,7 +45,7 @@ class Config:
         ENVIRONMENT != "production",
     )
 
-    UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
+    UPLOAD_FOLDER = os.path.join(DATA_DIR, "uploads")
     TEMP_FOLDER = os.path.join(UPLOAD_FOLDER, "temp")
     PROJECT_FOLDER = os.path.join(UPLOAD_FOLDER, "projects")
     REPORT_FOLDER = os.path.join(UPLOAD_FOLDER, "reports")
