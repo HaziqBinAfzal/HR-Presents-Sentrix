@@ -1,8 +1,30 @@
-import io
-import json
-
 from pylint.lint import Run
-from pylint.reporters.json_reporter import JSONReporter
+from pylint.reporters import BaseReporter
+
+
+class CollectingReporter(BaseReporter):
+    """Collect Pylint messages directly instead of parsing reporter text output."""
+
+    def __init__(self):
+        super().__init__()
+        self.issues = []
+
+    def handle_message(self, msg):
+        self.issues.append(
+            {
+                "file": getattr(msg, "path", None),
+                "line": getattr(msg, "line", None),
+                "column": getattr(msg, "column", None),
+                "type": getattr(msg, "category", None),
+                "symbol": getattr(msg, "symbol", None),
+                "message": getattr(msg, "msg", ""),
+                "message_id": getattr(msg, "msg_id", None),
+            }
+        )
+
+    def _display(self, layout):
+        # Reports are disabled for Sentrix; this satisfies BaseReporter.
+        return None
 
 
 def _score_from_stats(stats):
@@ -32,62 +54,57 @@ def _score_from_stats(stats):
 
     total_messages = fatal + error + warning + refactor + convention
 
-    # Pylint's default evaluation is based on weighted message counts per
-    # statement. Clamp to the 0-10 range used by the Sentrix UI.
     if statements > 0:
-        penalty = ((5.0 * (fatal + error) + warning + refactor + convention) / statements) * 10.0
+        penalty = (
+            (5.0 * (fatal + error) + warning + refactor + convention)
+            / statements
+        ) * 10.0
         return max(0.0, min(10.0, 10.0 - penalty))
 
-    # A successfully linted file with no statements and no findings is clean.
     if total_messages == 0:
         return 10.0
 
     return 0.0
 
 
+def _format_output(issues):
+    if not issues:
+        return "No Pylint findings."
+
+    return "\n\n".join(
+        (
+            f"{item.get('file') or 'Unknown file'}\n"
+            f"Line {item.get('line') or 'Unknown'}\n"
+            f"{item.get('type') or 'Unknown'}\n"
+            f"{item.get('symbol') or item.get('message_id') or 'Unknown'}\n"
+            f"{item.get('message') or ''}"
+        )
+        for item in issues
+    )
+
+
 def run_pylint(file_path):
     """Run Pylint in-process so packaged Windows builds need no external CLI."""
-    output = io.StringIO()
-    reporter = JSONReporter(output=output)
+    reporter = CollectingReporter()
 
     try:
         run = Run(
-            [file_path, "--score=y"],
+            [file_path, "--score=y", "--reports=n"],
             reporter=reporter,
             exit=False,
         )
 
-        try:
-            data = json.loads(output.getvalue() or "[]")
-        except json.JSONDecodeError:
-            data = []
-
-        issues = []
-        for item in data:
-            issues.append(
-                {
-                    "file": item.get("path"),
-                    "line": item.get("line"),
-                    "column": item.get("column"),
-                    "type": item.get("type"),
-                    "symbol": item.get("symbol"),
-                    "message": item.get("message"),
-                    "message_id": item.get("message-id"),
-                }
-            )
-
+        issues = reporter.issues
         stats = getattr(run.linter, "stats", None)
         score = _score_from_stats(stats)
 
-        # If Pylint completed and produced no findings but its stats object did
-        # not expose a score, do not misreport a clean file as 0/10.
         if score is None:
             score = 10.0 if not issues else 0.0
 
         return {
             "score": round(float(score), 2),
             "issues": issues,
-            "output": output.getvalue().strip(),
+            "output": _format_output(issues),
         }
     except Exception as error:
         return {
