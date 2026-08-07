@@ -118,6 +118,13 @@ class Analysis(db.Model):
         backref=db.backref("analyses", lazy=True, cascade="all, delete-orphan"),
     )
 
+    @property
+    def scorecard(self):
+        """Return the canonical Sentrix display scorecard for this scan."""
+        from helpers.scoring import scorecard_from_analysis
+
+        return scorecard_from_analysis(self)
+
     def __repr__(self):
         return f"<Analysis {self.id}: {self.filename}>"
 
