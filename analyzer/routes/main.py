@@ -1,924 +1,364 @@
 import os
 import uuid
-from flask_mail import Message
-from extensions import mail
-from helpers.analysis_service import run_project_analysis
-from forms import ContactForm
+
 from flask import (
-    abort,
     Blueprint,
+    abort,
+    current_app,
+    flash,
+    redirect,
     render_template,
     request,
-    redirect,
-    url_for,
-    flash,
-    current_app,
     send_file,
     send_from_directory,
+    url_for,
 )
-
-from flask_login import (
-    login_user,
-    logout_user,
-    login_required,
-    current_user
-)
-
+from flask_login import current_user, login_required, login_user, logout_user
+from flask_mail import Message
 from werkzeug.utils import secure_filename
 
-from helpers.upload_service import (
-    validate_upload,
-    build_metadata,
-    generate_unique_filename,
-    generate_project_id,
-    create_project_workspace
-)
-
+from database import db
+from extensions import mail
+from forms import ContactForm, LoginForm, RegisterForm, ReviewForm, UploadForm
+from helpers.analysis_service import run_project_analysis
 from helpers.review_service import (
     create_review,
-    update_review,
     delete_review as delete_review_record,
-    get_review,
-    get_latest_reviews,
     get_all_reviews,
-    get_review_statistics
+    get_latest_reviews,
+    get_review,
+    get_review_statistics,
+    update_review,
 )
-
-from forms import (
-    LoginForm,
-    RegisterForm,
-    UploadForm,
-    ReviewForm
+from helpers.upload_service import (
+    build_metadata,
+    create_project_workspace,
+    generate_project_id,
+    generate_unique_filename,
+    validate_upload,
 )
-from database import db
-from models import User, Project, Review, Analysis
+from models import Analysis, Project, Review, User
 
 
 main = Blueprint("main", __name__)
 
-
-# ============================================================
-# ALLOWED PROFILE PICTURE TYPES
-# ============================================================
-
-ALLOWED_PROFILE_EXTENSIONS = {
-    "png",
-    "jpg",
-    "jpeg",
-    "gif",
-    "webp"
-}
+ALLOWED_PROFILE_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
 
 
 def allowed_profile_picture(filename):
-
     return (
         "." in filename
-        and filename.rsplit(".", 1)[1].lower()
-        in ALLOWED_PROFILE_EXTENSIONS
+        and filename.rsplit(".", 1)[1].lower() in ALLOWED_PROFILE_EXTENSIONS
     )
 
 
-# ============================================================
-# HOME
-# ============================================================
+def _average(values):
+    numbers = [float(value) for value in values if value is not None]
+    return round(sum(numbers) / len(numbers), 1) if numbers else 0.0
+
 
 @main.route("/")
 def home():
-
-    latest_reviews = get_latest_reviews(3)
-
-    review_stats = get_review_statistics()
-
     return render_template(
         "home.html",
-        latest_reviews=latest_reviews,
-        review_stats=review_stats
+        latest_reviews=get_latest_reviews(3),
+        review_stats=get_review_statistics(),
     )
 
-
-# ============================================================
-# ABOUT
-# ============================================================
 
 @main.route("/about")
 def about():
+    return render_template("about.html")
 
-    return render_template(
-        "about.html"
-    )
-# ============================================================
-# LOGIN
-# ============================================================
 
 @main.route("/login", methods=["GET", "POST"])
 def login():
-
     if current_user.is_authenticated:
-
-        return redirect(
-            url_for("main.dashboard")
-        )
+        return redirect(url_for("main.dashboard"))
 
     form = LoginForm()
-
     if form.validate_on_submit():
-
-        user = User.query.filter_by(
-            email=form.email.data.strip().lower()
-        ).first()
-
-        if user and user.check_password(
-            form.password.data
-        ):
-
+        user = User.query.filter_by(email=form.email.data.strip().lower()).first()
+        if user and user.check_password(form.password.data):
             login_user(user)
+            flash("Login successful!", "success")
+            return redirect(url_for("main.dashboard"))
+        flash("Invalid email or password.", "danger")
+    return render_template("login.html", form=form)
 
-            flash(
-                "Login successful!",
-                "success"
-            )
-
-            return redirect(
-                url_for("main.dashboard")
-            )
-
-        flash(
-            "Invalid email or password.",
-            "danger"
-        )
-
-    return render_template(
-        "login.html",
-        form=form
-    )
-
-
-# ============================================================
-# REGISTER
-# ============================================================
 
 @main.route("/register", methods=["GET", "POST"])
 def register():
-
     form = RegisterForm()
-
     if form.validate_on_submit():
+        email = form.email.data.strip().lower()
+        username = form.username.data.strip()
+        if User.query.filter_by(email=email).first():
+            flash("Email already registered.", "danger")
+            return redirect(url_for("main.register"))
+        if User.query.filter_by(username=username).first():
+            flash("Username already exists.", "danger")
+            return redirect(url_for("main.register"))
 
-        existing_user = User.query.filter_by(
-            email=form.email.data.strip().lower()
-        ).first()
-
-        if existing_user:
-
-            flash(
-                "Email already registered.",
-                "danger"
-            )
-
-            return redirect(
-                url_for("main.register")
-            )
-
-        existing_username = User.query.filter_by(
-            username=form.username.data.strip()
-        ).first()
-
-        if existing_username:
-
-            flash(
-                "Username already exists.",
-                "danger"
-            )
-
-            return redirect(
-                url_for("main.register")
-            )
-
-        user = User(
-            username=form.username.data,
-            email=form.email.data.strip().lower()
-        )
-
-        user.set_password(
-            form.password.data
-        )
-
+        user = User(username=username, email=email)
+        user.set_password(form.password.data)
         db.session.add(user)
-
         db.session.commit()
-
-        flash(
-            "Registration successful. Please login.",
-            "success"
-        )
-
-        return redirect(
-            url_for("main.login")
-        )
-
-    return render_template(
-        "register.html",
-        form=form
-    )
+        flash("Registration successful. Please login.", "success")
+        return redirect(url_for("main.login"))
+    return render_template("register.html", form=form)
 
 
-# ============================================================
-# FORGOT PASSWORD
-# ============================================================
-
-@main.route(
-    "/forgot-password",
-    methods=["GET", "POST"]
-)
+@main.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
-
     if request.method == "POST":
-
         email = request.form.get("email")
-
         if email:
-
             flash(
-                "If an account exists with this email, "
-                "password reset instructions will be sent.",
-                "success"
+                "If an account exists with this email, password reset instructions will be sent.",
+                "success",
             )
+            return redirect(url_for("main.login"))
+        flash("Please enter your email address.", "error")
+    return render_template("forgot_password.html")
 
-            return redirect(
-                url_for("main.login")
-            )
-
-        flash(
-            "Please enter your email address.",
-            "error"
-        )
-
-    return render_template(
-        "forgot_password.html"
-    )
-
-
-# ============================================================
-# DASHBOARD
-# ============================================================
 
 @main.route("/dashboard")
 @login_required
 def dashboard():
-
-    total_projects = Project.query.filter_by(
-        user_id=current_user.id
-    ).count()
-
-    total_analyses = Analysis.query.filter_by(
-        user_id=current_user.id
-    ).count()
-
-    total_reports = Analysis.query.filter(
-        Analysis.user_id == current_user.id,
-        Analysis.report_path.isnot(None)
-    ).count()
-
-    security_issues = (
-        db.session.query(
-            db.func.sum(Analysis.security_count)
-        )
-        .filter_by(user_id=current_user.id)
-        .scalar()
-        or 0
-    )
-
-    latest_analysis = (
-        Analysis.query
-        .filter_by(user_id=current_user.id)
+    user_analyses = (
+        Analysis.query.filter_by(user_id=current_user.id)
         .order_by(Analysis.created_at.desc())
-        .first()
-    )
-
-    average_score = (
-        db.session.query(db.func.avg(Analysis.overall_score))
-        .filter_by(user_id=current_user.id)
-        .scalar()
-        or 0
-    )
-
-    overall_score = round(average_score, 1)
-
-    average_quality = (
-        db.session.query(db.func.avg(Analysis.pylint_score))
-        .filter_by(user_id=current_user.id)
-        .scalar()
-        or 0
-    )
-
-    quality_score = round(average_quality, 1)
-
-    total_size = (
-         db.session.query(db.func.sum(Project.file_size))
-         .filter_by(user_id=current_user.id)
-         .scalar()
-         or 0
-    )
-
-    storage_used = f"{round(total_size / (1024 * 1024), 2)} MB"
-
-    recent_analyses = (
-        Analysis.query
-        .filter_by(user_id=current_user.id)
-        .order_by(Analysis.created_at.desc())
-        .limit(5)
         .all()
     )
+    recent_analyses = user_analyses[:5]
+    latest_analysis = user_analyses[0] if user_analyses else None
+    scorecards = [analysis.scorecard for analysis in user_analyses]
 
+    total_projects = Project.query.filter_by(user_id=current_user.id).count()
+    total_reports = Analysis.query.filter(
+        Analysis.user_id == current_user.id,
+        Analysis.report_path.isnot(None),
+    ).count()
+    security_issues = sum(int(analysis.security_count or 0) for analysis in user_analyses)
+    total_size = (
+        db.session.query(db.func.sum(Project.file_size))
+        .filter_by(user_id=current_user.id)
+        .scalar()
+        or 0
+    )
 
-    # -----------------------------------------
-    # Quality Trend
-    # -----------------------------------------
-
-    quality_chart = []
-
-    for analysis in reversed(recent_analyses):
-
-        quality_chart.append({
-
-            "label": analysis.created_at.strftime("%d %b"),
-
-            "value": analysis.pylint_score
-
-        })
-
-    # -----------------------------------------
-    # Security Trend
-    # -----------------------------------------
-
-    security_chart = []
-
-    for analysis in reversed(recent_analyses):
-
-        security_chart.append({
-
-            "label": analysis.created_at.strftime("%d %b"),
-
-            "value": analysis.security_count
-
-        })
-
-    # -----------------------------------------
-    # Recent Activities
-    # -----------------------------------------
-
-
-    recent_activities = []
-
-    for analysis in recent_analyses:
-
-
-        recent_activities.append(
-            {
-                "title": analysis.filename,
-                "status": analysis.status,
-                "score": analysis.overall_score,
-                "date": analysis.created_at.strftime("%d %b %Y")
-            }
-        )
-
+    overall_score = _average(card["overall_score"] for card in scorecards)
+    quality_score = _average(card["quality_score"] for card in scorecards)
+    security_score = _average(card["security_score"] for card in scorecards)
+    maintainability_score = _average(
+        card["maintainability_score"] for card in scorecards
+    )
 
     chart_analyses = list(reversed(recent_analyses))
-
     quality_chart = {
-        "labels": [
-            analysis.created_at.strftime("%d %b")
-            for analysis in chart_analyses
-        ],
+        "labels": [a.created_at.strftime("%d %b") for a in chart_analyses],
         "datasets": [
             {
                 "label": "Overall Score",
-                "data": [
-                    analysis.overall_score
-                    for analysis in chart_analyses
-                ],
-                "fill": False
+                "data": [a.scorecard["overall_score"] for a in chart_analyses],
+                "fill": False,
             }
-        ]
-    }
-
-    latest_stats = latest_analysis
-
-    secure_projects = (
-        Analysis.query
-        .filter(
-            Analysis.user_id == current_user.id,
-            Analysis.security_count == 0
-        )
-        .count()
-    )
-
-    projects_with_issues = (
-        Analysis.query
-        .filter(
-            Analysis.user_id == current_user.id,
-            Analysis.security_count > 0
-        )
-        .count()
-    )
-
-    security_chart = {
-        "labels": [
-            "Secure Projects",
-            "Projects with Issues"
         ],
-        "datasets": [
-            {
-               "data": [
-                   secure_projects,
-                   projects_with_issues
-               ]
-            }
-        ]
     }
 
+    secure_projects = sum(1 for a in user_analyses if int(a.security_count or 0) == 0)
+    projects_with_issues = len(user_analyses) - secure_projects
+    security_chart = {
+        "labels": ["Secure Projects", "Projects with Issues"],
+        "datasets": [{"data": [secure_projects, projects_with_issues]}],
+    }
+
+    recent_activities = [
+        {
+            "title": analysis.filename,
+            "status": analysis.status,
+            "score": analysis.scorecard["overall_score"],
+            "date": analysis.created_at.strftime("%d %b %Y"),
+        }
+        for analysis in recent_analyses
+    ]
 
     return render_template(
         "dashboard.html",
-
         total_projects=total_projects,
-        total_analyses=total_analyses,
+        total_analyses=len(user_analyses),
         total_reports=total_reports,
-        latest_stats=latest_stats,
+        latest_stats=latest_analysis,
         security_issues=security_issues,
-
         overall_score=overall_score,
         quality_score=quality_score,
-
-        storage_used=storage_used,
-
+        security_score=security_score,
+        maintainability_score=maintainability_score,
+        storage_used=f"{round(total_size / (1024 * 1024), 2)} MB",
         recent_analyses=recent_analyses,
-
-        security_score=100,
-        maintainability_score=100,
-        ai_score=100,
-
         quality_chart=quality_chart,
         security_chart=security_chart,
-
         language_chart=None,
-
-
         recent_activities=recent_activities,
-
         ai_insight=(
             latest_analysis.ai_summary
             if latest_analysis and latest_analysis.ai_summary
             else "Upload a project to receive AI insights."
-
-        )
+        ),
     )
 
-
-# ============================================================
-# UPLOAD
-# ============================================================
 
 @main.route("/upload", methods=["GET", "POST"])
 @login_required
 def upload():
-
     form = UploadForm()
-
     recent_analyses = (
-        Analysis.query
-        .filter_by(user_id=current_user.id)
+        Analysis.query.filter_by(user_id=current_user.id)
         .order_by(Analysis.created_at.desc())
         .limit(5)
         .all()
     )
-
     if not form.validate_on_submit():
-
-        return render_template(
-            "upload.html",
-            form=form,
-            recent_analyses=recent_analyses
-        )
+        return render_template("upload.html", form=form, recent_analyses=recent_analyses)
 
     uploaded_file = form.file.data
-
-    current_app.logger.info(
-        f"Upload requested by user {current_user.id}: "
-        f"{uploaded_file.filename}"
-    )
-
-    # --------------------------------------------------
-    # Validate uploaded file
-    # --------------------------------------------------
-
-    is_valid, message = validate_upload(
-        uploaded_file
-    )
-
+    is_valid, message = validate_upload(uploaded_file)
     if not is_valid:
-
-        flash(
-            message,
-            "danger"
-        )
-
-        current_app.logger.warning(
-            f"Upload rejected: {message}"
-        )
-
-        return render_template(
-            "upload.html",
-            form=form,
-            recent_analyses=recent_analyses
-        )
-
-    # --------------------------------------------------
-    # Generate Project ID
-    # --------------------------------------------------
+        flash(message, "danger")
+        return render_template("upload.html", form=form, recent_analyses=recent_analyses)
 
     project_id = generate_project_id()
-
-    # --------------------------------------------------
-    # Create project workspace
-    # --------------------------------------------------
-
-    projects_folder = current_app.config[
-        "PROJECT_FOLDER"
-    ]
-
-    workspace = create_project_workspace(
-        projects_folder,
-        project_id
-    )
-
-    # --------------------------------------------------
-    # Generate unique filename
-    # --------------------------------------------------
-
-    original_filename = uploaded_file.filename
-
-    stored_filename = generate_unique_filename(
-        original_filename
-    )
-
-    # --------------------------------------------------
-    # Save uploaded file
-    # --------------------------------------------------
-
-    source_path = os.path.join(
-        workspace["source"],
-        stored_filename
-    )
+    workspace = create_project_workspace(current_app.config["PROJECT_FOLDER"], project_id)
+    stored_filename = generate_unique_filename(uploaded_file.filename)
+    source_path = os.path.join(workspace["source"], stored_filename)
 
     try:
-
-        uploaded_file.save(
-            source_path
+        uploaded_file.save(source_path)
+        metadata = build_metadata(uploaded_file, stored_filename=stored_filename)
+        submitted_name = (getattr(form, "project_name", None).data or "").strip() if getattr(form, "project_name", None) else ""
+        project = Project(
+            project_id=project_id,
+            project_name=submitted_name or metadata["project_name"],
+            original_filename=metadata["original_filename"],
+            stored_filename=stored_filename,
+            file_type=metadata["extension"],
+            file_size=metadata["size"],
+            project_path=workspace["root"],
+            user_id=current_user.id,
         )
-
-    except Exception:
-
-        current_app.logger.exception(
-            "Failed to save uploaded file."
-        )
-
-        flash(
-            "Unable to save the uploaded file.",
-            "danger"
-        )
-
-        return render_template(
-            "upload.html",
-            form=form,
-            recent_analyses=recent_analyses
-        )
-
-    # --------------------------------------------------
-    # Build metadata
-    # --------------------------------------------------
-
-    metadata = build_metadata(
-        uploaded_file,
-        stored_filename=stored_filename
-    )
-
-    # --------------------------------------------------
-    # Create database record
-    # --------------------------------------------------
-
-    project = Project(
-
-        project_id=project_id,
-
-        project_name=metadata[
-            "project_name"
-        ],
-
-        original_filename=metadata[
-            "original_filename"
-        ],
-
-        stored_filename=stored_filename,
-
-        file_type=metadata[
-            "extension"
-        ],
-
-        file_size=metadata[
-            "size"
-        ],
-
-        project_path=workspace[
-            "root"
-        ],
-
-        user_id=current_user.id
-    )
-
-    db.session.add(project)
-
-    try:
-
+        db.session.add(project)
         db.session.commit()
-
-        current_app.logger.info(
-            f"Project {project.project_id} uploaded successfully."
-        )
-
-        print(
-            "Project Name:",
-            metadata["project_name"]
-        )
-
-        print(
-            "Original File:",
-            metadata["original_filename"]
-        )
-
-        print(
-            "Stored File:",
-            stored_filename
-        )
-
-        print(
-            "Project Path:",
-            workspace["root"]
-        )
-
-        # --------------------------------------------------
-        # Success
-        # --------------------------------------------------
-
-        analysis_result = run_project_analysis(
-            project,
-            current_user,
-        )
-
-
-        flash(
-            "Project uploaded successfully. Analysis is starting...",
-            "success"
-        )
-
+        analysis_result = run_project_analysis(project, current_user)
+        flash("Project uploaded and analyzed successfully.", "success")
         return redirect(
-            url_for(
-                "main.results",
-                analysis_id=analysis_result["analysis_id"]
-            )
+            url_for("main.results", analysis_id=analysis_result["analysis_id"])
         )
-
     except Exception:
-
         db.session.rollback()
+        current_app.logger.exception("Sentrix project upload or analysis failed.")
+        flash(
+            "Sentrix could not complete the analysis. The scan was not saved with fake scores.",
+            "danger",
+        )
+        return redirect(url_for("main.upload"))
 
-        import traceback
-        traceback.print_exc()
-
-        raise
-# ============================================================
-# RESULTS
-# ============================================================
 
 @main.route("/results/<int:analysis_id>")
 @login_required
 def results(analysis_id):
-
     analysis = Analysis.query.filter_by(
-        id=analysis_id,
-        user_id=current_user.id
+        id=analysis_id, user_id=current_user.id
     ).first()
-
     if not analysis:
-
-        flash(
-            "Analysis not found.",
-            "error"
-        )
-
-        return redirect(
-            url_for("main.dashboard")
-        )
+        flash("Analysis not found.", "error")
+        return redirect(url_for("main.dashboard"))
 
     project = Project.query.filter_by(
-        id=analysis.project_id,
-        user_id=current_user.id
+        id=analysis.project_id, user_id=current_user.id
     ).first()
-
     if not project:
-
-        flash(
-            "Project not found.",
-            "error"
-        )
-
-        return redirect(
-            url_for("main.dashboard")
-        )
-
+        flash("Project not found.", "error")
+        return redirect(url_for("main.dashboard"))
     return render_template(
-        "results.html",
-
-        project=project,
-
-        analysis=analysis
+        "results.html", project=project, analysis=analysis, scorecard=analysis.scorecard
     )
 
-# ============================================================
-# HISTORY
-# ============================================================
 
 @main.route("/history")
 @login_required
 def history():
-
     search = request.args.get("search", "").strip()
     complexity = request.args.get("complexity", "").strip()
     sort = request.args.get("sort", "latest").strip()
-
-    query = Analysis.query.filter_by(
-        user_id=current_user.id
-    )
-
-    # -----------------------------
-    # Search
-    # -----------------------------
-
+    query = Analysis.query.filter_by(user_id=current_user.id)
     if search:
         query = query.filter(
             db.or_(
                 Analysis.filename.ilike(f"%{search}%"),
-                Analysis.language.ilike(f"%{search}%")
+                Analysis.language.ilike(f"%{search}%"),
             )
         )
-
-
-    # -----------------------------
-    # Complexity
-    # -----------------------------
-
     if complexity:
-        query = query.filter(
-            Analysis.complexity.ilike(complexity)
-        )
-
-    # -----------------------------
-    # Sorting
-    # -----------------------------
-
+        query = query.filter(Analysis.complexity.ilike(complexity))
     if sort == "oldest":
-        query = query.order_by(
-            Analysis.created_at.asc()
-        )
-
+        query = query.order_by(Analysis.created_at.asc())
     elif sort == "score_desc":
-        query = query.order_by(
-            Analysis.overall_score.desc()
-        )
-
+        query = query.order_by(Analysis.overall_score.desc())
     elif sort == "score_asc":
-        query = query.order_by(
-            Analysis.overall_score.asc()
-        )
-
+        query = query.order_by(Analysis.overall_score.asc())
     else:
-        query = query.order_by(
-            Analysis.created_at.desc()
-        )
+        query = query.order_by(Analysis.created_at.desc())
 
     analyses = query.all()
-
-    total_projects = Project.query.filter_by(
-        user_id=current_user.id
-    ).count()
-
-    total_analyses = len(analyses)
-
-    total_security = sum(
-        analysis.security_count
-        for analysis in analyses
-    )
-
-    average_score = round(
-        db.session.query(
-            db.func.avg(
-                Analysis.overall_score
-            )
-        ).filter_by(
-            user_id=current_user.id
-        ).scalar() or 0,
-        2
-    )
-
-
+    average_score = _average(analysis.scorecard["overall_score"] for analysis in analyses)
     return render_template(
         "history.html",
         analyses=analyses,
-        total_projects=total_projects,
-        total_analyses=total_analyses,
-        total_security=total_security,
+        total_projects=Project.query.filter_by(user_id=current_user.id).count(),
+        total_analyses=len(analyses),
+        total_security=sum(int(a.security_count or 0) for a in analyses),
         average_score=average_score,
         search=search,
         complexity=complexity,
-        sort=sort
+        sort=sort,
     )
-# DELETE ANALYSIS#
 
 
 @main.route("/delete_analysis/<int:analysis_id>", methods=["POST"])
 @login_required
 def delete_analysis(analysis_id):
-
     analysis = Analysis.query.filter_by(
-        id=analysis_id,
-        user_id=current_user.id
+        id=analysis_id, user_id=current_user.id
     ).first_or_404()
-
-    # Delete report file if it exists
     if analysis.report_path and os.path.exists(analysis.report_path):
         os.remove(analysis.report_path)
-
     db.session.delete(analysis)
     db.session.commit()
+    flash("Analysis deleted successfully.", "success")
+    return redirect(url_for("main.history"))
 
-    flash(
-        "Analysis deleted successfully.",
-        "success"
-    )
-
-    return redirect(
-        url_for("main.history")
-    )
-
-
-# ============================================================
-# SETTINGS
-# ============================================================
 
 @main.route("/settings")
 @login_required
 def settings():
-
-    total_projects = Project.query.filter_by(
-        user_id=current_user.id
-    ).count()
-
-    total_analyses = Analysis.query.filter_by(
-        user_id=current_user.id
-    ).count()
-
-    total_reports = Analysis.query.filter(
-        Analysis.user_id == current_user.id,
-        Analysis.report_path.isnot(None)
-    ).count()
-
     storage_size = (
-        db.session.query(
-            db.func.sum(Project.file_size)
-        )
+        db.session.query(db.func.sum(Project.file_size))
         .filter_by(user_id=current_user.id)
         .scalar()
         or 0
     )
-
-    storage_used = round(
-        storage_size / (1024 * 1024),
-        2
-    )
-
     return render_template(
         "settings.html",
-
-        total_projects=total_projects,
-        total_analyses=total_analyses,
-        total_reports=total_reports,
-        storage_used=f"{storage_used} MB"
+        total_projects=Project.query.filter_by(user_id=current_user.id).count(),
+        total_analyses=Analysis.query.filter_by(user_id=current_user.id).count(),
+        total_reports=Analysis.query.filter(
+            Analysis.user_id == current_user.id,
+            Analysis.report_path.isnot(None),
+        ).count(),
+        storage_used=f"{round(storage_size / (1024 * 1024), 2)} MB",
     )
 
-# ============================================================
-# PROFILE
-# ============================================================
 
 @main.route("/profile", methods=["GET", "POST"])
 @login_required
@@ -927,461 +367,195 @@ def profile():
         username = request.form.get("username", "").strip()
         email = request.form.get("email", "").strip()
         profile_picture = request.files.get("profile_picture")
-
         if not username or not email:
-            flash(
-                "Username and email are required.",
-                "danger",
-            )
+            flash("Username and email are required.", "danger")
             return redirect(url_for("main.profile"))
-
-        existing_username = User.query.filter(
-            User.username == username,
-            User.id != current_user.id,
-        ).first()
-
-        if existing_username:
-            flash(
-                "That username is already taken.",
-                "danger",
-            )
+        if User.query.filter(User.username == username, User.id != current_user.id).first():
+            flash("That username is already taken.", "danger")
             return redirect(url_for("main.profile"))
-
-        existing_email = User.query.filter(
-            User.email == email,
-            User.id != current_user.id,
-        ).first()
-
-        if existing_email:
-            flash(
-                "That email is already registered.",
-                "danger",
-            )
+        if User.query.filter(User.email == email, User.id != current_user.id).first():
+            flash("That email is already registered.", "danger")
             return redirect(url_for("main.profile"))
 
         current_user.username = username
         current_user.email = email
-        current_user.full_name = request.form.get(
-            "full_name",
-            "",
-        ).strip()
-        current_user.organization = request.form.get(
-            "organization",
-            "",
-        ).strip()
-        current_user.bio = request.form.get(
-            "bio",
-            "",
-        ).strip()
+        current_user.full_name = request.form.get("full_name", "").strip()
+        current_user.organization = request.form.get("organization", "").strip()
+        current_user.bio = request.form.get("bio", "").strip()
 
         if profile_picture and profile_picture.filename:
-            if not allowed_profile_picture(
-                profile_picture.filename
-            ):
-                flash(
-                    "Invalid image type. Use PNG, JPG, JPEG, GIF, or WEBP.",
-                    "danger",
-                )
+            if not allowed_profile_picture(profile_picture.filename):
+                flash("Invalid image type. Use PNG, JPG, JPEG, GIF, or WEBP.", "danger")
                 return redirect(url_for("main.profile"))
-
             profile_folder = os.path.join(
                 current_app.root_path,
                 current_app.config["UPLOAD_FOLDER"],
                 "profile_pics",
             )
-
-            os.makedirs(
-                profile_folder,
-                exist_ok=True,
-            )
-
-            if (
-                current_user.profile_picture
-                and current_user.profile_picture != "default.png"
-            ):
-                old_picture = os.path.join(
-                    profile_folder,
-                    current_user.profile_picture,
-                )
-
+            os.makedirs(profile_folder, exist_ok=True)
+            if current_user.profile_picture and current_user.profile_picture != "default.png":
+                old_picture = os.path.join(profile_folder, current_user.profile_picture)
                 if os.path.exists(old_picture):
                     os.remove(old_picture)
-
-            original_name = secure_filename(
-                profile_picture.filename
-            )
-
-            extension = original_name.rsplit(
-                ".",
-                1,
-            )[1].lower()
-
-            new_filename = (
-                f"user_{current_user.id}_"
-                f"{uuid.uuid4().hex}.{extension}"
-            )
-
-            profile_picture.save(
-                os.path.join(
-                    profile_folder,
-                    new_filename,
-                )
-            )
-
+            original_name = secure_filename(profile_picture.filename)
+            extension = original_name.rsplit(".", 1)[1].lower()
+            new_filename = f"user_{current_user.id}_{uuid.uuid4().hex}.{extension}"
+            profile_picture.save(os.path.join(profile_folder, new_filename))
             current_user.profile_picture = new_filename
 
         try:
             db.session.commit()
-
         except Exception:
             db.session.rollback()
-
-            current_app.logger.exception(
-                "Failed to update user profile."
-            )
-
-            flash(
-                "Unable to update your profile.",
-                "danger",
-            )
-
+            current_app.logger.exception("Failed to update user profile.")
+            flash("Unable to update your profile.", "danger")
             return redirect(url_for("main.profile"))
-
-        flash(
-            "Profile updated successfully!",
-            "success",
-        )
-
+        flash("Profile updated successfully!", "success")
         return redirect(url_for("main.profile"))
-
-    total_projects = Project.query.filter_by(
-        user_id=current_user.id
-    ).count()
-
-    total_analyses = Analysis.query.filter_by(
-        user_id=current_user.id
-    ).count()
-
-    total_reviews = Review.query.filter_by(
-        user_id=current_user.id
-    ).count()
-
-    recent_projects = (
-        Project.query
-        .filter_by(user_id=current_user.id)
-        .order_by(Project.upload_date.desc())
-        .limit(5)
-        .all()
-    )
 
     return render_template(
         "profile.html",
-        total_projects=total_projects,
-        total_analyses=total_analyses,
-        total_reviews=total_reviews,
-        recent_projects=recent_projects,
+        total_projects=Project.query.filter_by(user_id=current_user.id).count(),
+        total_analyses=Analysis.query.filter_by(user_id=current_user.id).count(),
+        total_reviews=Review.query.filter_by(user_id=current_user.id).count(),
+        recent_projects=(
+            Project.query.filter_by(user_id=current_user.id)
+            .order_by(Project.upload_date.desc())
+            .limit(5)
+            .all()
+        ),
     )
-# CHANGE PASSWORD #
+
 
 @main.route("/change-password", methods=["GET", "POST"])
 @login_required
 def change_password():
+    flash("Change Password feature is coming soon.", "info")
+    return redirect(url_for("main.profile"))
 
-    flash(
-        "Change Password feature is coming soon.",
-        "info"
-    )
-
-    return redirect(
-        url_for("main.profile")
-    )
-
-# ============================================================
-# PROFILE PICTURE FILE
-# ============================================================
 
 @main.route("/profile-picture/<filename>")
 @login_required
 def profile_picture(filename):
-
     profile_folder = os.path.join(
         current_app.root_path,
         current_app.config["UPLOAD_FOLDER"],
-        "profile_pics"
+        "profile_pics",
     )
+    return send_from_directory(profile_folder, filename)
 
-    return send_from_directory(
-        profile_folder,
-        filename
-    )
-
-
-# ============================================================
-# LOGOUT
-# ============================================================
 
 @main.route("/logout")
 @login_required
 def logout():
-
     logout_user()
+    flash("You have been logged out.", "info")
+    return redirect(url_for("main.login"))
 
-    flash(
-        "You have been logged out.",
-        "info"
-    )
-
-    return redirect(
-        url_for("main.login")
-    )
-
-
-# ============================================================
-# 404
-# ============================================================
 
 @main.app_errorhandler(404)
 def page_not_found(error):
+    return render_template("404.html"), 404
 
-    return render_template(
-        "404.html"
-    ), 404
-
-
-# ============================================================
-# CONTACT
-# ============================================================
 
 @main.route("/contact", methods=["GET", "POST"])
 def contact():
-
     form = ContactForm()
-
     if form.validate_on_submit():
-
         try:
-
             msg = Message(
                 subject="New Contact Form Message",
-                recipients=["supportsentrix@gmail.com"]
+                recipients=[current_app.config.get("SUPPORT_EMAIL", "supportsentrix@gmail.com")],
             )
-
-            msg.body = f"""
-Name: {form.name.data}
-
-Email: {form.email.data}
-
-Message:
-
-{form.message.data}
-"""
-
+            msg.body = (
+                f"Name: {form.name.data}\n\nEmail: {form.email.data}\n\n"
+                f"Message:\n\n{form.message.data}"
+            )
             mail.send(msg)
-
-            flash(
-                "Your message has been sent successfully.",
-                "success"
-            )
-
+            flash("Your message has been sent successfully.", "success")
             return redirect(url_for("main.contact"))
+        except Exception:
+            current_app.logger.exception("Contact email delivery failed.")
+            flash("Unable to send your message right now.", "danger")
+    return render_template("contact.html", form=form)
 
-        except Exception as e:
-
-            flash(
-                f"Failed to send email: {e}",
-                "danger"
-            )
-
-    return render_template(
-        "contact.html",
-        form=form
-    )
-
-
-# ============================================================
-# FORBIDDEN
-# ============================================================
 
 @main.route("/forbidden")
 def forbidden():
-
     abort(403)
 
 
-# ============================================================
-# SERVER ERROR TEST
-# ============================================================
-
 @main.route("/server-error")
 def server_error_test():
-
     abort(500)
 
 
-# ============================================================
-# REVIEWS
-# ============================================================
-
 @main.route("/reviews", methods=["GET", "POST"])
 def reviews():
-
     form = ReviewForm()
-
     if form.validate_on_submit():
-
-        print("FORM VALID")
-
         if not current_user.is_authenticated:
-
-            flash(
-                "Please login to submit a review.",
-                "warning"
-            )
-
-            return redirect(
-                url_for("main.login")
-            )
-
+            flash("Please login to submit a review.", "warning")
+            return redirect(url_for("main.login"))
         create_review(
             user_id=current_user.id,
             rating=form.rating.data,
             title=form.title.data,
-            comment=form.comment.data
+            comment=form.comment.data,
         )
-
-        flash(
-            "Your review has been submitted!",
-            "success"
-        )
-
-        return redirect(
-            url_for("main.reviews")
-        )
-
-    elif request.method == "POST":
-
-
-
-        print("FORM ERRORS:")
-        print(form.errors)
-
-
-    all_reviews = get_all_reviews()
-
-    review_stats = get_review_statistics()
-
+        flash("Your review has been submitted!", "success")
+        return redirect(url_for("main.reviews"))
     return render_template(
         "reviews.html",
-        reviews=all_reviews,
-        review_stats=review_stats,
-
-        form=form
+        reviews=get_all_reviews(),
+        review_stats=get_review_statistics(),
+        form=form,
     )
 
-
-
-# ============================================================
-# EDIT REVIEW
-# ============================================================
 
 @main.route("/reviews/edit/<int:review_id>", methods=["GET", "POST"])
 @login_required
 def edit_review(review_id):
-
     review = get_review(review_id)
-
     if review.user_id != current_user.id:
         abort(403)
-
     form = ReviewForm(obj=review)
-
     if form.validate_on_submit():
+        update_review(review, form.rating.data, form.title.data, form.comment.data)
+        flash("Review updated successfully!", "success")
+        return redirect(url_for("main.reviews"))
+    return render_template("edit_review.html", form=form, review=review)
 
-        update_review(
-            review,
-            form.rating.data,
-            form.title.data,
-            form.comment.data
-        )
-
-        flash(
-            "Review updated successfully!",
-            "success"
-        )
-
-        return redirect(
-            url_for("main.reviews")
-        )
-
-    return render_template(
-        "edit_review.html",
-        form=form,
-        review=review
-    )
-
-
-# ============================================================
-# DELETE REVIEW
-# ============================================================
 
 @main.route("/reviews/delete/<int:review_id>", methods=["POST"])
 @login_required
 def remove_review(review_id):
-
     review = get_review(review_id)
-
     if review.user_id != current_user.id:
         abort(403)
-
     delete_review_record(review)
+    flash("Review deleted successfully!", "success")
+    return redirect(url_for("main.reviews"))
 
-    flash(
-        "Review deleted successfully!",
-        "success"
-    )
-
-    return redirect(
-        url_for("main.reviews")
-    )
-
-# REPORT DOWNLOAD #
 
 @main.route("/download_report/<int:analysis_id>")
 @login_required
 def download_report(analysis_id):
-
     analysis = Analysis.query.filter_by(
-        id=analysis_id,
-        user_id=current_user.id
+        id=analysis_id, user_id=current_user.id
     ).first_or_404()
-
     if not analysis.report_path:
-        flash(
-            "Report has not been generated yet.",
-            "warning"
-        )
-        return redirect(
-            url_for(
-                "main.results",
-                analysis_id=analysis.id
-            )
-        )
+        flash("Report has not been generated yet.", "warning")
+        return redirect(url_for("main.results", analysis_id=analysis.id))
 
-    if not os.path.exists(analysis.report_path):
-        flash(
-            "Report file was not found.",
-            "danger"
-        )
-        return redirect(
-            url_for(
-                "main.results",
-                analysis_id=analysis.id
-            )
-        )
+    report_path = os.path.abspath(analysis.report_path)
+    if not os.path.isfile(report_path):
+        flash("Report file was not found.", "danger")
+        return redirect(url_for("main.results", analysis_id=analysis.id))
 
     return send_file(
-        analysis.report_path,
+        report_path,
         as_attachment=True,
-        download_name=f"{analysis.filename}_report.html",
-        mimetype="text/html"
+        download_name=f"{secure_filename(analysis.filename)}_report.html",
+        mimetype="text/html",
     )
