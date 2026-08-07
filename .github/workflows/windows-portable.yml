@@ -9,6 +9,7 @@ on:
       - 'portable/**'
       - 'app.py'
       - 'analyzer/**'
+      - 'helpers/**'
       - 'templates/**'
       - 'static/**'
       - 'migrations/**'
@@ -52,7 +53,7 @@ jobs:
             }
           }
 
-          foreach ($dir in @('analyzer', 'templates', 'static', 'migrations')) {
+          foreach ($dir in @('analyzer', 'helpers', 'templates', 'static', 'migrations')) {
             if (Test-Path $dir) {
               $destination = Join-Path $stage $dir
               New-Item -ItemType Directory -Force -Path $destination | Out-Null
@@ -82,6 +83,7 @@ jobs:
             'Start-Sentrix.ps1',
             'analyzer\__init__.py',
             'analyzer\routes',
+            'helpers\community_routes.py',
             'templates',
             'static'
           )
@@ -95,8 +97,8 @@ jobs:
           Push-Location $stage
           try {
             $env:PYTHONPATH = $stage
-            python -c "import analyzer; print('Portable staging import validation passed')"
-            if ($LASTEXITCODE -ne 0) { throw 'Portable staging package import validation failed.' }
+            python -c "import analyzer; from pathlib import Path; assert Path('helpers/community_routes.py').is_file(); print('Portable staging validation passed')"
+            if ($LASTEXITCODE -ne 0) { throw 'Portable staging package validation failed.' }
           }
           finally {
             Pop-Location
@@ -129,9 +131,6 @@ jobs:
             throw 'Portable ZIP was not created.'
           }
 
-          # Validate the actual customer-facing ZIP, not only the staging
-          # directory. This specifically catches malformed analyzer\... ZIP
-          # entries and other extraction/layout regressions.
           python -c "import sys, zipfile; z=zipfile.ZipFile(r'$zip'); bad=[n for n in z.namelist() if '\\' in n]; sys.exit('Invalid ZIP path separators: ' + repr(bad[:10])) if bad else print('ZIP path validation passed')"
           if ($LASTEXITCODE -ne 0) { throw 'Portable ZIP path validation failed.' }
 
@@ -149,8 +148,8 @@ jobs:
           Push-Location $verify
           try {
             $env:PYTHONPATH = $verify
-            python -c "from pathlib import Path; import analyzer; assert Path('analyzer/routes/account.py').is_file(); print('Extracted portable package validation passed')"
-            if ($LASTEXITCODE -ne 0) { throw 'Extracted portable package import validation failed.' }
+            python -c "from pathlib import Path; import analyzer; assert Path('analyzer/routes/account.py').is_file(); assert Path('helpers/community_routes.py').is_file(); print('Extracted portable package validation passed')"
+            if ($LASTEXITCODE -ne 0) { throw 'Extracted portable package validation failed.' }
           }
           finally {
             Pop-Location
@@ -173,8 +172,8 @@ jobs:
           if ($lines -notcontains '..') { $lines += '..' }
           Set-Content -Path $pth.FullName -Value $lines -Encoding ASCII
 
-          & (Join-Path $runtimeTest 'python.exe') -c "import analyzer; print('Embedded runtime application-root validation passed')"
-          if ($LASTEXITCODE -ne 0) { throw 'Embedded Python cannot import the packaged analyzer module.' }
+          & (Join-Path $runtimeTest 'python.exe') -c "import analyzer; from pathlib import Path; assert Path('../helpers/community_routes.py').is_file(); print('Embedded runtime application-root validation passed')"
+          if ($LASTEXITCODE -ne 0) { throw 'Embedded Python cannot see the packaged application root.' }
 
       - name: Upload portable ZIP
         uses: actions/upload-artifact@v4
