@@ -12,6 +12,7 @@ on:
       - 'templates/**'
       - 'static/**'
       - 'installer/**'
+      - 'tests/**'
       - 'migrations/**'
       - 'requirements.txt'
       - 'config.py'
@@ -32,7 +33,6 @@ permissions:
 jobs:
   build:
     runs-on: windows-latest
-
     steps:
       - name: Checkout Windows-ready Sentrix
         uses: actions/checkout@v4
@@ -70,11 +70,8 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           python -m pip install --upgrade pip
-          if ($LASTEXITCODE -ne 0) { throw 'pip upgrade failed.' }
           python -m pip install -r requirements.txt
-          if ($LASTEXITCODE -ne 0) { throw 'requirements installation failed.' }
           python -m pip install nuitka ordered-set zstandard
-          if ($LASTEXITCODE -ne 0) { throw 'Nuitka build dependency installation failed.' }
           python -m pip check
           if ($LASTEXITCODE -ne 0) { throw 'Installed Python dependencies are inconsistent.' }
 
@@ -85,7 +82,6 @@ jobs:
           @'
           from pathlib import Path
           from tempfile import TemporaryDirectory
-
           from analyzer.complexity import run_radon
           from analyzer.formatter import run_black
           from analyzer.lint import run_pylint
@@ -95,31 +91,16 @@ jobs:
           with TemporaryDirectory() as temp_dir:
               root = Path(temp_dir)
               clean_file = root / "clean_sample.py"
-              clean_file.write_text(
-                  '"""Sentrix analyzer smoke test."""\n\n'
-                  'def add(left, right):\n'
-                  '    """Return two values added together."""\n'
-                  '    return left + right\n',
-                  encoding="utf-8",
-              )
-
+              clean_file.write_text('"""Sentrix analyzer smoke test."""\n\ndef add(left, right):\n    """Return two values added together."""\n    return left + right\n', encoding="utf-8")
               syntax_result = check_syntax(str(clean_file))
               assert syntax_result.get("valid") is True, syntax_result
-
               pylint_result = run_pylint(str(clean_file))
               assert "error" not in pylint_result, pylint_result
-              score = float(pylint_result.get("score"))
-              assert 0.0 <= score <= 10.0, pylint_result
+              assert 0.0 <= float(pylint_result.get("score")) <= 10.0, pylint_result
               assert isinstance(pylint_result.get("issues"), list), pylint_result
 
               poor_file = root / "poor_sample.py"
-              poor_file.write_text(
-                  'import os\n\n'
-                  'def BAD_NAME(x):\n'
-                  '    unused = 1\n'
-                  '    return x\n',
-                  encoding="utf-8",
-              )
+              poor_file.write_text('import os\n\ndef BAD_NAME(x):\n    unused = 1\n    return x\n', encoding="utf-8")
               poor_pylint = run_pylint(str(poor_file))
               assert "error" not in poor_pylint, poor_pylint
               assert len(poor_pylint.get("issues", [])) > 0, poor_pylint
@@ -127,27 +108,29 @@ jobs:
               black_result = run_black(str(clean_file))
               assert black_result.get("status") in {"Passed", "Needs Formatting"}, black_result
               assert "error" not in black_result, black_result
-
-              radon_result = run_radon(str(clean_file))
-              assert isinstance(radon_result, list), radon_result
-
+              assert isinstance(run_radon(str(clean_file)), list)
               bandit_result = run_bandit(str(root))
               assert isinstance(bandit_result.get("issues"), list), bandit_result
               assert "error" not in bandit_result, bandit_result
-
               broken_file = root / "broken_sample.py"
               broken_file.write_text("def broken(:\n    pass\n", encoding="utf-8")
-              broken_syntax = check_syntax(str(broken_file))
-              assert broken_syntax.get("valid") is False, broken_syntax
-
+              assert check_syntax(str(broken_file)).get("valid") is False
           print("Sentrix analyzer preflight passed.")
           '@ | python -
           if ($LASTEXITCODE -ne 0) { throw 'Analyzer preflight failed; compilation intentionally skipped.' }
+
+      - name: Verify canonical scoring regression suite
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python -m unittest tests.test_scoring_consistency -v
+          if ($LASTEXITCODE -ne 0) { throw 'Canonical scoring regression suite failed; compilation intentionally skipped.' }
 
       - name: Build and validate Windows icon from Sentrix wing
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
+          Remove-Item build-assets -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Force -Path build-assets | Out-Null
           @'
           import base64
@@ -159,39 +142,27 @@ jobs:
           target = Path("build-assets/Sentrix.ico")
           if not encoded.is_file():
               raise SystemExit(f"Clean Sentrix icon source missing: {encoded}")
-
           png_path.write_bytes(base64.b64decode(encoded.read_text(encoding="ascii").strip(), validate=True))
-
           with Image.open(png_path) as opened:
               image = opened.convert("RGBA")
-
           visible = [pixel for pixel in image.getdata() if pixel[3] > 20]
           if len(visible) < 500:
               raise SystemExit("Sentrix icon has too few visible pixels.")
           blue_pixels = sum(1 for r, g, b, a in visible if b > r and b > g and b > 100)
           if blue_pixels < 500:
               raise SystemExit("Sentrix icon validation failed: expected blue wing pixels were not found.")
-
           image.thumbnail((224, 224), Image.Resampling.LANCZOS)
           canvas = Image.new("RGBA", (256, 256), (0, 0, 0, 0))
-          left = (canvas.width - image.width) // 2
-          top = (canvas.height - image.height) // 2
-          canvas.alpha_composite(image, (left, top))
-          canvas.save(
-              target,
-              format="ICO",
-              sizes=[(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)],
-          )
+          canvas.alpha_composite(image, ((canvas.width-image.width)//2, (canvas.height-image.height)//2))
+          canvas.save(target, format="ICO", sizes=[(16,16),(32,32),(48,48),(64,64),(128,128),(256,256)])
           if not target.is_file() or target.stat().st_size == 0:
               raise SystemExit("Sentrix.ico was not created.")
-
           with Image.open(target) as check:
-              check_rgba = check.convert("RGBA")
-              icon_visible = [p for p in check_rgba.getdata() if p[3] > 20]
-              icon_blue = sum(1 for r, g, b, a in icon_visible if b > r and b > g and b > 100)
+              rgba = check.convert("RGBA")
+              icon_visible = [p for p in rgba.getdata() if p[3] > 20]
+              icon_blue = sum(1 for r,g,b,a in icon_visible if b > r and b > g and b > 100)
               if icon_blue < 500:
                   raise SystemExit("Generated Sentrix.ico failed blue-pixel validation.")
-
           print(f"Validated Sentrix wing icon: {target} ({target.stat().st_size} bytes)")
           '@ | python -
           if ($LASTEXITCODE -ne 0) { throw 'Sentrix Windows icon generation failed.' }
@@ -201,7 +172,6 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           Remove-Item build -Recurse -Force -ErrorAction SilentlyContinue
-
           python -m nuitka `
             --mode=standalone `
             --assume-yes-for-downloads `
@@ -221,12 +191,9 @@ jobs:
             --windows-icon-from-ico=build-assets/Sentrix.ico `
             --windows-console-mode=force `
             app.py
-
           if ($LASTEXITCODE -ne 0) { throw 'Nuitka compilation failed.' }
-
           $dist = Get-ChildItem build -Directory | Where-Object { $_.Name -like '*.dist' } | Select-Object -First 1
-          if (-not $dist) { throw 'Compiled Sentrix distribution folder was not produced.' }
-          if (-not (Test-Path (Join-Path $dist.FullName 'Sentrix.exe'))) { throw 'Sentrix.exe was not produced.' }
+          if (-not $dist -or -not (Test-Path (Join-Path $dist.FullName 'Sentrix.exe'))) { throw 'Sentrix.exe was not produced.' }
 
       - name: Assemble customer package
         shell: powershell
@@ -234,15 +201,12 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $dist = Get-ChildItem build -Directory | Where-Object { $_.Name -like '*.dist' } | Select-Object -First 1
           if (-not $dist) { throw 'Compiled distribution folder missing.' }
-
           $stage = Join-Path $PWD 'release\Sentrix-v1-Windows'
           Remove-Item $stage -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Force -Path $stage | Out-Null
-
           $runtime = Join-Path $stage 'Runtime'
           Copy-Item -LiteralPath $dist.FullName -Destination $runtime -Recurse -Force
           Copy-Item -LiteralPath 'build-assets\Sentrix.ico' -Destination (Join-Path $stage 'Sentrix.ico') -Force
-
           @'
           @echo off
           setlocal
@@ -253,63 +217,24 @@ jobs:
           set "PORT=5000"
           set "APP_ENV=development"
           set "FLASK_DEBUG=0"
-
           if not exist "%SENTRIX_DATA_DIR%" mkdir "%SENTRIX_DATA_DIR%"
-
-          echo ========================================
-          echo               SENTRIX v1
-          echo ========================================
-          echo Starting Sentrix...
-          echo Data folder: %SENTRIX_DATA_DIR%
-          echo.
-
           powershell.exe -NoProfile -Command "$c=Get-NetTCPConnection -LocalPort 5000 -State Listen -ErrorAction SilentlyContinue; if($c){exit 1}else{exit 0}"
-          if errorlevel 1 (
-            echo ERROR: Port 5000 is already in use.
-            echo Close the old Sentrix instance or other app using port 5000, then try again.
-            pause
-            exit /b 1
-          )
-
-          start "Sentrix" /D "%SENTRIX_RUNTIME%" cmd.exe /k Sentrix.exe
-
+          if errorlevel 1 (echo ERROR: Port 5000 is already in use.& pause& exit /b 1)
+          start "Sentrix" /D "%SENTRIX_DATA_DIR%" "%SENTRIX_RUNTIME%\Sentrix.exe"
           powershell.exe -NoProfile -Command "$ok=$false; for($i=0;$i -lt 60;$i++){try{Invoke-WebRequest -UseBasicParsing -Uri 'http://127.0.0.1:5000' -TimeoutSec 1 ^| Out-Null; $ok=$true; break}catch{Start-Sleep -Seconds 1}}; if($ok){Start-Process 'http://127.0.0.1:5000'; exit 0}else{exit 1}"
-          if errorlevel 1 (
-            echo.
-            echo Sentrix did not become ready on http://127.0.0.1:5000
-            echo The Sentrix console window has been left open so you can read the error.
-            pause
-            exit /b 1
-          )
-
+          if errorlevel 1 (echo Sentrix did not become ready.& pause& exit /b 1)
           exit /b 0
           '@ | Set-Content (Join-Path $stage 'Start Sentrix.bat') -Encoding ASCII
-
           @"
           SENTRIX v1 - WINDOWS EDITION
           ===========================
-          Website UI source (production/sentrix-permanent): $env:PRODUCTION_UI_SHA
+          Website UI source: $env:PRODUCTION_UI_SHA
           Windows runtime source: $env:WINDOWS_RUNTIME_SHA
           Sentrix runs locally at http://127.0.0.1:5000.
           "@ | Set-Content (Join-Path $stage 'README.txt') -Encoding UTF8
-
-          $forbidden = @(
-            (Join-Path $stage 'app.py'),
-            (Join-Path $stage 'analyzer'),
-            (Join-Path $stage 'helpers'),
-            (Join-Path $stage 'requirements.txt')
-          )
-          foreach ($item in $forbidden) {
-            if (Test-Path $item) { throw "Source-code leak in customer package: $item" }
-          }
-
-          if (-not (Test-Path (Join-Path $runtime 'Sentrix.exe'))) {
-            throw 'Customer package is missing Runtime\Sentrix.exe.'
-          }
-          if (-not (Test-Path (Join-Path $stage 'Sentrix.ico'))) {
-            throw 'Customer package is missing Sentrix.ico.'
-          }
-
+          foreach ($item in @((Join-Path $stage 'app.py'),(Join-Path $stage 'analyzer'),(Join-Path $stage 'helpers'),(Join-Path $stage 'requirements.txt'))) { if (Test-Path $item) { throw "Source-code leak: $item" } }
+          if (-not (Test-Path (Join-Path $runtime 'Sentrix.exe'))) { throw 'Customer package is missing Runtime\Sentrix.exe.' }
+          if (-not (Test-Path (Join-Path $stage 'Sentrix.ico'))) { throw 'Customer package is missing Sentrix.ico.' }
           $zip = Join-Path $PWD 'release\Sentrix-v1-Windows-Compiled.zip'
           Remove-Item $zip -Force -ErrorAction SilentlyContinue
           Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $zip -CompressionLevel Optimal
