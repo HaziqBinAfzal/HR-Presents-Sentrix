@@ -39,14 +39,12 @@ Type: files; Name: "{app}\Sentrix.exe"
 
 [Files]
 Source: "payload\Runtime\*"; DestDir: "{app}\Runtime"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "payload\Documentation\*"; DestDir: "{app}\Documentation"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "payload\Start Sentrix.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "payload\README.txt"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{autoprograms}\Sentrix"; Filename: "{app}\Start Sentrix.bat"; WorkingDir: "{app}"
 Name: "{autodesktop}\Sentrix"; Filename: "{app}\Start Sentrix.bat"; WorkingDir: "{app}"; Tasks: desktopicon
-Name: "{autoprograms}\Sentrix Documentation"; Filename: "{app}\Documentation"
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a &desktop shortcut"; GroupDescription: "Additional shortcuts:"; Flags: unchecked
