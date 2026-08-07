@@ -35,6 +35,8 @@ jobs:
           $run = $runs.workflow_runs | Select-Object -First 1
           if (-not $run) { throw 'No successful compiled Sentrix workflow run was found.' }
 
+          Write-Host "Using compiled Sentrix run $($run.id) from commit $($run.head_sha)"
+
           New-Item -ItemType Directory -Force -Path compiled-artifact | Out-Null
           gh run download $run.id -R $repo -n Sentrix-v1-Windows-Compiled -D compiled-artifact
 
@@ -51,10 +53,6 @@ jobs:
             throw 'Compiled payload does not contain Start Sentrix.bat.'
           }
 
-          # Replace the launcher with a cmd.exe-safe version. The compiled
-          # payload previously used \" escaping, which is not valid Windows
-          # cmd quoting and causes "filename, directory name, or volume label
-          # syntax is incorrect" when Sentrix is installed under Program Files.
           @'
           @echo off
           setlocal
@@ -74,6 +72,15 @@ jobs:
           echo Starting Sentrix...
           echo Data folder: %SENTRIX_DATA_DIR%
           echo.
+
+          powershell.exe -NoProfile -Command "$c=Get-NetTCPConnection -LocalPort 5000 -State Listen -ErrorAction SilentlyContinue; if($c){exit 1}else{exit 0}"
+          if errorlevel 1 (
+            echo ERROR: Port 5000 is already in use.
+            echo An older Sentrix instance or another local app may still be running.
+            echo Close the old Sentrix console/process, then launch Sentrix again.
+            pause
+            exit /b 1
+          )
 
           start "Sentrix" /D "%SENTRIX_RUNTIME%" cmd.exe /k Sentrix.exe
 
