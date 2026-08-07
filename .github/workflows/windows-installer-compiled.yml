@@ -1,0 +1,96 @@
+name: Build Sentrix Windows Installer
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/sentrix-portable-latest
+    paths:
+      - 'installer/**'
+      - '.github/workflows/windows-installer-compiled.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  installer:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout installer definition
+        uses: actions/checkout@v4
+
+      - name: Download compiled Sentrix artifact from successful run
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $repo = '${{ github.repository }}'
+          $workflow = 'windows-compiled.yml'
+          $branch = '${{ github.ref_name }}'
+
+          $runs = gh api "/repos/$repo/actions/workflows/$workflow/runs?branch=$branch&status=success&per_page=20" | ConvertFrom-Json
+          $run = $runs.workflow_runs | Select-Object -First 1
+          if (-not $run) { throw 'No successful compiled Sentrix workflow run was found.' }
+
+          New-Item -ItemType Directory -Force -Path compiled-artifact | Out-Null
+          gh run download $run.id -R $repo -n Sentrix-v1-Windows-Compiled -D compiled-artifact
+
+          $outer = Join-Path $PWD 'compiled-artifact\Sentrix-v1-Windows-Compiled.zip'
+          if (-not (Test-Path $outer)) { throw 'Compiled customer ZIP was not downloaded.' }
+
+          New-Item -ItemType Directory -Force -Path installer\payload | Out-Null
+          Expand-Archive -LiteralPath $outer -DestinationPath installer\payload -Force
+
+          if (-not (Test-Path 'installer\payload\Runtime\Sentrix.exe')) {
+            throw 'Compiled payload does not contain Runtime\Sentrix.exe.'
+          }
+          if (-not (Test-Path 'installer\payload\Start Sentrix.bat')) {
+            throw 'Compiled payload does not contain Start Sentrix.bat.'
+          }
+
+          $forbidden = @(
+            'installer\payload\app.py',
+            'installer\payload\requirements.txt',
+            'installer\payload\analyzer',
+            'installer\payload\helpers'
+          )
+          foreach ($item in $forbidden) {
+            if (Test-Path $item) { throw "Source-code item leaked into installer payload: $item" }
+          }
+
+      - name: Install Inno Setup
+        shell: powershell
+        run: |
+          choco install innosetup -y --no-progress
+
+      - name: Build Sentrix installer
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $iscc = @(
+            'C:\Program Files (x86)\Inno Setup 6\ISCC.exe',
+            'C:\Program Files\Inno Setup 6\ISCC.exe'
+          ) | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $iscc) { throw 'Inno Setup compiler was not found.' }
+
+          & $iscc 'installer\Sentrix.iss'
+          if ($LASTEXITCODE -ne 0) { throw 'Inno Setup compilation failed.' }
+
+          $setup = 'installer\output\Sentrix-Setup-v1.0.0.exe'
+          if (-not (Test-Path $setup)) { throw 'Sentrix installer executable was not created.' }
+
+          $hash = (Get-FileHash $setup -Algorithm SHA256).Hash
+          Set-Content -Path 'installer\output\Sentrix-Setup-v1.0.0.sha256.txt' -Value "$hash  Sentrix-Setup-v1.0.0.exe" -Encoding ASCII
+
+      - name: Upload Sentrix installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: Sentrix-Setup-v1.0.0
+          path: |
+            installer/output/Sentrix-Setup-v1.0.0.exe
+            installer/output/Sentrix-Setup-v1.0.0.sha256.txt
+          if-no-files-found: error
+          retention-days: 30
