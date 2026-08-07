@@ -1,74 +1,49 @@
-import json
-import subprocess
+from bandit.core import config as bandit_config
+from bandit.core import manager as bandit_manager
 
 
 def run_bandit(path):
-    """
-    Run Bandit recursively and return structured security results.
-
-    Returns:
-        {
-            "count": int,
-            "issues": list,
-            "output": str
-        }
-    """
-
+    """Run Bandit in-process so packaged Windows builds need no external CLI."""
     try:
-        result = subprocess.run(
-            [
-                "bandit",
-                "-r",
-                path,
-                "-f",
-                "json",
-            ],
-            capture_output=True,
-            text=True,
-            check=False,
+        config = bandit_config.BanditConfig()
+        manager = bandit_manager.BanditManager(
+            config,
+            "file",
+            quiet=True,
         )
-
-        raw_output = (
-            result.stdout
-            + "\n"
-            + result.stderr
-        ).strip()
-
-        try:
-            data = json.loads(result.stdout or "{}")
-        except json.JSONDecodeError:
-            return {
-                "count": 0,
-                "issues": [],
-                "output": raw_output,
-            }
+        manager.discover_files([path], recursive=True)
+        manager.run_tests()
 
         issues = []
-
-        for item in data.get("results", []):
+        for issue in manager.get_issue_list():
             issues.append(
                 {
-                    "file": item.get("filename"),
-                    "line": item.get("line_number"),
-                    "column": item.get("col_offset"),
-                    "severity": item.get("issue_severity"),
-                    "confidence": item.get("issue_confidence"),
-                    "issue": item.get("issue_text"),
-                    "test_id": item.get("test_id"),
-                    "test_name": item.get("test_name"),
-                    "code": item.get("code"),
+                    "file": getattr(issue, "fname", None),
+                    "line": getattr(issue, "lineno", None),
+                    "column": getattr(issue, "col_offset", None),
+                    "severity": str(getattr(issue, "severity", "Unknown")),
+                    "confidence": str(getattr(issue, "confidence", "Unknown")),
+                    "issue": getattr(issue, "text", ""),
+                    "test_id": getattr(issue, "test_id", None),
+                    "test_name": getattr(issue, "test", None),
+                    "code": getattr(issue, "get_code", lambda: "")(),
                 }
             )
+
+        output = "\n\n".join(
+            f"{item['severity']} | {item['file']}:{item['line']} | {item['test_id']} | {item['issue']}"
+            for item in issues
+        )
 
         return {
             "count": len(issues),
             "issues": issues,
-            "output": raw_output,
+            "output": output,
         }
-
     except Exception as error:
         return {
             "count": 0,
-            "issues": [str(error)],
-            "output": str(error),
+            "issues": [],
+            "output": f"Bandit analyzer error: {error}",
+            "error": str(error),
         }
