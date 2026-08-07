@@ -5,6 +5,46 @@ from pylint.lint import Run
 from pylint.reporters.json_reporter import JSONReporter
 
 
+def _score_from_stats(stats):
+    """Return a stable 0-10 Pylint score across supported Pylint versions."""
+    if stats is None:
+        return None
+
+    global_note = getattr(stats, "global_note", None)
+    if global_note is not None:
+        try:
+            return max(0.0, min(10.0, float(global_note)))
+        except (TypeError, ValueError):
+            pass
+
+    def _count(name):
+        try:
+            return float(getattr(stats, name, 0) or 0)
+        except (TypeError, ValueError):
+            return 0.0
+
+    statements = _count("statement")
+    fatal = _count("fatal")
+    error = _count("error")
+    warning = _count("warning")
+    refactor = _count("refactor")
+    convention = _count("convention")
+
+    total_messages = fatal + error + warning + refactor + convention
+
+    # Pylint's default evaluation is based on weighted message counts per
+    # statement. Clamp to the 0-10 range used by the Sentrix UI.
+    if statements > 0:
+        penalty = ((5.0 * (fatal + error) + warning + refactor + convention) / statements) * 10.0
+        return max(0.0, min(10.0, 10.0 - penalty))
+
+    # A successfully linted file with no statements and no findings is clean.
+    if total_messages == 0:
+        return 10.0
+
+    return 0.0
+
+
 def run_pylint(file_path):
     """Run Pylint in-process so packaged Windows builds need no external CLI."""
     output = io.StringIO()
@@ -37,10 +77,15 @@ def run_pylint(file_path):
             )
 
         stats = getattr(run.linter, "stats", None)
-        score = float(getattr(stats, "global_note", 0.0) or 0.0)
+        score = _score_from_stats(stats)
+
+        # If Pylint completed and produced no findings but its stats object did
+        # not expose a score, do not misreport a clean file as 0/10.
+        if score is None:
+            score = 10.0 if not issues else 0.0
 
         return {
-            "score": score,
+            "score": round(float(score), 2),
             "issues": issues,
             "output": output.getvalue().strip(),
         }
