@@ -1,0 +1,274 @@
+name: Build Compiled Sentrix Windows Edition
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/sentrix-portable-latest
+    paths:
+      - 'app.py'
+      - 'analyzer/**'
+      - 'helpers/**'
+      - 'templates/**'
+      - 'static/**'
+      - 'migrations/**'
+      - 'requirements.txt'
+      - 'config.py'
+      - 'database.py'
+      - 'extensions.py'
+      - 'forms.py'
+      - 'models.py'
+      - 'settings_models.py'
+      - '.github/workflows/windows-compiled.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout latest production-based Sentrix
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+
+      - name: Install build dependencies
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install nuitka ordered-set zstandard
+
+      - name: Compile Sentrix
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Remove-Item build -Recurse -Force -ErrorAction SilentlyContinue
+
+          python -m nuitka `
+            --mode=standalone `
+            --assume-yes-for-downloads `
+            --output-dir=build `
+            --output-filename=Sentrix.exe `
+            --include-package=analyzer `
+            --include-package=helpers `
+            --include-data-dir=templates=templates `
+            --include-data-dir=static=static `
+            --include-data-dir=migrations=migrations `
+            --windows-console-mode=force `
+            app.py
+
+          if ($LASTEXITCODE -ne 0) { throw 'Nuitka compilation failed.' }
+
+          $dist = Get-ChildItem build -Directory | Where-Object { $_.Name -like '*.dist' } | Select-Object -First 1
+          if (-not $dist) { throw 'Compiled Sentrix distribution folder was not produced.' }
+          $exe = Join-Path $dist.FullName 'Sentrix.exe'
+          if (-not (Test-Path $exe)) { throw 'Sentrix.exe was not produced.' }
+
+      - name: Assemble customer package
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $dist = Get-ChildItem build -Directory | Where-Object { $_.Name -like '*.dist' } | Select-Object -First 1
+          if (-not $dist) { throw 'Compiled distribution folder missing.' }
+
+          $stage = Join-Path $PWD 'release\Sentrix-v1-Windows'
+          Remove-Item $stage -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path $stage | Out-Null
+
+          # Keep compiled runtime files in a clearly internal directory. There
+          # is no repository source tree in the customer package.
+          $runtime = Join-Path $stage 'Runtime'
+          Copy-Item -LiteralPath $dist.FullName -Destination $runtime -Recurse -Force
+
+          @'
+          @echo off
+          setlocal
+          cd /d "%~dp0"
+          set "SENTRIX_RUNTIME=%~dp0Runtime"
+          set "HOST=127.0.0.1"
+          set "PORT=5000"
+          set "APP_ENV=development"
+          set "FLASK_DEBUG=0"
+
+          echo ========================================
+          echo               SENTRIX v1
+          echo ========================================
+          echo Starting Sentrix...
+
+          start "Sentrix" /D "%SENTRIX_RUNTIME%" "%SENTRIX_RUNTIME%\Sentrix.exe"
+
+          powershell.exe -NoProfile -Command "$ok=$false; for($i=0;$i -lt 60;$i++){try{Invoke-WebRequest -UseBasicParsing -Uri 'http://127.0.0.1:5000' -TimeoutSec 1 ^| Out-Null; $ok=$true; break}catch{Start-Sleep -Seconds 1}}; if($ok){Start-Process 'http://127.0.0.1:5000'; exit 0}else{exit 1}"
+          if errorlevel 1 (
+            echo.
+            echo Sentrix did not become ready on http://127.0.0.1:5000
+            echo Check the Sentrix console window for details.
+            pause
+            exit /b 1
+          )
+
+          echo Sentrix is running in your browser.
+          exit /b 0
+          '@ | Set-Content (Join-Path $stage 'Start Sentrix.bat') -Encoding ASCII
+
+          $docs = Join-Path $stage 'Documentation'
+          New-Item -ItemType Directory -Force -Path $docs | Out-Null
+
+          @'
+          SENTRIX v1 - WINDOWS EDITION
+          ===========================
+
+          Sentrix is a local application that runs on your Windows computer and opens in your web browser.
+
+          QUICK START
+          1. Extract the full Sentrix-v1-Windows ZIP.
+          2. Open the extracted folder.
+          3. Double-click "Start Sentrix.bat".
+          4. Allow Windows Firewall access if Windows asks.
+          5. Sentrix will open at http://127.0.0.1:5000 in your default browser.
+
+          IMPORTANT
+          - Keep the Sentrix console window open while using the application.
+          - Do not move individual files out of the extracted folder.
+          - Your Sentrix data remains on the computer where you run the application unless you explicitly export or upload it elsewhere.
+
+          SUPPORT
+          For support, use the contact details supplied with your purchase.
+          '@ | Set-Content (Join-Path $stage 'README.txt') -Encoding UTF8
+
+          @'
+          SENTRIX QUICK START GUIDE
+          =========================
+
+          INSTALLATION
+          Sentrix does not require a separate Python installation. Extract the ZIP to a normal writable location such as Documents or Desktop.
+
+          STARTING SENTRIX
+          Double-click "Start Sentrix.bat". A Sentrix console window will open. Once the local service is ready, your default browser opens automatically.
+
+          STOPPING SENTRIX
+          Close the Sentrix console window when you are finished.
+
+          LOCAL ADDRESS
+          Sentrix runs locally at http://127.0.0.1:5000 by default. This address points to your own computer.
+
+          FIRST USE
+          Create your Sentrix account in the local application and follow the on-screen workflow to create projects and run analyses.
+          '@ | Set-Content (Join-Path $docs 'Quick Start Guide.txt') -Encoding UTF8
+
+          @'
+          SENTRIX USER GUIDE
+          ==================
+
+          1. START THE APPLICATION
+          Double-click "Start Sentrix.bat" from the main Sentrix folder. Wait for your browser to open.
+
+          2. ACCOUNT AND SIGN-IN
+          Register a local user account, sign in, and use your profile to access your projects and analysis history.
+
+          3. CREATE OR UPLOAD A PROJECT
+          Use the project/upload workflow in Sentrix to provide the code or project you want to analyze. Follow the limits and file guidance shown in the application.
+
+          4. RUN AN ANALYSIS
+          Start an analysis from the Sentrix interface. Sentrix evaluates the project and presents findings, recommendations, and available report information.
+
+          5. REVIEW RESULTS
+          Use the results and history areas to review findings and previously completed work.
+
+          6. REPORTS AND EXPORTS
+          Where available in your edition, use Sentrix report/export controls to save analysis output for your own records.
+
+          7. DATA STORAGE
+          Sentrix is designed to run locally. Application data, generated reports, and uploaded project material are stored within the installed/extracted Sentrix environment on that computer unless a feature explicitly sends or exports them elsewhere.
+
+          8. SAFE USE
+          Only analyze projects you are authorized to inspect. Review recommendations before applying changes to production code.
+
+          9. CLOSING SENTRIX
+          Close the Sentrix console window to stop the local application.
+          '@ | Set-Content (Join-Path $docs 'User Guide.txt') -Encoding UTF8
+
+          @'
+          SENTRIX TROUBLESHOOTING
+          =======================
+
+          SENTRIX DOES NOT OPEN
+          - Make sure the ZIP was fully extracted before launching.
+          - Do not run Sentrix directly from inside the ZIP preview.
+          - Try moving the extracted folder to Documents or Desktop.
+          - Check the Sentrix console window for the error message.
+
+          BROWSER DOES NOT OPEN
+          Open http://127.0.0.1:5000 manually after the Sentrix console reports that it is running.
+
+          WINDOWS SECURITY WARNING
+          Windows may warn about an unsigned application downloaded from the internet. Only run Sentrix if you obtained it from the official seller/source.
+
+          PORT 5000 IS ALREADY IN USE
+          Close another Sentrix instance or other local application using port 5000, then start Sentrix again.
+
+          APPLICATION DATA
+          Back up important reports and exports before deleting or replacing your Sentrix installation folder.
+          '@ | Set-Content (Join-Path $docs 'Troubleshooting.txt') -Encoding UTF8
+
+          @'
+          SENTRIX FAQ
+          ==========
+
+          Q: Do I need Python installed?
+          A: No. The Windows edition includes the compiled runtime it requires.
+
+          Q: Is Sentrix a website hosted on the internet?
+          A: No. The Windows edition runs a local web application on your own computer and you access it through your browser.
+
+          Q: Can I delete the Runtime folder?
+          A: No. It contains the compiled application components required by Sentrix.
+
+          Q: Can I move Sentrix after extracting it?
+          A: Yes, but move the complete Sentrix-v1-Windows folder together. Do not move only individual files.
+
+          Q: How do I stop Sentrix?
+          A: Close its console window.
+          '@ | Set-Content (Join-Path $docs 'FAQ.txt') -Encoding UTF8
+
+          if (Test-Path 'LICENSE') {
+            Copy-Item -LiteralPath 'LICENSE' -Destination (Join-Path $docs 'License.txt') -Force
+          } elseif (Test-Path 'LICENSE.md') {
+            Copy-Item -LiteralPath 'LICENSE.md' -Destination (Join-Path $docs 'License.txt') -Force
+          }
+
+          # Customer protection check: repository Python source must never be
+          # copied into the release package.
+          $forbidden = @(
+            (Join-Path $stage 'app.py'),
+            (Join-Path $stage 'analyzer'),
+            (Join-Path $stage 'helpers'),
+            (Join-Path $stage 'requirements.txt')
+          )
+          foreach ($item in $forbidden) {
+            if (Test-Path $item) { throw "Source-code leak in customer package: $item" }
+          }
+
+          if (-not (Test-Path (Join-Path $runtime 'Sentrix.exe'))) {
+            throw 'Customer package is missing Runtime\Sentrix.exe.'
+          }
+
+          $zip = Join-Path $PWD 'release\Sentrix-v1-Windows-Compiled.zip'
+          Remove-Item $zip -Force -ErrorAction SilentlyContinue
+          Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $zip -CompressionLevel Optimal
+          if (-not (Test-Path $zip)) { throw 'Customer ZIP was not created.' }
+
+      - name: Upload compiled customer ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: Sentrix-v1-Windows-Compiled
+          path: release/Sentrix-v1-Windows-Compiled.zip
+          if-no-files-found: error
+          retention-days: 30
