@@ -36,7 +36,9 @@ jobs:
       - name: Assemble portable edition
         shell: powershell
         run: |
+          $ErrorActionPreference = 'Stop'
           $stage = Join-Path $PWD 'dist\Sentrix-v1-Portable-Windows'
+          Remove-Item $stage -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Force -Path $stage | Out-Null
 
           $files = @(
@@ -45,15 +47,21 @@ jobs:
             'requirements.txt', '.env.example', 'README.md', 'LICENSE', 'LICENSE.md'
           )
           foreach ($file in $files) {
-            if (Test-Path $file) { Copy-Item $file $stage -Force }
+            if (Test-Path $file) {
+              Copy-Item -LiteralPath $file -Destination (Join-Path $stage (Split-Path $file -Leaf)) -Force
+            }
           }
 
           foreach ($dir in @('analyzer', 'templates', 'static', 'migrations')) {
-            if (Test-Path $dir) { Copy-Item $dir $stage -Recurse -Force }
+            if (Test-Path $dir) {
+              $destination = Join-Path $stage $dir
+              New-Item -ItemType Directory -Force -Path $destination | Out-Null
+              Copy-Item -Path (Join-Path $dir '*') -Destination $destination -Recurse -Force
+            }
           }
 
-          Copy-Item 'portable\Start Sentrix.bat' $stage -Force
-          Copy-Item 'portable\Start-Sentrix.ps1' $stage -Force
+          Copy-Item -LiteralPath 'portable\Start Sentrix.bat' -Destination (Join-Path $stage 'Start Sentrix.bat') -Force
+          Copy-Item -LiteralPath 'portable\Start-Sentrix.ps1' -Destination (Join-Path $stage 'Start-Sentrix.ps1') -Force
 
           @'
           SENTRIX v1 - PORTABLE WINDOWS EDITION
@@ -67,7 +75,40 @@ jobs:
           No system-wide Python installation is required.
           '@ | Set-Content (Join-Path $stage 'START-HERE.txt') -Encoding UTF8
 
-          Compress-Archive -Path "$stage\*" -DestinationPath 'dist\Sentrix-v1-Portable-Windows.zip' -CompressionLevel Optimal -Force
+          $required = @(
+            'app.py',
+            'requirements.txt',
+            'Start Sentrix.bat',
+            'Start-Sentrix.ps1',
+            'analyzer\__init__.py',
+            'analyzer\routes',
+            'templates',
+            'static'
+          )
+          foreach ($item in $required) {
+            $candidate = Join-Path $stage $item
+            if (-not (Test-Path $candidate)) {
+              throw "Portable package is incomplete: missing $item"
+            }
+          }
+
+          Push-Location $stage
+          try {
+            $env:PYTHONPATH = $stage
+            python -c "import analyzer; import analyzer.routes.account; print('Portable import validation passed')"
+            if ($LASTEXITCODE -ne 0) { throw 'Portable Python import validation failed.' }
+          }
+          finally {
+            Pop-Location
+          }
+
+          $zip = Join-Path $PWD 'dist\Sentrix-v1-Portable-Windows.zip'
+          Remove-Item $zip -Force -ErrorAction SilentlyContinue
+          Compress-Archive -Path "$stage\*" -DestinationPath $zip -CompressionLevel Optimal -Force
+
+          if (-not (Test-Path $zip)) {
+            throw 'Portable ZIP was not created.'
+          }
 
       - name: Upload portable ZIP
         uses: actions/upload-artifact@v4
