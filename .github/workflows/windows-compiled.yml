@@ -69,8 +69,13 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           python -m pip install --upgrade pip
+          if ($LASTEXITCODE -ne 0) { throw 'pip upgrade failed.' }
           python -m pip install -r requirements.txt
+          if ($LASTEXITCODE -ne 0) { throw 'requirements installation failed.' }
           python -m pip install nuitka ordered-set zstandard
+          if ($LASTEXITCODE -ne 0) { throw 'Nuitka build dependency installation failed.' }
+          python -m pip check
+          if ($LASTEXITCODE -ne 0) { throw 'Installed Python dependencies are inconsistent.' }
 
       - name: Compile Sentrix
         shell: powershell
