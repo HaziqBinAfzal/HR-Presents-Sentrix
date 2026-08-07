@@ -59,6 +59,13 @@ jobs:
           git diff --exit-code origin/production/sentrix-permanent -- templates static
           if ($LASTEXITCODE -ne 0) { throw 'Website templates/static do not match production/sentrix-permanent.' }
 
+          $wing = 'static\images\sentrix-electric-spark-wing.svg'
+          if (-not (Test-Path $wing)) { throw "Official Sentrix wing SVG is missing: $wing" }
+          $svg = Get-Content -Raw $wing
+          if ($svg -notmatch '#2496ff' -or $svg -notmatch '#1677ff' -or $svg -notmatch '#0754dc') {
+            throw 'Official Sentrix wing SVG failed branding validation.'
+          }
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -126,44 +133,81 @@ jobs:
           python -m unittest tests.test_scoring_consistency -v
           if ($LASTEXITCODE -ne 0) { throw 'Canonical scoring regression suite failed; compilation intentionally skipped.' }
 
-      - name: Build and validate Windows icon from Sentrix wing
+      - name: Build and validate Windows icon from official Sentrix SVG
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
           Remove-Item build-assets -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Force -Path build-assets | Out-Null
+
+          $svg = (Resolve-Path 'static\images\sentrix-electric-spark-wing.svg').Path
+          $png = Join-Path $PWD 'build-assets\Sentrix-logo.png'
+          if (-not (Test-Path $svg)) { throw 'Official Sentrix electric-wing SVG is missing.' }
+
+          choco install imagemagick -y --no-progress
+          if ($LASTEXITCODE -ne 0) { throw 'ImageMagick installation failed.' }
+
+          $magick = Get-ChildItem @(
+            'C:\Program Files\ImageMagick-*\magick.exe',
+            'C:\ProgramData\chocolatey\bin\magick.exe'
+          ) -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $magick) {
+            $command = Get-Command magick.exe -ErrorAction SilentlyContinue
+            if ($command) { $magick = Get-Item $command.Source }
+          }
+          if (-not $magick) { throw 'ImageMagick magick.exe was not found after installation.' }
+
+          & $magick.FullName -background none -density 600 $svg -resize '224x224' $png
+          if ($LASTEXITCODE -ne 0 -or -not (Test-Path $png)) {
+            throw 'Failed to rasterize the official Sentrix SVG.'
+          }
+
           @'
-          import base64
           from pathlib import Path
           from PIL import Image
 
-          encoded = Path("installer/Sentrix-logo.png.b64")
           png_path = Path("build-assets/Sentrix-logo.png")
           target = Path("build-assets/Sentrix.ico")
-          if not encoded.is_file():
-              raise SystemExit(f"Clean Sentrix icon source missing: {encoded}")
-          png_path.write_bytes(base64.b64decode(encoded.read_text(encoding="ascii").strip(), validate=True))
+          sizes = [(16,16), (32,32), (48,48), (64,64), (128,128), (256,256)]
+
           with Image.open(png_path) as opened:
               image = opened.convert("RGBA")
+              image.load()
+
           visible = [pixel for pixel in image.getdata() if pixel[3] > 20]
           if len(visible) < 500:
-              raise SystemExit("Sentrix icon has too few visible pixels.")
-          blue_pixels = sum(1 for r, g, b, a in visible if b > r and b > g and b > 100)
+              raise SystemExit("Sentrix SVG raster has too few visible pixels.")
+
+          blue_pixels = sum(
+              1 for r, g, b, a in visible
+              if b > r and b >= g and b > 100
+          )
           if blue_pixels < 500:
-              raise SystemExit("Sentrix icon validation failed: expected blue wing pixels were not found.")
+              raise SystemExit("Sentrix SVG raster failed blue-wing validation.")
+
           image.thumbnail((224, 224), Image.Resampling.LANCZOS)
           canvas = Image.new("RGBA", (256, 256), (0, 0, 0, 0))
-          canvas.alpha_composite(image, ((canvas.width-image.width)//2, (canvas.height-image.height)//2))
-          canvas.save(target, format="ICO", sizes=[(16,16),(32,32),(48,48),(64,64),(128,128),(256,256)])
+          left = (canvas.width - image.width) // 2
+          top = (canvas.height - image.height) // 2
+          canvas.alpha_composite(image, (left, top))
+          canvas.save(target, format="ICO", sizes=sizes)
+
           if not target.is_file() or target.stat().st_size == 0:
               raise SystemExit("Sentrix.ico was not created.")
+
           with Image.open(target) as check:
+              available = set(check.ico.sizes())
+              missing = set(sizes) - available
+              if missing:
+                  raise SystemExit(f"Sentrix.ico is missing required sizes: {sorted(missing)}")
+              check.seek(0)
               rgba = check.convert("RGBA")
               icon_visible = [p for p in rgba.getdata() if p[3] > 20]
-              icon_blue = sum(1 for r,g,b,a in icon_visible if b > r and b > g and b > 100)
-              if icon_blue < 500:
-                  raise SystemExit("Generated Sentrix.ico failed blue-pixel validation.")
-          print(f"Validated Sentrix wing icon: {target} ({target.stat().st_size} bytes)")
+              if not icon_visible:
+                  raise SystemExit("Generated Sentrix.ico is visually empty.")
+
+          print(f"Validated official Sentrix wing icon: {target} ({target.stat().st_size} bytes)")
+          print(f"ICO sizes: {sorted(available)}")
           '@ | python -
           if ($LASTEXITCODE -ne 0) { throw 'Sentrix Windows icon generation failed.' }
 
