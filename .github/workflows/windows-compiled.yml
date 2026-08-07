@@ -83,8 +83,6 @@ jobs:
           Remove-Item $stage -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Force -Path $stage | Out-Null
 
-          # Keep compiled runtime files in a clearly internal directory. There
-          # is no repository source tree in the customer package.
           $runtime = Join-Path $stage 'Runtime'
           Copy-Item -LiteralPath $dist.FullName -Destination $runtime -Recurse -Force
 
@@ -93,23 +91,28 @@ jobs:
           setlocal
           cd /d "%~dp0"
           set "SENTRIX_RUNTIME=%~dp0Runtime"
+          set "SENTRIX_DATA_DIR=%LOCALAPPDATA%\Sentrix"
           set "HOST=127.0.0.1"
           set "PORT=5000"
           set "APP_ENV=development"
           set "FLASK_DEBUG=0"
 
+          if not exist "%SENTRIX_DATA_DIR%" mkdir "%SENTRIX_DATA_DIR%"
+
           echo ========================================
           echo               SENTRIX v1
           echo ========================================
           echo Starting Sentrix...
+          echo Data folder: %SENTRIX_DATA_DIR%
 
-          start "Sentrix" /D "%SENTRIX_RUNTIME%" "%SENTRIX_RUNTIME%\Sentrix.exe"
+          start "Sentrix" cmd.exe /k "cd /d \"%SENTRIX_RUNTIME%\" && \"%SENTRIX_RUNTIME%\Sentrix.exe\""
 
           powershell.exe -NoProfile -Command "$ok=$false; for($i=0;$i -lt 60;$i++){try{Invoke-WebRequest -UseBasicParsing -Uri 'http://127.0.0.1:5000' -TimeoutSec 1 ^| Out-Null; $ok=$true; break}catch{Start-Sleep -Seconds 1}}; if($ok){Start-Process 'http://127.0.0.1:5000'; exit 0}else{exit 1}"
           if errorlevel 1 (
             echo.
             echo Sentrix did not become ready on http://127.0.0.1:5000
-            echo Check the Sentrix console window for details.
+            echo The Sentrix console window has been left open so you can read the error.
+            echo User data folder: %SENTRIX_DATA_DIR%
             pause
             exit /b 1
           )
@@ -128,15 +131,14 @@ jobs:
           Sentrix is a local application that runs on your Windows computer and opens in your web browser.
 
           QUICK START
-          1. Extract the full Sentrix-v1-Windows ZIP.
-          2. Open the extracted folder.
-          3. Double-click "Start Sentrix.bat".
-          4. Allow Windows Firewall access if Windows asks.
-          5. Sentrix will open at http://127.0.0.1:5000 in your default browser.
+          1. Install Sentrix with the official Windows installer.
+          2. Launch Sentrix from the Start Menu or Desktop shortcut.
+          3. Allow Windows Firewall access if Windows asks.
+          4. Sentrix will open at http://127.0.0.1:5000 in your default browser.
 
           IMPORTANT
           - Keep the Sentrix console window open while using the application.
-          - Do not move individual files out of the extracted folder.
+          - Sentrix stores writable application data under your Windows Local AppData folder.
           - Your Sentrix data remains on the computer where you run the application unless you explicitly export or upload it elsewhere.
 
           SUPPORT
@@ -148,10 +150,10 @@ jobs:
           =========================
 
           INSTALLATION
-          Sentrix does not require a separate Python installation. Extract the ZIP to a normal writable location such as Documents or Desktop.
+          Sentrix does not require a separate Python installation. Install it using Sentrix-Setup-v1.0.0.exe.
 
           STARTING SENTRIX
-          Double-click "Start Sentrix.bat". A Sentrix console window will open. Once the local service is ready, your default browser opens automatically.
+          Launch Sentrix from the Start Menu or Desktop shortcut. A Sentrix console window will open. Once the local service is ready, your default browser opens automatically.
 
           STOPPING SENTRIX
           Close the Sentrix console window when you are finished.
@@ -168,7 +170,7 @@ jobs:
           ==================
 
           1. START THE APPLICATION
-          Double-click "Start Sentrix.bat" from the main Sentrix folder. Wait for your browser to open.
+          Launch Sentrix from the Start Menu or Desktop shortcut. Wait for your browser to open.
 
           2. ACCOUNT AND SIGN-IN
           Register a local user account, sign in, and use your profile to access your projects and analysis history.
@@ -186,13 +188,13 @@ jobs:
           Where available in your edition, use Sentrix report/export controls to save analysis output for your own records.
 
           7. DATA STORAGE
-          Sentrix is designed to run locally. Application data, generated reports, and uploaded project material are stored within the installed/extracted Sentrix environment on that computer unless a feature explicitly sends or exports them elsewhere.
+          Sentrix stores writable application data under %LOCALAPPDATA%\Sentrix. Application data, generated reports, and uploaded project material remain on that computer unless a feature explicitly sends or exports them elsewhere.
 
           8. SAFE USE
           Only analyze projects you are authorized to inspect. Review recommendations before applying changes to production code.
 
           9. CLOSING SENTRIX
-          Close the Sentrix console window to stop the local application.
+          Close its console window to stop the local application.
           '@ | Set-Content (Join-Path $docs 'User Guide.txt') -Encoding UTF8
 
           @'
@@ -200,10 +202,9 @@ jobs:
           =======================
 
           SENTRIX DOES NOT OPEN
-          - Make sure the ZIP was fully extracted before launching.
-          - Do not run Sentrix directly from inside the ZIP preview.
-          - Try moving the extracted folder to Documents or Desktop.
-          - Check the Sentrix console window for the error message.
+          - Launch it from the Start Menu or Desktop shortcut.
+          - Check the Sentrix console window for the error message. The console stays open after a startup failure.
+          - Make sure another application is not already using port 5000.
 
           BROWSER DOES NOT OPEN
           Open http://127.0.0.1:5000 manually after the Sentrix console reports that it is running.
@@ -215,7 +216,7 @@ jobs:
           Close another Sentrix instance or other local application using port 5000, then start Sentrix again.
 
           APPLICATION DATA
-          Back up important reports and exports before deleting or replacing your Sentrix installation folder.
+          Sentrix stores writable data in %LOCALAPPDATA%\Sentrix. Back up important reports and exports before deleting that folder.
           '@ | Set-Content (Join-Path $docs 'Troubleshooting.txt') -Encoding UTF8
 
           @'
@@ -228,11 +229,8 @@ jobs:
           Q: Is Sentrix a website hosted on the internet?
           A: No. The Windows edition runs a local web application on your own computer and you access it through your browser.
 
-          Q: Can I delete the Runtime folder?
-          A: No. It contains the compiled application components required by Sentrix.
-
-          Q: Can I move Sentrix after extracting it?
-          A: Yes, but move the complete Sentrix-v1-Windows folder together. Do not move only individual files.
+          Q: Where is my application data stored?
+          A: In your Windows Local AppData folder under Sentrix.
 
           Q: How do I stop Sentrix?
           A: Close its console window.
@@ -244,8 +242,6 @@ jobs:
             Copy-Item -LiteralPath 'LICENSE.md' -Destination (Join-Path $docs 'License.txt') -Force
           }
 
-          # Customer protection check: repository Python source must never be
-          # copied into the release package.
           $forbidden = @(
             (Join-Path $stage 'app.py'),
             (Join-Path $stage 'analyzer'),
