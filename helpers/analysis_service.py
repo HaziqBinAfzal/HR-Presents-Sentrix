@@ -13,6 +13,7 @@ from analyzer.security import run_bandit
 from analyzer.syntax import check_syntax
 from database import db
 from helpers.branded_report_service import generate_html_report
+from helpers.scoring import calculate_scorecard
 from models import Analysis
 from settings_models import UserSettings
 
@@ -58,8 +59,7 @@ def _format_radon_row(row):
 
 
 def run_project_analysis(project, current_user):
-    """Run a Sentrix analysis using the current user's saved preferences."""
-
+    """Run all enabled Sentrix analyzers and persist one canonical scorecard."""
     start_time = time.time()
     extract_folder = None
     preferences = UserSettings.for_user(current_user.id)
@@ -74,7 +74,6 @@ def run_project_analysis(project, current_user):
 
         extract_folder = tempfile.mkdtemp(prefix="sentrix_")
         python_files = extract_project(upload_path, extract_folder)
-
         if not python_files:
             raise ValueError("No Python files were found in the uploaded project.")
 
@@ -94,16 +93,10 @@ def run_project_analysis(project, current_user):
 
         for file_path in python_files:
             try:
-                with open(
-                    file_path,
-                    "r",
-                    encoding="utf-8",
-                    errors="ignore",
-                ) as source_file:
+                with open(file_path, "r", encoding="utf-8", errors="ignore") as source_file:
                     source_lines = source_file.readlines()
 
                 total_lines += len(source_lines)
-
                 for line in source_lines:
                     stripped = line.strip()
                     if not stripped:
@@ -120,9 +113,10 @@ def run_project_analysis(project, current_user):
                             classes_count += 1
                 except SyntaxError:
                     pass
-
-            except OSError:
-                pass
+            except OSError as error:
+                raise RuntimeError(
+                    f"Sentrix could not read {os.path.basename(file_path)}: {error}"
+                ) from error
 
             syntax_result = check_syntax(file_path)
             if not syntax_result.get("valid", False):
@@ -142,7 +136,7 @@ def run_project_analysis(project, current_user):
                         f"{black_result.get('error')}"
                     )
                 if black_result.get("status") != "Passed":
-                    formatting_status = black_result.get("status", "Failed")
+                    formatting_status = black_result.get("status", "Needs Formatting")
 
             if preferences.enable_pylint:
                 pylint_result = run_pylint(file_path)
@@ -151,14 +145,12 @@ def run_project_analysis(project, current_user):
                         f"{os.path.basename(file_path)}: {pylint_result.get('error')}"
                     )
                     continue
-
                 score_value = pylint_result.get("score")
                 if score_value is None:
                     pylint_errors.append(
                         f"{os.path.basename(file_path)}: Pylint returned no score."
                     )
                     continue
-
                 pylint_scores.append(float(score_value))
                 file_issues = pylint_result.get("issues", [])
                 pylint_issues.extend(file_issues)
@@ -168,26 +160,24 @@ def run_project_analysis(project, current_user):
 
             if preferences.enable_radon:
                 radon_result = run_radon(file_path)
-                if radon_result:
-                    complexity_rows.extend(radon_result)
+                if radon_result is None:
+                    raise RuntimeError(
+                        f"Radon analyzer returned no result for {os.path.basename(file_path)}."
+                    )
+                complexity_rows.extend(radon_result)
 
         if pylint_errors:
             raise RuntimeError(
                 "Pylint analyzer failed instead of producing a valid score. "
                 + " | ".join(pylint_errors[:5])
             )
-
         if preferences.enable_pylint and len(pylint_scores) != len(python_files):
-            raise RuntimeError(
-                "Pylint did not return a valid result for every Python file."
-            )
+            raise RuntimeError("Pylint did not return a valid result for every Python file.")
 
         if preferences.enable_bandit:
             bandit_result = run_bandit(extract_folder)
             if bandit_result.get("error"):
-                raise RuntimeError(
-                    f"Bandit analyzer failed: {bandit_result.get('error')}"
-                )
+                raise RuntimeError(f"Bandit analyzer failed: {bandit_result.get('error')}")
         else:
             bandit_result = {"count": 0, "issues": [], "output": ""}
 
@@ -198,7 +188,7 @@ def run_project_analysis(project, current_user):
         average_score = (
             round(sum(pylint_scores) / len(pylint_scores), 2)
             if pylint_scores
-            else 0.0
+            else None
         )
 
         numeric_complexities = [
@@ -217,11 +207,25 @@ def run_project_analysis(project, current_user):
         else:
             complexity_level = "High"
 
-        security_count = int(bandit_result.get("count", len(bandit_issues)) or 0)
+        scorecard = calculate_scorecard(
+            pylint_score=average_score,
+            bandit_issues=bandit_issues,
+            complexities=numeric_complexities,
+            syntax_error_count=len(syntax_errors),
+            formatting_status=formatting_status,
+            enabled={
+                "pylint": preferences.enable_pylint,
+                "bandit": preferences.enable_bandit,
+                "radon": preferences.enable_radon,
+                "syntax": True,
+                "black": preferences.enable_black,
+            },
+        )
 
+        security_count = len(bandit_issues) if preferences.enable_bandit else 0
         if preferences.enable_ai:
             ai_summary, recommendations = generate_ai_summary(
-                average_score,
+                average_score if average_score is not None else 0.0,
                 security_count,
                 formatting_status,
                 complexity_rows,
@@ -235,19 +239,16 @@ def run_project_analysis(project, current_user):
         elif isinstance(recommendations, str):
             recommendations = [recommendations]
 
-        quality_base = average_score * 10 if preferences.enable_pylint else 100.0
-        security_penalty = min(security_count * 2, 30) if preferences.enable_bandit else 0
-        syntax_penalty = min(len(syntax_errors) * 5, 30)
-        overall_score = max(0, round(quality_base - security_penalty - syntax_penalty, 2))
         analysis_duration = round(time.time() - start_time, 2)
+        stored_pylint_score = round(float(average_score), 2) if average_score is not None else 0.0
 
         analysis = Analysis(
             project_id=project.id,
             user_id=current_user.id,
             filename=project.original_filename,
             language="Python",
-            overall_score=overall_score,
-            pylint_score=average_score,
+            overall_score=scorecard["overall_score"],
+            pylint_score=stored_pylint_score,
             security_count=security_count,
             formatting_status=formatting_status,
             complexity=complexity_level,
@@ -282,13 +283,19 @@ def run_project_analysis(project, current_user):
         return {
             "analysis_id": analysis.id,
             "analysis": analysis,
-            "quality": overall_score,
+            "quality": scorecard["quality_score"],
             "pylint_score": average_score,
             "issues": len(pylint_issues),
             "security": security_count,
+            "security_score": scorecard["security_score"],
+            "maintainability_score": scorecard["maintainability_score"],
+            "overall_score": scorecard["overall_score"],
+            "risk_level": scorecard["risk_level"],
+            "final_rating": scorecard["final_rating"],
             "complexity": complexity_level,
             "summary": ai_summary,
             "recommendations": recommendations,
+            "scorecard": scorecard,
             "preferences": {
                 "black": preferences.enable_black,
                 "pylint": preferences.enable_pylint,
@@ -302,7 +309,6 @@ def run_project_analysis(project, current_user):
     except Exception:
         db.session.rollback()
         raise
-
     finally:
         if extract_folder and os.path.isdir(extract_folder):
             shutil.rmtree(extract_folder, ignore_errors=True)
