@@ -11,6 +11,7 @@ on:
       - 'helpers/**'
       - 'templates/**'
       - 'static/**'
+      - 'installer/**'
       - 'migrations/**'
       - 'requirements.txt'
       - 'config.py'
@@ -106,10 +107,10 @@ jobs:
               assert syntax_result.get("valid") is True, syntax_result
 
               pylint_result = run_pylint(str(clean_file))
+              assert "error" not in pylint_result, pylint_result
               score = float(pylint_result.get("score"))
               assert 0.0 <= score <= 10.0, pylint_result
               assert isinstance(pylint_result.get("issues"), list), pylint_result
-              assert "error" not in pylint_result, pylint_result
 
               poor_file = root / "poor_sample.py"
               poor_file.write_text(
@@ -143,23 +144,34 @@ jobs:
           '@ | python -
           if ($LASTEXITCODE -ne 0) { throw 'Analyzer preflight failed; compilation intentionally skipped.' }
 
-      - name: Build Windows icon from Sentrix logo
+      - name: Build and validate Windows icon from Sentrix wing
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
           New-Item -ItemType Directory -Force -Path build-assets | Out-Null
           @'
+          import base64
           from pathlib import Path
-          from PIL import Image, ImageFile
+          from PIL import Image
 
-          ImageFile.LOAD_TRUNCATED_IMAGES = True
-          source = Path("static/images/sentrix-electric-spark-wing.png")
+          encoded = Path("installer/Sentrix-logo.png.b64")
+          png_path = Path("build-assets/Sentrix-logo.png")
           target = Path("build-assets/Sentrix.ico")
-          if not source.is_file():
-              raise SystemExit(f"Sentrix logo missing: {source}")
+          if not encoded.is_file():
+              raise SystemExit(f"Clean Sentrix icon source missing: {encoded}")
 
-          with Image.open(source) as opened:
+          png_path.write_bytes(base64.b64decode(encoded.read_text(encoding="ascii").strip(), validate=True))
+
+          with Image.open(png_path) as opened:
               image = opened.convert("RGBA")
+
+          visible = [pixel for pixel in image.getdata() if pixel[3] > 20]
+          if len(visible) < 500:
+              raise SystemExit("Sentrix icon has too few visible pixels.")
+          blue_pixels = sum(1 for r, g, b, a in visible if b > r and b > g and b > 100)
+          if blue_pixels < 500:
+              raise SystemExit("Sentrix icon validation failed: expected blue wing pixels were not found.")
+
           image.thumbnail((224, 224), Image.Resampling.LANCZOS)
           canvas = Image.new("RGBA", (256, 256), (0, 0, 0, 0))
           left = (canvas.width - image.width) // 2
@@ -172,7 +184,15 @@ jobs:
           )
           if not target.is_file() or target.stat().st_size == 0:
               raise SystemExit("Sentrix.ico was not created.")
-          print(f"Created {target} ({target.stat().st_size} bytes)")
+
+          with Image.open(target) as check:
+              check_rgba = check.convert("RGBA")
+              icon_visible = [p for p in check_rgba.getdata() if p[3] > 20]
+              icon_blue = sum(1 for r, g, b, a in icon_visible if b > r and b > g and b > 100)
+              if icon_blue < 500:
+                  raise SystemExit("Generated Sentrix.ico failed blue-pixel validation.")
+
+          print(f"Validated Sentrix wing icon: {target} ({target.stat().st_size} bytes)")
           '@ | python -
           if ($LASTEXITCODE -ne 0) { throw 'Sentrix Windows icon generation failed.' }
 
