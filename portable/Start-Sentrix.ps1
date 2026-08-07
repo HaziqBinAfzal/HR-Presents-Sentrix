@@ -57,9 +57,8 @@ if (-not (Test-Path $Python)) {
 
 # The Windows embeddable Python runtime uses a python*._pth file that isolates
 # sys.path. Explicitly include the parent Sentrix application directory so
-# app.py can import bundled packages such as analyzer, while still keeping the
-# private runtime self-contained. This runs on every launch so existing
-# .sentrix-runtime folders are repaired automatically.
+# app.py can import bundled packages such as analyzer and helpers. This runs on
+# every launch so existing .sentrix-runtime folders are repaired automatically.
 $pth = Get-ChildItem $Runtime -Filter 'python*._pth' | Select-Object -First 1
 if (-not $pth) { throw 'Python runtime configuration file was not found.' }
 $lines = Get-Content $pth.FullName
@@ -89,8 +88,10 @@ if (-not (Test-Path $Ready)) {
     Set-Content -Path $Ready -Value (Get-Date).ToString('o') -Encoding ASCII
 }
 
-# Validate the private runtime can see the packaged Sentrix code before launch.
-& $Python -c "import analyzer; import analyzer.routes.account; print('Sentrix runtime import validation passed')"
+# Validate the same import chain app.py uses before starting the server. This
+# catches missing packaged modules immediately instead of failing in the hidden
+# Flask process after launch.
+& $Python -c "import analyzer.routes.account; import analyzer.routes.main_loader; import helpers.community_routes; print('Sentrix runtime import validation passed')"
 if ($LASTEXITCODE -ne 0) { throw 'Sentrix private runtime cannot import the packaged application.' }
 
 $Port = Get-FreePort
