@@ -51,6 +51,46 @@ jobs:
             throw 'Compiled payload does not contain Start Sentrix.bat.'
           }
 
+          # Replace the launcher with a cmd.exe-safe version. The compiled
+          # payload previously used \" escaping, which is not valid Windows
+          # cmd quoting and causes "filename, directory name, or volume label
+          # syntax is incorrect" when Sentrix is installed under Program Files.
+          @'
+          @echo off
+          setlocal
+          cd /d "%~dp0"
+          set "SENTRIX_RUNTIME=%~dp0Runtime"
+          set "SENTRIX_DATA_DIR=%LOCALAPPDATA%\Sentrix"
+          set "HOST=127.0.0.1"
+          set "PORT=5000"
+          set "APP_ENV=development"
+          set "FLASK_DEBUG=0"
+
+          if not exist "%SENTRIX_DATA_DIR%" mkdir "%SENTRIX_DATA_DIR%"
+
+          echo ========================================
+          echo               SENTRIX v1
+          echo ========================================
+          echo Starting Sentrix...
+          echo Data folder: %SENTRIX_DATA_DIR%
+          echo.
+
+          start "Sentrix" /D "%SENTRIX_RUNTIME%" cmd.exe /k Sentrix.exe
+
+          powershell.exe -NoProfile -Command "$ok=$false; for($i=0;$i -lt 60;$i++){try{Invoke-WebRequest -UseBasicParsing -Uri 'http://127.0.0.1:5000' -TimeoutSec 1 ^| Out-Null; $ok=$true; break}catch{Start-Sleep -Seconds 1}}; if($ok){Start-Process 'http://127.0.0.1:5000'; exit 0}else{exit 1}"
+          if errorlevel 1 (
+            echo.
+            echo Sentrix did not become ready on http://127.0.0.1:5000
+            echo The Sentrix console window has been left open so you can read the error.
+            echo User data folder: %SENTRIX_DATA_DIR%
+            pause
+            exit /b 1
+          )
+
+          echo Sentrix is running in your browser.
+          exit /b 0
+          '@ | Set-Content 'installer\payload\Start Sentrix.bat' -Encoding ASCII
+
           $forbidden = @(
             'installer\payload\app.py',
             'installer\payload\requirements.txt',
