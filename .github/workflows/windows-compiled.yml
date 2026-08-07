@@ -34,25 +34,25 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Sync website UI from latest main
+      - name: Sync website UI from production source
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
-          git fetch origin main
-          git checkout origin/main -- templates static
-          $mainSha = (git rev-parse origin/main).Trim()
+          git fetch origin production/sentrix-permanent
+          git checkout origin/production/sentrix-permanent -- templates static
+          $productionSha = (git rev-parse origin/production/sentrix-permanent).Trim()
           $windowsSha = (git rev-parse HEAD).Trim()
-          Write-Host "Website UI source (main): $mainSha"
+          Write-Host "Website UI source (production/sentrix-permanent): $productionSha"
           Write-Host "Windows runtime source: $windowsSha"
-          "MAIN_UI_SHA=$mainSha" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "PRODUCTION_UI_SHA=$productionSha" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           "WINDOWS_RUNTIME_SHA=$windowsSha" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
-      - name: Verify main website files are exact
+      - name: Verify production website files are exact
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
-          git diff --exit-code origin/main -- templates static
-          if ($LASTEXITCODE -ne 0) { throw 'Website templates/static do not match main.' }
+          git diff --exit-code origin/production/sentrix-permanent -- templates static
+          if ($LASTEXITCODE -ne 0) { throw 'Website templates/static do not match production/sentrix-permanent.' }
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -152,7 +152,7 @@ jobs:
           @"
           SENTRIX v1 - WINDOWS EDITION
           ===========================
-          Website UI source (main): $env:MAIN_UI_SHA
+          Website UI source (production/sentrix-permanent): $env:PRODUCTION_UI_SHA
           Windows runtime source: $env:WINDOWS_RUNTIME_SHA
           Sentrix runs locally at http://127.0.0.1:5000.
           "@ | Set-Content (Join-Path $stage 'README.txt') -Encoding UTF8
