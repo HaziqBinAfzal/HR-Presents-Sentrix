@@ -52,14 +52,26 @@ if (-not (Test-Path $Python)) {
     Expand-Archive -Path $zip -DestinationPath $Runtime -Force
     Remove-Item $zip -Force -ErrorAction SilentlyContinue
 
-    $pth = Get-ChildItem $Runtime -Filter 'python*._pth' | Select-Object -First 1
-    if (-not $pth) { throw 'Python runtime configuration file was not found.' }
-    $lines = Get-Content $pth.FullName
-    $lines = $lines | ForEach-Object { if ($_ -eq '#import site') { 'import site' } else { $_ } }
-    if ($lines -notcontains 'Lib\site-packages') { $lines += 'Lib\site-packages' }
-    Set-Content -Path $pth.FullName -Value $lines -Encoding ASCII
-
     Invoke-WebRequest -UseBasicParsing -Uri $GetPipUrl -OutFile $GetPip
+}
+
+# The Windows embeddable Python runtime uses a python*._pth file that isolates
+# sys.path. Explicitly include the parent Sentrix application directory so
+# app.py can import bundled packages such as analyzer, while still keeping the
+# private runtime self-contained. This runs on every launch so existing
+# .sentrix-runtime folders are repaired automatically.
+$pth = Get-ChildItem $Runtime -Filter 'python*._pth' | Select-Object -First 1
+if (-not $pth) { throw 'Python runtime configuration file was not found.' }
+$lines = Get-Content $pth.FullName
+$lines = $lines | ForEach-Object { if ($_ -eq '#import site') { 'import site' } else { $_ } }
+if ($lines -notcontains '..') { $lines += '..' }
+if ($lines -notcontains 'Lib\site-packages') { $lines += 'Lib\site-packages' }
+Set-Content -Path $pth.FullName -Value $lines -Encoding ASCII
+
+if (-not (Test-Path (Join-Path $Runtime 'Lib\site-packages\pip'))) {
+    if (-not (Test-Path $GetPip)) {
+        Invoke-WebRequest -UseBasicParsing -Uri $GetPipUrl -OutFile $GetPip
+    }
     & $Python $GetPip --disable-pip-version-check
     if ($LASTEXITCODE -ne 0) { throw 'pip installation failed.' }
 }
@@ -76,6 +88,10 @@ if (-not (Test-Path $Ready)) {
     if ($LASTEXITCODE -ne 0) { throw 'Sentrix dependency installation failed.' }
     Set-Content -Path $Ready -Value (Get-Date).ToString('o') -Encoding ASCII
 }
+
+# Validate the private runtime can see the packaged Sentrix code before launch.
+& $Python -c "import analyzer; import analyzer.routes.account; print('Sentrix runtime import validation passed')"
+if ($LASTEXITCODE -ne 0) { throw 'Sentrix private runtime cannot import the packaged application.' }
 
 $Port = Get-FreePort
 $env:PORT = [string]$Port
