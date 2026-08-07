@@ -75,10 +75,14 @@ def run_project_analysis(project, current_user):
         extract_folder = tempfile.mkdtemp(prefix="sentrix_")
         python_files = extract_project(upload_path, extract_folder)
 
+        if not python_files:
+            raise ValueError("No Python files were found in the uploaded project.")
+
         formatting_status = "Disabled" if not preferences.enable_black else "Passed"
         pylint_scores = []
         pylint_issues = []
         pylint_output = []
+        pylint_errors = []
         complexity_rows = []
         syntax_errors = []
 
@@ -132,12 +136,30 @@ def run_project_analysis(project, current_user):
 
             if preferences.enable_black:
                 black_result = run_black(file_path)
+                if black_result.get("error"):
+                    raise RuntimeError(
+                        f"Black analyzer failed for {os.path.basename(file_path)}: "
+                        f"{black_result.get('error')}"
+                    )
                 if black_result.get("status") != "Passed":
                     formatting_status = black_result.get("status", "Failed")
 
             if preferences.enable_pylint:
                 pylint_result = run_pylint(file_path)
-                pylint_scores.append(float(pylint_result.get("score", 0.0) or 0.0))
+                if pylint_result.get("error"):
+                    pylint_errors.append(
+                        f"{os.path.basename(file_path)}: {pylint_result.get('error')}"
+                    )
+                    continue
+
+                score_value = pylint_result.get("score")
+                if score_value is None:
+                    pylint_errors.append(
+                        f"{os.path.basename(file_path)}: Pylint returned no score."
+                    )
+                    continue
+
+                pylint_scores.append(float(score_value))
                 file_issues = pylint_result.get("issues", [])
                 pylint_issues.extend(file_issues)
                 pylint_output.extend(
@@ -149,8 +171,23 @@ def run_project_analysis(project, current_user):
                 if radon_result:
                     complexity_rows.extend(radon_result)
 
+        if pylint_errors:
+            raise RuntimeError(
+                "Pylint analyzer failed instead of producing a valid score. "
+                + " | ".join(pylint_errors[:5])
+            )
+
+        if preferences.enable_pylint and len(pylint_scores) != len(python_files):
+            raise RuntimeError(
+                "Pylint did not return a valid result for every Python file."
+            )
+
         if preferences.enable_bandit:
             bandit_result = run_bandit(extract_folder)
+            if bandit_result.get("error"):
+                raise RuntimeError(
+                    f"Bandit analyzer failed: {bandit_result.get('error')}"
+                )
         else:
             bandit_result = {"count": 0, "issues": [], "output": ""}
 
