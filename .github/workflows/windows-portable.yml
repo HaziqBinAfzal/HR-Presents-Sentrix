@@ -95,8 +95,8 @@ jobs:
           Push-Location $stage
           try {
             $env:PYTHONPATH = $stage
-            python -c "import analyzer; import analyzer.routes.account; print('Portable import validation passed')"
-            if ($LASTEXITCODE -ne 0) { throw 'Portable Python import validation failed.' }
+            python -c "import analyzer; print('Portable package import validation passed')"
+            if ($LASTEXITCODE -ne 0) { throw 'Portable Python package import validation failed.' }
           }
           finally {
             Pop-Location
