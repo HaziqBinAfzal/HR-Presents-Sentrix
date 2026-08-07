@@ -1,0 +1,177 @@
+name: Build Portable Windows ZIP
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/sentrix-portable-zip
+    paths:
+      - 'portable/**'
+      - 'app.py'
+      - 'analyzer/**'
+      - 'helpers/**'
+      - 'templates/**'
+      - 'static/**'
+      - 'migrations/**'
+      - 'requirements.txt'
+      - 'config.py'
+      - 'database.py'
+      - 'extensions.py'
+      - 'forms.py'
+      - 'helpers.py'
+      - 'models.py'
+      - 'settings_models.py'
+      - '.github/workflows/windows-portable.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Assemble portable edition
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $stage = Join-Path $PWD 'dist\Sentrix-v1-Portable-Windows'
+          Remove-Item $stage -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path $stage | Out-Null
+
+          $files = @(
+            'app.py', 'config.py', 'database.py', 'extensions.py',
+            'forms.py', 'helpers.py', 'models.py', 'settings_models.py',
+            'requirements.txt', '.env.example', 'README.md', 'LICENSE', 'LICENSE.md'
+          )
+          foreach ($file in $files) {
+            if (Test-Path $file) {
+              Copy-Item -LiteralPath $file -Destination (Join-Path $stage (Split-Path $file -Leaf)) -Force
+            }
+          }
+
+          foreach ($dir in @('analyzer', 'helpers', 'templates', 'static', 'migrations')) {
+            if (Test-Path $dir) {
+              $destination = Join-Path $stage $dir
+              New-Item -ItemType Directory -Force -Path $destination | Out-Null
+              Copy-Item -Path (Join-Path $dir '*') -Destination $destination -Recurse -Force
+            }
+          }
+
+          Copy-Item -LiteralPath 'portable\Start Sentrix.bat' -Destination (Join-Path $stage 'Start Sentrix.bat') -Force
+          Copy-Item -LiteralPath 'portable\Start-Sentrix.ps1' -Destination (Join-Path $stage 'Start-Sentrix.ps1') -Force
+
+          @'
+          SENTRIX v1 - PORTABLE WINDOWS EDITION
+
+          1. Extract this ZIP to a normal folder such as Documents or Desktop.
+          2. Double-click "Start Sentrix.bat".
+          3. On first launch, keep the internet connected while Sentrix prepares its private runtime.
+          4. Your browser opens automatically when Sentrix is ready.
+          5. Keep the Sentrix PowerShell window open while using the application.
+
+          No system-wide Python installation is required.
+          '@ | Set-Content (Join-Path $stage 'START-HERE.txt') -Encoding UTF8
+
+          $required = @(
+            'app.py',
+            'requirements.txt',
+            'Start Sentrix.bat',
+            'Start-Sentrix.ps1',
+            'analyzer\__init__.py',
+            'analyzer\routes',
+            'helpers\community_routes.py',
+            'templates',
+            'static'
+          )
+          foreach ($item in $required) {
+            $candidate = Join-Path $stage $item
+            if (-not (Test-Path $candidate)) {
+              throw "Portable package is incomplete: missing $item"
+            }
+          }
+
+          Push-Location $stage
+          try {
+            $env:PYTHONPATH = $stage
+            python -c "import analyzer; from pathlib import Path; assert Path('helpers/community_routes.py').is_file(); print('Portable staging validation passed')"
+            if ($LASTEXITCODE -ne 0) { throw 'Portable staging package validation failed.' }
+          }
+          finally {
+            Pop-Location
+          }
+
+          $zip = Join-Path $PWD 'dist\Sentrix-v1-Portable-Windows.zip'
+          Remove-Item $zip -Force -ErrorAction SilentlyContinue
+
+          $env:SENTRIX_STAGE = $stage
+          $env:SENTRIX_ZIP = $zip
+          @'
+          import os
+          from pathlib import Path
+          from zipfile import ZIP_DEFLATED, ZipFile
+
+          stage = Path(os.environ['SENTRIX_STAGE'])
+          destination = Path(os.environ['SENTRIX_ZIP'])
+          with ZipFile(destination, 'w', compression=ZIP_DEFLATED) as archive:
+              for path in sorted(stage.rglob('*')):
+                  if path.is_file():
+                      archive.write(path, path.relative_to(stage).as_posix())
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { throw 'Portable ZIP creation failed.' }
+
+          if (-not (Test-Path $zip)) {
+            throw 'Portable ZIP was not created.'
+          }
+
+          python -c "import sys, zipfile; z=zipfile.ZipFile(r'$zip'); bad=[n for n in z.namelist() if '\\' in n]; sys.exit('Invalid ZIP path separators: ' + repr(bad[:10])) if bad else print('ZIP path validation passed')"
+          if ($LASTEXITCODE -ne 0) { throw 'Portable ZIP path validation failed.' }
+
+          $verify = Join-Path $PWD 'dist\Sentrix-v1-Portable-Windows-verify'
+          Remove-Item $verify -Recurse -Force -ErrorAction SilentlyContinue
+          Expand-Archive -LiteralPath $zip -DestinationPath $verify -Force
+
+          foreach ($item in $required) {
+            $candidate = Join-Path $verify $item
+            if (-not (Test-Path $candidate)) {
+              throw "Extracted portable package is incomplete: missing $item"
+            }
+          }
+
+          Push-Location $verify
+          try {
+            $env:PYTHONPATH = $verify
+            python -c "from pathlib import Path; import analyzer; assert Path('analyzer/routes/account.py').is_file(); assert Path('helpers/community_routes.py').is_file(); print('Extracted portable package validation passed')"
+            if ($LASTEXITCODE -ne 0) { throw 'Extracted portable package validation failed.' }
+          }
+          finally {
+            Pop-Location
+          }
+
+          $runtimeTest = Join-Path $verify '.sentrix-runtime'
+          New-Item -ItemType Directory -Force -Path $runtimeTest | Out-Null
+          $pythonVersion = '3.13.14'
+          $pythonRuntimeZip = Join-Path $env:TEMP 'sentrix-ci-python.zip'
+          Invoke-WebRequest -UseBasicParsing -Uri "https://www.python.org/ftp/python/$pythonVersion/python-$pythonVersion-embed-amd64.zip" -OutFile $pythonRuntimeZip
+          Expand-Archive -LiteralPath $pythonRuntimeZip -DestinationPath $runtimeTest -Force
+          Remove-Item $pythonRuntimeZip -Force -ErrorAction SilentlyContinue
+
+          $pth = Get-ChildItem $runtimeTest -Filter 'python*._pth' | Select-Object -First 1
+          if (-not $pth) { throw 'Embedded Python CI test could not find python*._pth.' }
+          $lines = Get-Content $pth.FullName
+          if ($lines -notcontains '..') { $lines += '..' }
+          Set-Content -Path $pth.FullName -Value $lines -Encoding ASCII
+
+          & (Join-Path $runtimeTest 'python.exe') -c "import analyzer, importlib.util; assert importlib.util.find_spec('helpers.community_routes') is not None; print('Embedded runtime import-path validation passed')"
+          if ($LASTEXITCODE -ne 0) { throw 'Embedded Python cannot resolve packaged application modules.' }
+
+      - name: Upload portable ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: Sentrix-v1-Portable-Windows
+          path: dist/Sentrix-v1-Portable-Windows.zip
+          if-no-files-found: error
+          retention-days: 30
