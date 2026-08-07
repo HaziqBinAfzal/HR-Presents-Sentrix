@@ -156,6 +156,26 @@ jobs:
             Pop-Location
           }
 
+          # Reproduce the customer's embedded-Python path model. The official
+          # embeddable runtime uses python*._pth isolation, so the application
+          # root must be explicitly reachable as '..' from .sentrix-runtime.
+          $runtimeTest = Join-Path $verify '.sentrix-runtime'
+          New-Item -ItemType Directory -Force -Path $runtimeTest | Out-Null
+          $pythonVersion = '3.13.14'
+          $pythonRuntimeZip = Join-Path $env:TEMP 'sentrix-ci-python.zip'
+          Invoke-WebRequest -UseBasicParsing -Uri "https://www.python.org/ftp/python/$pythonVersion/python-$pythonVersion-embed-amd64.zip" -OutFile $pythonRuntimeZip
+          Expand-Archive -LiteralPath $pythonRuntimeZip -DestinationPath $runtimeTest -Force
+          Remove-Item $pythonRuntimeZip -Force -ErrorAction SilentlyContinue
+
+          $pth = Get-ChildItem $runtimeTest -Filter 'python*._pth' | Select-Object -First 1
+          if (-not $pth) { throw 'Embedded Python CI test could not find python*._pth.' }
+          $lines = Get-Content $pth.FullName
+          if ($lines -notcontains '..') { $lines += '..' }
+          Set-Content -Path $pth.FullName -Value $lines -Encoding ASCII
+
+          & (Join-Path $runtimeTest 'python.exe') -c "import analyzer; print('Embedded runtime application-root validation passed')"
+          if ($LASTEXITCODE -ne 0) { throw 'Embedded Python cannot import the packaged analyzer module.' }
+
       - name: Upload portable ZIP
         uses: actions/upload-artifact@v4
         with:
