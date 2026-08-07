@@ -107,10 +107,6 @@ jobs:
           $zip = Join-Path $PWD 'dist\Sentrix-v1-Portable-Windows.zip'
           Remove-Item $zip -Force -ErrorAction SilentlyContinue
 
-          # Build the archive with Python so ZIP member names always use the
-          # standards-compliant forward slash separator. PowerShell's
-          # Compress-Archive can emit backslashes, which can flatten package
-          # directories when customers extract the ZIP with some tools.
           $env:SENTRIX_STAGE = $stage
           $env:SENTRIX_ZIP = $zip
           @'
@@ -155,9 +151,6 @@ jobs:
             Pop-Location
           }
 
-          # Reproduce the customer's embedded-Python path model. The official
-          # embeddable runtime uses python*._pth isolation, so the application
-          # root must be explicitly reachable as '..' from .sentrix-runtime.
           $runtimeTest = Join-Path $verify '.sentrix-runtime'
           New-Item -ItemType Directory -Force -Path $runtimeTest | Out-Null
           $pythonVersion = '3.13.14'
@@ -172,8 +165,8 @@ jobs:
           if ($lines -notcontains '..') { $lines += '..' }
           Set-Content -Path $pth.FullName -Value $lines -Encoding ASCII
 
-          & (Join-Path $runtimeTest 'python.exe') -c "import analyzer; from pathlib import Path; assert Path('../helpers/community_routes.py').is_file(); print('Embedded runtime application-root validation passed')"
-          if ($LASTEXITCODE -ne 0) { throw 'Embedded Python cannot see the packaged application root.' }
+          & (Join-Path $runtimeTest 'python.exe') -c "import analyzer, importlib.util; assert importlib.util.find_spec('helpers.community_routes') is not None; print('Embedded runtime import-path validation passed')"
+          if ($LASTEXITCODE -ne 0) { throw 'Embedded Python cannot resolve packaged application modules.' }
 
       - name: Upload portable ZIP
         uses: actions/upload-artifact@v4
