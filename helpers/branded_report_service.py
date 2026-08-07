@@ -3,46 +3,27 @@ import threading
 from pathlib import Path
 
 from helpers.report_service import generate_html_report as _generate_html_report
+from helpers.scoring import scorecard_from_analysis
 
 
 _REPORT_CWD_LOCK = threading.Lock()
 
 ELECTRIC_SPARK_WING = """
-<svg class="report-brand-mark" viewBox="0 0 96 72" role="img" aria-label="Sentrix Electric Spark Wing" xmlns="http://www.w3.org/2000/svg">
+<svg class="report-brand-mark" viewBox="0 0 180 120" role="img" aria-label="Sentrix Electric Spark Wing" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="reportWing" x1="8" y1="8" x2="88" y2="64" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#38bdf8"/>
-      <stop offset="0.55" stop-color="#1677ff"/>
-      <stop offset="1" stop-color="#818cf8"/>
+    <linearGradient id="reportWing" x1="18" y1="16" x2="146" y2="104" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2496ff"/>
+      <stop offset="0.48" stop-color="#1677ff"/>
+      <stop offset="1" stop-color="#0754dc"/>
     </linearGradient>
   </defs>
-  <path d="M45 18 21 8l8 12-19-5 13 14-14-1 22 17 12-8-8-6 10 1Z" fill="url(#reportWing)"/>
-  <path d="m51 18 24-10-8 12 19-5-13 14 14-1-22 17-12-8 8-6-10 1Z" fill="url(#reportWing)"/>
-  <path d="M52 13 38 38h11l-7 22 22-30H53l8-17Z" fill="#ffffff"/>
+  <g fill="url(#reportWing)">
+    <path d="M84 40 59 31 17 13c6 20 18 37 37 50L31 58c9 13 22 23 39 29l-20 1c9 9 20 15 34 18l14-36-14-30Z"/>
+    <path d="M91 47 113 33l16-25-4 28 26-17-17 31 24-5-34 25-17 36 3-29H91l13-30H91Z"/>
+    <path d="M83 63 65 58l15 12-10 4 17 9 8-22-12 2Z" opacity=".94"/>
+  </g>
 </svg>
 """.strip()
-
-
-def _health(overall_score):
-    score = float(overall_score or 0)
-    if score >= 90:
-        return "Excellent", "health-excellent"
-    if score >= 75:
-        return "Good", "health-good"
-    if score >= 55:
-        return "Needs Attention", "health-warning"
-    return "High Risk", "health-danger"
-
-
-def _security_risk(security_count):
-    count = int(security_count or 0)
-    if count >= 5:
-        return "High", "risk-high"
-    if count >= 2:
-        return "Medium", "risk-medium"
-    if count >= 1:
-        return "Low", "risk-low"
-    return "None", "risk-low"
 
 
 def _replace_badge(html, css_prefix, labels, new_label, new_class):
@@ -54,14 +35,29 @@ def _replace_badge(html, css_prefix, labels, new_label, new_class):
     return html
 
 
+def _health_class(label):
+    return {
+        "Excellent": "health-excellent",
+        "Good": "health-good",
+        "Needs Attention": "health-warning",
+        "High Risk": "health-danger",
+    }[label]
+
+
+def _risk_class(label):
+    return {
+        "High": "risk-high",
+        "Medium": "risk-medium",
+        "Low": "risk-low",
+        "None": "risk-low",
+    }[label]
+
+
 def generate_html_report(project, analysis):
-    """Generate a branded report inside the writable Sentrix data directory."""
+    """Generate the report and normalize all display scoring from one scorecard."""
     data_dir = Path(os.environ.get("SENTRIX_DATA_DIR", Path.cwd())).expanduser().resolve()
     data_dir.mkdir(parents=True, exist_ok=True)
 
-    # The legacy report renderer still writes a relative uploads/reports path.
-    # Serialize only that tiny cwd-sensitive section so simultaneous analyses
-    # cannot send reports to each other's working directories.
     with _REPORT_CWD_LOCK:
         original_cwd = Path.cwd()
         try:
@@ -74,21 +70,18 @@ def generate_html_report(project, analysis):
     if not path.is_absolute():
         path = data_dir / path
     path = path.resolve()
-
     html = path.read_text(encoding="utf-8")
 
-    html = html.replace(
-        ".brand { font-size: 30px; font-weight: 800; letter-spacing: -.02em; }",
-        ".brand { display:flex; align-items:center; gap:14px; font-size:30px; font-weight:800; letter-spacing:-.02em; }"
-        ".report-brand-mark { width:76px; height:54px; flex:0 0 auto; }"
-        ".brand-copy { display:block; }",
-    )
+    # Use the exact production electric-wing geometry, not a substitute mark.
     html = html.replace(
         '<div class="brand">🛡 Sentrix<small>PRESENTED BY HR-PRESENTS</small></div>',
-        f'<div class="brand">{ELECTRIC_SPARK_WING}<span class="brand-copy">Sentrix<small>PRESENTED BY HR-PRESENTS</small></span></div>',
+        f'<div class="brand"><div class="brand-logo">{ELECTRIC_SPARK_WING}</div><span>Sentrix<small>PRESENTED BY HR-PRESENTS</small></span></div>',
     )
 
-    health_label, health_class = _health(getattr(analysis, "overall_score", 0))
+    scorecard = scorecard_from_analysis(analysis)
+    health_label = scorecard["health_label"]
+    risk_label = scorecard["risk_level"]
+
     html = _replace_badge(
         html,
         "health",
@@ -99,10 +92,8 @@ def generate_html_report(project, analysis):
             ("High Risk", "health-danger"),
         ],
         health_label,
-        health_class,
+        _health_class(health_label),
     )
-
-    risk_label, risk_class = _security_risk(getattr(analysis, "security_count", 0))
     html = _replace_badge(
         html,
         "risk",
@@ -110,9 +101,10 @@ def generate_html_report(project, analysis):
             ("High", "risk-high"),
             ("Medium", "risk-medium"),
             ("Low", "risk-low"),
+            ("None", "risk-low"),
         ],
         risk_label,
-        risk_class,
+        _risk_class(risk_label),
     )
 
     path.write_text(html, encoding="utf-8")
