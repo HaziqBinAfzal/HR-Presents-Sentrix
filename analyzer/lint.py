@@ -1,44 +1,28 @@
+import io
 import json
-import re
-import subprocess
 
-
-SCORE_PATTERN = re.compile(
-    r"rated at ([0-9]+(?:\.[0-9]+)?)/10"
-)
+from pylint.lint import Run
+from pylint.reporters.json_reporter import JSONReporter
 
 
 def run_pylint(file_path):
-    """
-    Run Pylint on a Python file and return structured results.
-
-    Returns:
-        {
-            "score": float,
-            "issues": list,
-            "output": str
-        }
-    """
+    """Run Pylint in-process so packaged Windows builds need no external CLI."""
+    output = io.StringIO()
+    reporter = JSONReporter(output=output)
 
     try:
-        json_result = subprocess.run(
-            [
-                "pylint",
-                file_path,
-                "--output-format=json",
-            ],
-            capture_output=True,
-            text=True,
-            check=False,
+        run = Run(
+            [file_path, "--score=y"],
+            reporter=reporter,
+            exit=False,
         )
 
-        issues = []
-
         try:
-            data = json.loads(json_result.stdout or "[]")
+            data = json.loads(output.getvalue() or "[]")
         except json.JSONDecodeError:
             data = []
 
+        issues = []
         for item in data:
             issues.append(
                 {
@@ -52,37 +36,18 @@ def run_pylint(file_path):
                 }
             )
 
-        text_result = subprocess.run(
-            [
-                "pylint",
-                file_path,
-            ],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-
-        output = (
-            text_result.stdout
-            + "\n"
-            + text_result.stderr
-        ).strip()
-
-        score = 0.0
-        match = SCORE_PATTERN.search(output)
-
-        if match:
-            score = float(match.group(1))
+        stats = getattr(run.linter, "stats", None)
+        score = float(getattr(stats, "global_note", 0.0) or 0.0)
 
         return {
             "score": score,
             "issues": issues,
-            "output": output,
+            "output": output.getvalue().strip(),
         }
-
     except Exception as error:
         return {
             "score": 0.0,
-            "issues": [str(error)],
-            "output": str(error),
+            "issues": [],
+            "output": f"Pylint analyzer error: {error}",
+            "error": str(error),
         }
