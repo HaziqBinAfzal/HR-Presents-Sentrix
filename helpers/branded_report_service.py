@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from helpers.report_service import generate_html_report as _generate_html_report
@@ -20,9 +21,22 @@ ELECTRIC_SPARK_WING = """
 
 
 def generate_html_report(project, analysis):
-    """Generate the standard report, then apply the permanent Sentrix wing brand."""
-    report_path = _generate_html_report(project, analysis)
+    """Generate a report inside the writable Sentrix data directory."""
+    data_dir = Path(os.environ.get("SENTRIX_DATA_DIR", Path.cwd())).expanduser().resolve()
+    data_dir.mkdir(parents=True, exist_ok=True)
+
+    original_cwd = Path.cwd()
+    try:
+        os.chdir(data_dir)
+        report_path = _generate_html_report(project, analysis)
+    finally:
+        os.chdir(original_cwd)
+
     path = Path(report_path)
+    if not path.is_absolute():
+        path = data_dir / path
+    path = path.resolve()
+
     html = path.read_text(encoding="utf-8")
 
     html = html.replace(
@@ -37,4 +51,4 @@ def generate_html_report(project, analysis):
     )
 
     path.write_text(html, encoding="utf-8")
-    return report_path
+    return str(path)
