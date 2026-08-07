@@ -2,7 +2,9 @@ from pathlib import Path
 
 from PyInstaller.utils.hooks import collect_all, collect_submodules
 
-ROOT = Path(SPECPATH).parent.parent
+# SPECPATH is the directory that contains this .spec file (installer/).
+# Therefore the repository root is one directory above it.
+ROOT = Path(SPECPATH).parent
 
 hiddenimports = []
 datas = []
