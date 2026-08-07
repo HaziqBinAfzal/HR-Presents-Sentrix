@@ -21,6 +21,10 @@ on:
       - 'settings_models.py'
       - '.github/workflows/windows-compiled.yml'
 
+concurrency:
+  group: sentrix-windows-compiled
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -81,6 +85,12 @@ jobs:
             --output-filename=Sentrix.exe `
             --include-package=analyzer `
             --include-package=helpers `
+            --include-package=pylint `
+            --include-package=astroid `
+            --include-package=bandit `
+            --include-package=black `
+            --include-package=radon `
+            --include-distribution-metadata=bandit `
             --include-data-dir=templates=templates `
             --include-data-dir=static=static `
             --include-data-dir=migrations=migrations `
