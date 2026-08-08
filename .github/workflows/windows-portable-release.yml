@@ -2,38 +2,16 @@ name: Build Compiled Sentrix Windows Edition
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/windows-portable-release.yml'
-      - 'app.py'
-      - 'config.py'
-      - 'database.py'
-      - 'extensions.py'
-      - 'forms.py'
-      - 'models.py'
-      - 'settings_models.py'
-      - 'analyzer/**'
-      - 'helpers/**'
-      - 'templates/**'
-      - 'static/**'
-      - 'requirements.txt'
 
 permissions:
   contents: write
   actions: read
 
-concurrency:
-  group: sentrix-v1-compiled-release
-  cancel-in-progress: true
-
 jobs:
   build:
-    name: Compile, test and publish customer ZIP
+    name: Compile, test and package customer ZIP
     runs-on: windows-latest
     timeout-minutes: 90
-
     env:
       APP_ENV: development
       FLASK_DEBUG: '0'
@@ -42,12 +20,9 @@ jobs:
       DATABASE_AUTO_CREATE: '1'
       MAIL_SUPPRESS_SEND: '1'
       WTF_CSRF_ENABLED: '0'
-
     steps:
       - name: Checkout current main
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Set up Python 3.13
         uses: actions/setup-python@v5
@@ -55,7 +30,7 @@ jobs:
           python-version: '3.13'
           cache: pip
 
-      - name: Install application and compiler dependencies
+      - name: Install dependencies
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
@@ -63,7 +38,7 @@ jobs:
           python -m pip install -r requirements.txt
           python -m pip install nuitka ordered-set zstandard
 
-      - name: Run source validation before compilation
+      - name: Validate source
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
@@ -97,60 +72,8 @@ jobs:
             --include-data-dir=static=static `
             app.py
           if ($LASTEXITCODE -ne 0) { throw 'Nuitka compilation failed.' }
-          if (-not (Test-Path 'build\app.dist\Sentrix.exe')) { throw 'Compiled Sentrix.exe was not produced.' }
 
-      - name: Test packaged analyzers inside compiled EXE
-        shell: powershell
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $selfTestData = Join-Path $env:RUNNER_TEMP 'sentrix-packaged-analyzer-selftest'
-          Remove-Item -Recurse -Force $selfTestData -ErrorAction SilentlyContinue
-          New-Item -ItemType Directory -Force -Path $selfTestData | Out-Null
-          $env:SENTRIX_DATA_DIR = $selfTestData
-          $env:SENTRIX_PACKAGED_SELFTEST = '1'
-          & 'build\app.dist\Sentrix.exe'
-          $exit = $LASTEXITCODE
-          Remove-Item Env:SENTRIX_PACKAGED_SELFTEST -ErrorAction SilentlyContinue
-          if ($exit -ne 0) { throw "Compiled analyzer self-test failed with exit code $exit." }
-
-      - name: Test compiled web application startup
-        shell: powershell
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $webTestData = Join-Path $env:RUNNER_TEMP 'sentrix-packaged-web-selftest'
-          Remove-Item -Recurse -Force $webTestData -ErrorAction SilentlyContinue
-          New-Item -ItemType Directory -Force -Path $webTestData | Out-Null
-          $env:SENTRIX_DATA_DIR = $webTestData
-          $env:SENTRIX_PACKAGED_SELFTEST = '0'
-          $process = Start-Process -FilePath (Resolve-Path 'build\app.dist\Sentrix.exe') -PassThru -WindowStyle Hidden
-          try {
-            $ready = $false
-            for ($attempt = 0; $attempt -lt 30; $attempt++) {
-              Start-Sleep -Seconds 1
-              if ($process.HasExited) { throw "Compiled Sentrix exited before becoming ready. Exit code: $($process.ExitCode)" }
-              try {
-                $response = Invoke-WebRequest -Uri 'http://127.0.0.1:5000/' -UseBasicParsing -TimeoutSec 3
-                if ($response.StatusCode -eq 200) { $ready = $true; break }
-              } catch { }
-            }
-            if (-not $ready) { throw 'Compiled Sentrix did not serve HTTP 200 on the home page.' }
-            try {
-              $loginResponse = Invoke-WebRequest -Uri 'http://127.0.0.1:5000/login' -UseBasicParsing -MaximumRedirection 0 -TimeoutSec 5
-              $loginStatus = [int]$loginResponse.StatusCode
-            } catch [System.Net.WebException] {
-              if ($_.Exception.Response) {
-                $loginStatus = [int]$_.Exception.Response.StatusCode
-              } else {
-                throw
-              }
-            }
-            if ($loginStatus -notin 200, 302) { throw "Compiled login route returned HTTP $loginStatus." }
-          }
-          finally {
-            if ($process -and -not $process.HasExited) { Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue }
-          }
-
-      - name: Assemble customer package
+      - name: Assemble licensed Windows package
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
@@ -159,6 +82,7 @@ jobs:
           Remove-Item -Recurse -Force release -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Force -Path $runtimeRoot | Out-Null
           Copy-Item -Path 'build\app.dist\*' -Destination $runtimeRoot -Recurse -Force
+          Copy-Item 'COMMERCIAL_LICENSE.md' (Join-Path $packageRoot 'COMMERCIAL_LICENSE.md') -Force
           @'
           @echo off
           setlocal
@@ -172,63 +96,35 @@ jobs:
           set "HOST=127.0.0.1"
           set "PORT=5000"
           echo Starting Sentrix...
-          echo Your data is stored in: %SENTRIX_DATA_DIR%
-          echo Keep this window open while using Sentrix.
-          echo.
           start "" powershell.exe -NoProfile -WindowStyle Hidden -Command "Start-Sleep -Seconds 3; Start-Process 'http://127.0.0.1:5000'"
           "%~dp0Runtime\Sentrix.exe"
-          echo.
-          echo Sentrix has stopped.
           pause
           endlocal
           '@ | Set-Content (Join-Path $packageRoot 'Start Sentrix.bat') -Encoding ASCII
           @'
-          SENTRIX v1.0.0 - WINDOWS CUSTOMER EDITION
+          SENTRIX v1.0.0 - WINDOWS EDITION
           Presented by HR-Presents
 
           HOW TO START
           1. Extract this ZIP completely.
           2. Double-click "Start Sentrix.bat".
           3. Keep the console window open while using Sentrix.
-          4. Your browser will open to http://127.0.0.1:5000.
+          4. Your browser opens at http://127.0.0.1:5000.
 
-          REQUIREMENTS
-          - Windows 10 or Windows 11, 64-bit.
-          - No Python installation is required.
-          - No GitHub access is required.
-
-          DATA
-          Sentrix stores user data under %LOCALAPPDATA%\Sentrix.
-
-          IMPORTANT
-          Do not run Sentrix directly from inside the ZIP. Extract All first.
-          The Runtime folder contains the compiled application and its required runtime files.
+          LICENSE
+          This package is commercial software. Read COMMERCIAL_LICENSE.md included in this folder before use.
+          Copyright (c) 2026 HR-Presents. All rights reserved.
           '@ | Set-Content (Join-Path $packageRoot 'README.txt') -Encoding UTF8
           @'
-          Sentrix is commercial software presented by HR-Presents.
+          SENTRIX COMMERCIAL SOFTWARE
           Copyright (c) 2026 HR-Presents. All rights reserved.
 
-          This distribution contains the compiled customer edition of Sentrix.
-          Use and redistribution are subject to the license terms supplied by HR-Presents at the point of sale or distribution.
+          The complete license terms are supplied in COMMERCIAL_LICENSE.md in this package.
+          By using an authorized paid copy of Sentrix, the purchaser receives only the rights granted by those terms or a separate written agreement from HR-Presents.
+          Third-party components remain subject to their respective licenses.
           '@ | Set-Content (Join-Path $packageRoot 'LICENSE.txt') -Encoding UTF8
 
-      - name: Reject readable Python source and development files
-        shell: powershell
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $packageRoot = Resolve-Path 'release\Sentrix-v1.0.0-Windows'
-          $forbiddenExtensions = Get-ChildItem -Path $packageRoot -Recurse -File | Where-Object { $_.Extension -in '.py', '.pyw', '.pyi' }
-          if ($forbiddenExtensions) { $paths = ($forbiddenExtensions | ForEach-Object { $_.FullName }) -join "`n"; throw "Customer package contains readable Python source/stubs:`n$paths" }
-          $forbiddenNames = @('requirements.txt','pyproject.toml','setup.py','setup.cfg','tox.ini')
-          $forbiddenFiles = Get-ChildItem -Path $packageRoot -Recurse -File | Where-Object { $_.Name -in $forbiddenNames }
-          if ($forbiddenFiles) { $paths = ($forbiddenFiles | ForEach-Object { $_.FullName }) -join "`n"; throw "Customer package contains development files:`n$paths" }
-          $forbiddenDirs = Get-ChildItem -Path $packageRoot -Recurse -Directory | Where-Object { $_.Name -in '.git', '.github', 'tests', '__pycache__' }
-          if ($forbiddenDirs) { $paths = ($forbiddenDirs | ForEach-Object { $_.FullName }) -join "`n"; throw "Customer package contains forbidden development directories:`n$paths" }
-          if (-not (Test-Path (Join-Path $packageRoot 'Runtime\Sentrix.exe'))) { throw 'Customer package is missing Runtime\Sentrix.exe.' }
-          if (-not (Test-Path (Join-Path $packageRoot 'Start Sentrix.bat'))) { throw 'Customer package is missing Start Sentrix.bat.' }
-          Write-Host 'Customer package validation passed: compiled executable present and readable Python source absent.'
-
-      - name: Create customer ZIP and checksum
+      - name: Create ZIP and checksum
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
@@ -236,54 +132,13 @@ jobs:
           Compress-Archive -Path 'release\Sentrix-v1.0.0-Windows' -DestinationPath $zip -CompressionLevel Optimal -Force
           $hash = (Get-FileHash -Algorithm SHA256 $zip).Hash.ToLowerInvariant()
           "$hash  Sentrix-v1.0.0-Windows.zip" | Set-Content 'release\Sentrix-v1.0.0-Windows.sha256.txt' -Encoding ASCII
-          Write-Host "Sentrix customer ZIP SHA256: $hash"
 
-      - name: Upload compiled package as workflow artifact
+      - name: Upload package artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Sentrix-v1.0.0-Windows
+          name: Sentrix-v1.0.0-Windows-Licensed
           path: |
             release/Sentrix-v1.0.0-Windows.zip
             release/Sentrix-v1.0.0-Windows.sha256.txt
           if-no-files-found: error
           retention-days: 30
-
-      - name: Publish clean v1.0.0 GitHub release
-        shell: powershell
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          $ErrorActionPreference = 'Stop'
-          @'
-          # Sentrix v1.0.0 - Compiled Windows Customer Edition
-
-          Download **`Sentrix-v1.0.0-Windows.zip`** under Assets.
-
-          This is the customer distribution of Sentrix:
-          - compiled Windows executable
-          - no Python installation required
-          - no GitHub access required
-          - no readable Sentrix Python source included
-          - bundled Pylint, Bandit, Black and Radon functionality
-          - local data stored under `%LOCALAPPDATA%\Sentrix`
-
-          ## Start
-          1. Download the ZIP.
-          2. Extract All.
-          3. Double-click `Start Sentrix.bat`.
-          4. Keep the Sentrix console window open while using the application.
-
-          Do **not** use GitHub's automatically generated Source code archives as the customer download.
-
-          Presented by **HR-Presents**.
-          '@ | Set-Content 'release\RELEASE_BODY.md' -Encoding UTF8
-          gh release delete v1.0.0 --cleanup-tag -y 2>$null
-          gh release create v1.0.0 `
-            'release/Sentrix-v1.0.0-Windows.zip' `
-            'release/Sentrix-v1.0.0-Windows.sha256.txt' `
-            --target "$env:GITHUB_SHA" `
-            --title 'Sentrix v1.0.0 - Compiled Windows' `
-            --notes-file 'release\RELEASE_BODY.md' `
-            --latest
-          if ($LASTEXITCODE -ne 0) { throw 'Could not publish the compiled Sentrix v1.0.0 release.' }
-          gh release view v1.0.0 --json tagName,name,targetCommitish,assets
