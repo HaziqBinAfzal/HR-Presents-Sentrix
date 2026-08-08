@@ -1,626 +1,273 @@
 # Sentrix by HR-Presents
 
 <p align="center">
-  <img src="static/images/sentrix-electric-spark-wing.svg" alt="Sentrix Electric Wing" width="140">
+  <img src="static/images/sentrix-electric-spark-wing.svg" alt="Sentrix Electric Wing" width="150">
 </p>
 
 <p align="center">
-  <strong>Professional Python code quality, security, complexity, and reporting platform.</strong>
+  <strong>Python code quality, security, complexity analysis, and professional reporting — in one local Windows application.</strong>
 </p>
 
 <p align="center">
-  <a href="RELEASE_NOTES.md"><img src="https://img.shields.io/badge/release-v1.0.0--RC1-orange" alt="Release"></a>
-  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.11--3.13-blue" alt="Python"></a>
-  <a href="https://flask.palletsprojects.com/"><img src="https://img.shields.io/badge/Flask-3.x-black" alt="Flask"></a>
-  <a href="https://github.com/HaziqBinAfzal/HR-Presents-Sentrix/actions/workflows/ci.yml"><img src="https://github.com/HaziqBinAfzal/HR-Presents-Sentrix/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/HaziqBinAfzal/HR-Presents-Sentrix/releases/latest"><strong>⬇ Download Latest Sentrix for Windows</strong></a>
 </p>
-
-## New user? Start here
-
-You do not need previous Flask experience.
-
-Read the complete guide:
-
-### [Open the Sentrix Beginner Localhost Guide](docs/BEGINNER_LOCALHOST_GUIDE.md)
-
-It explains every step for Windows, Ubuntu/Linux, and macOS, including:
-
-- Installing and checking Git
-- Installing and checking Python
-- Downloading Sentrix
-- Selecting the correct permanent branch
-- Creating and activating a virtual environment
-- Installing dependencies
-- Creating `.env`
-- Starting localhost
-- Registering the first account
-- Uploading the first project
-- Understanding reports
-- Stopping and restarting Sentrix
-- Updating to the latest version
-- Fixing common beginner errors
-
-The permanent source-of-truth branch is:
-
-```text
-production/sentrix-permanent
-```
-
-## Five-minute Linux/macOS start
-
-```bash
-git clone https://github.com/HaziqBinAfzal/HR-Presents-Sentrix.git
-cd HR-Presents-Sentrix
-git switch production/sentrix-permanent
-python3 -m venv venv
-source venv/bin/activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-cp .env.example .env
-python app.py
-```
-
-Open in a browser:
-
-```text
-http://127.0.0.1:5000
-```
-
-## Five-minute Windows PowerShell start
-
-```powershell
-git clone https://github.com/HaziqBinAfzal/HR-Presents-Sentrix.git
-cd HR-Presents-Sentrix
-git switch production/sentrix-permanent
-py -m venv venv
-.\venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-Copy-Item .env.example .env
-python app.py
-```
-
-Open in a browser:
-
-```text
-http://127.0.0.1:5000
-```
-
-Do not type the localhost address as a PowerShell command. Paste it into Chrome, Edge, Firefox, Safari, or another browser.
-
-## Running Sentrix again after restarting the computer
-
-You only create the virtual environment and install dependencies during the first setup.
-
-### Linux/macOS
-
-```bash
-cd ~/HR-Presents-Sentrix
-source venv/bin/activate
-git switch production/sentrix-permanent
-git pull origin production/sentrix-permanent
-python app.py
-```
-
-### Windows PowerShell
-
-```powershell
-cd $HOME\HR-Presents-Sentrix
-.\venv\Scripts\Activate.ps1
-git switch production/sentrix-permanent
-git pull origin production/sentrix-permanent
-python app.py
-```
-
-Stop the local server with:
-
-```text
-Ctrl + C
-```
 
 ---
 
-## What Sentrix is
+## Download Sentrix
 
-Sentrix is a Flask-based secure software analysis platform developed and maintained by **HR-Presents**. Authenticated users can upload Python files or ZIP projects, run multiple analyzers, review project-scoped findings, track analysis history, and generate professional security assessment reports.
+**Normal users should download Sentrix from the Releases page. You do not need to clone this repository or install Python.**
 
-Sentrix is designed for:
+### Step 1 — Open the latest release
 
-- Python developers
-- Cybersecurity students
-- Software engineering students
-- Security analysts
-- DevSecOps engineers
-- Technical reviewers
-- Academic project evaluation
-- Secure code review and education
+Go to:
 
-## Core features
+**[Latest Sentrix Release](https://github.com/HaziqBinAfzal/HR-Presents-Sentrix/releases/latest)**
 
-### Accounts and workspace
+### Step 2 — Download the Windows ZIP
 
-- User registration
-- Secure login and logout
-- Password hashing
-- Session management
-- Password-reset tokens
-- User profile and settings
-- User-scoped projects, analyses, reviews, reports, and history
+Under **Assets**, download:
 
-New users can sign in immediately. Mandatory email verification is not part of the finalized workflow.
+```text
+Sentrix-v1-Windows-Portable.zip
+```
 
-### Python project analysis
+Do **not** download GitHub's automatically generated `Source code (zip)` or `Source code (tar.gz)` files unless you specifically want the source code.
 
+### Step 3 — Extract the ZIP
+
+Right-click the downloaded ZIP and choose:
+
+```text
+Extract All...
+```
+
+Extract it to a normal folder such as:
+
+```text
+Desktop\Sentrix
+```
+
+or:
+
+```text
+Documents\Sentrix
+```
+
+Do not run Sentrix directly from inside the ZIP preview.
+
+### Step 4 — Start Sentrix
+
+Open the extracted folder and double-click:
+
+```text
+Start Sentrix.bat
+```
+
+Sentrix includes its own Python 3.13 runtime and required dependencies. A separate Python installation is not required.
+
+A Sentrix console window will open, then your browser should automatically open:
+
+```text
+http://127.0.0.1:5000
+```
+
+Keep the Sentrix console window open while using the application.
+
+### Step 5 — Use Sentrix
+
+1. Open Sentrix.
+2. Register or sign in.
+3. Open **Upload**.
+4. Select a Python `.py` file or supported ZIP project.
+5. Start the analysis.
+6. Review the results.
+7. Open or download the generated report.
+8. Use **History** to return to previous analyses.
+
+---
+
+## What Sentrix Does
+
+Sentrix is a local Python project analysis platform developed by **HR-Presents**. It combines multiple analysis tools into a single browser-based workspace running locally on your Windows computer.
+
+### Included analysis
+
+- **Pylint** — code quality and linting
+- **Bandit** — Python security analysis
+- **Radon** — complexity and maintainability analysis
+- **Black** — formatting checks
 - Python syntax validation
-- Pylint code-quality analysis
-- Bandit security scanning
-- Radon complexity analysis
-- Formatting and structural inspection
-- Project metrics and metadata
-- Optional operator-configured AI recommendations
+- Project metrics and structured findings
+- Professional analysis reports
 
-Sentrix supports individual `.py` files and supported ZIP-based Python projects.
+### Core product features
 
-### Secure ZIP extraction
-
-The extraction layer protects against:
-
-- Path traversal
-- Absolute paths
-- Symlink members
-- Duplicate normalized paths
-- Nested archives
-- Excessive archive members
-- Oversized files
-- Excessive expanded size
-- Suspicious compression ratios
-
-### Dashboard and history
-
-Authenticated users can review:
-
-- Total projects
-- Total analyses
-- Generated reports
-- Recent activity
-- Analysis results
+- Python file and ZIP project upload
+- Secure project extraction
+- Code-quality scoring
+- Security findings
+- Complexity analysis
+- Formatting analysis
+- User accounts and protected analysis history
 - Downloadable reports
-- Project and analysis history
-
-Ownership checks prevent users from opening another user’s projects, results, or reports through direct URLs.
-
-### Professional reports
-
-Sentrix creates self-contained branded HTML reports suitable for browser review, printing, and saving as PDF.
-
-The report includes:
-
-- Executive summary
-- Project profile
-- Analysis methodology
-- Code-quality findings
-- Static security findings
-- Complexity and maintainability information
-- Raw scanner evidence
-- Root-cause explanations
-- Business and technical impact
-- Severity interpretation
-- Remediation and prevention guidance
-- Project-specific standards mapping
-- Project-specific security-control mapping
-
-When the scanner provides a source location, the report can show the related file, line, or scanner rule. When evidence is missing, Sentrix does not invent a location.
-
-### Standards represented in reports
-
-Technical mappings may reference:
-
-- OWASP Top 10
-- OWASP ASVS
-- CWE Top 25
-- MITRE CAPEC and ATT&CK where applicable
-- NIST SSDF
-- NIST Cybersecurity Framework
-- NIST SP 800-53
-- CIS guidance
-- SANS secure coding practices
-- CERT secure coding standards
-- PCI DSS where applicable
-- ISO/IEC 27001 and ISO/IEC 27002
-- SOC 2 security principles
-- GDPR security requirements where applicable
-- HIPAA security requirements where applicable
-
-These mappings are technical guidance. They are not certification, legal advice, or proof of compliance.
-
-### Top security controls
-
-1. Secure authentication
-2. Authorization and access control
-3. Input validation
-4. Output encoding
-5. Cryptography
-6. Secrets management
-7. Logging and monitoring
-8. Secure configuration management
-9. Dependency and supply-chain security
-10. Secure error handling
-
-### Light and dark mode
-
-The navigation bar includes a persistent day/night toggle. The selected theme is saved in the browser and remains active across pages and future visits.
+- Local operation at `127.0.0.1`
+- Bundled Windows Python runtime
 
 ---
 
-## Basic user walkthrough
+## Windows Requirements
 
-1. Start Sentrix with `python app.py`.
-2. Open `http://127.0.0.1:5000` in a browser.
-3. Select **Get Started** or **Register**.
-4. Create an account.
-5. Sign in.
-6. Open **Upload**.
-7. Select a `.py` file or supported ZIP project.
-8. Start the analysis.
-9. Review the Results page.
-10. Open or download the professional report.
-11. Use **Print / PDF** to save a PDF through the browser.
-12. Open **History** later to review previous analyses.
+For the portable Windows release you need:
 
-For detailed explanations, read the [User Guide](docs/USER_GUIDE.md).
+- Windows 10 or Windows 11, 64-bit
+- Enough free disk space for the extracted application and analysis data
+- A modern browser such as Microsoft Edge, Google Chrome, or Firefox
 
----
+You do **not** need:
 
-## Requirements
-
-Recommended local environment:
-
-- Python 3.11, 3.12, or 3.13
+- Python installed separately
 - Git
-- `pip`
-- A Python virtual environment
-- Internet access during dependency installation
-- SQLite for normal local development
+- Visual Studio
+- Docker
+- Command-line setup
+- A virtual environment
 
-Python 3.14 is not the documented support baseline.
+---
 
-## Environment setup
+## Where Sentrix Stores User Data
 
-Copy `.env.example` to `.env`.
+Sentrix keeps runtime/user data in the Windows local application-data area rather than inside the application package.
 
-Linux/macOS:
+Typical location:
 
-```bash
-cp .env.example .env
+```text
+%LOCALAPPDATA%\Sentrix
 ```
 
-Windows PowerShell:
+This helps keep generated data separate from the portable application files.
+
+Treat uploaded source projects and generated reports as sensitive if they contain private code or security findings.
+
+---
+
+## Troubleshooting
+
+### Windows warns about the downloaded file
+
+Because Sentrix is distributed as a downloaded application package, Windows or your browser may display a security prompt for an unfamiliar download.
+
+Only run Sentrix if you downloaded it from the official **HR-Presents Sentrix GitHub Releases** page.
+
+### `Start Sentrix.bat` does not start
+
+Make sure you extracted the ZIP completely first. Do not launch it while browsing the ZIP archive itself.
+
+### Port 5000 is already in use
+
+Close any older Sentrix console window and start Sentrix again.
+
+If another application is using port 5000, close that application before launching Sentrix.
+
+### Browser does not open automatically
+
+With the Sentrix console still running, open this address manually in your browser:
+
+```text
+http://127.0.0.1:5000
+```
+
+### Sentrix closes immediately
+
+Run `Start Sentrix.bat` again and read the message shown in the console window. When reporting a problem, include the exact error text or a screenshot.
+
+---
+
+## Verify Your Download
+
+Official releases may include a SHA-256 checksum file next to the ZIP.
+
+On Windows PowerShell you can verify the downloaded ZIP with:
 
 ```powershell
-Copy-Item .env.example .env
+Get-FileHash .\Sentrix-v1-Windows-Portable.zip -Algorithm SHA256
 ```
 
-Important configuration areas include:
+Compare the result with the SHA-256 value published with the release.
 
-- Application environment
-- `SECRET_KEY`
-- Database URL
-- Automatic local table creation
-- Upload-size limits
-- SMTP host and credentials
-- Password-reset expiry
-- Secure cookie settings
-- Security headers
-- Optional AI-provider configuration
+---
 
-Never commit `.env`, passwords, API keys, SMTP credentials, private keys, database credentials, or generated user data.
+## Important Download Note
 
-## Compile and test
-
-Activate the virtual environment, then run:
-
-```bash
-python -m compileall -q app.py analyzer helpers forms.py models.py config.py tests
-python -m unittest discover -s tests -v
-```
-
-Focused tests:
-
-```bash
-python -m unittest tests.test_extractor_security -v
-python -m unittest tests.test_report_content_enrichment -v
-python -m unittest tests.test_report_project_mapping -v
-```
-
-A successful unittest run ends with:
+GitHub automatically shows two additional files on every tagged release:
 
 ```text
-OK
+Source code (zip)
+Source code (tar.gz)
 ```
 
-## Updating to the latest permanent version
+Those are GitHub-generated source archives. They are **not the normal Windows customer download**.
 
-Stop Sentrix with `Ctrl + C`, then run:
-
-```bash
-git switch production/sentrix-permanent
-git pull origin production/sentrix-permanent
-pip install -r requirements.txt
-python -m compileall -q app.py analyzer helpers forms.py models.py config.py tests
-python app.py
-```
-
-To make a local checkout exactly match the remote branch, the following commands are available, but they permanently discard uncommitted and untracked local work:
-
-```bash
-git fetch --all --prune
-git switch production/sentrix-permanent
-git reset --hard origin/production/sentrix-permanent
-git clean -fd
-```
-
-Back up important files before using the destructive reset.
-
----
-
-## Repository structure
+For normal Windows use, download:
 
 ```text
-.
-├── app.py                         # Flask application entry point
-├── config.py                      # Environment-based configuration
-├── database.py                    # Database compatibility export
-├── extensions.py                  # Flask extension instances
-├── forms.py                       # Web forms
-├── models.py                      # SQLAlchemy models
-├── requirements.txt               # Python dependencies
-├── analyzer/
-│   ├── ai.py                      # Optional AI support
-│   ├── complexity.py              # Radon integration
-│   ├── extractor.py               # Secure archive extraction
-│   ├── formatter.py               # Formatting checks
-│   ├── lint.py                    # Pylint integration
-│   ├── security.py                # Bandit integration
-│   ├── syntax.py                  # Python syntax checks
-│   └── routes/                    # Flask blueprints and routes
-├── helpers/
-│   ├── report_enrichment.py       # Detailed report explanations
-│   ├── report_project_mapping.py  # Evidence-aware standards mapping
-│   └── report_service.py          # Report generation
-├── templates/                     # HTML/Jinja pages
-├── static/
-│   ├── css/                       # Website styles
-│   ├── images/                    # Sentrix branding assets
-│   └── js/                        # Browser scripts
-├── migrations/                    # Database migrations
-├── tests/                         # Automated tests
-├── docs/                          # User, installation, and technical guides
-├── deploy/nginx/                  # Nginx deployment example
-├── .github/workflows/ci.yml       # GitHub Actions validation
-├── Dockerfile
-├── docker-compose.yml
-├── gunicorn.conf.py
-├── CHANGELOG.md
-├── RELEASE_NOTES.md
-├── ROADMAP.md
-├── SECURITY.md
-├── CONTRIBUTING.md
-└── CODE_OF_CONDUCT.md
+Sentrix-v1-Windows-Portable.zip
 ```
 
 ---
 
-## Technology stack
+## Security and Privacy
 
-- Python
-- Flask
-- Flask-SQLAlchemy
-- Flask-Login
-- Flask-WTF
-- Flask-Mail
-- SQLAlchemy
-- Alembic / Flask-Migrate
-- Pylint
-- Bandit
-- Radon
-- Bootstrap 5
-- Font Awesome
-- Chart.js
-- Gunicorn
-- Nginx
-- Docker and Docker Compose
-- GitHub Actions
+Sentrix is designed to run locally. Static-analysis results should still be reviewed by a human: a clean scan does not guarantee that a project contains no vulnerabilities, and a scanner finding does not automatically prove exploitability.
 
-## Docker
+The secure ZIP extraction layer includes protections against unsafe archive behavior such as path traversal, nested archives, duplicate normalized paths, excessive archive expansion, oversized members, and suspicious compression ratios.
 
-After reviewing and creating `.env`:
+Never commit or publicly share private `.env` files, API keys, passwords, SMTP credentials, databases, uploaded customer projects, or generated reports containing sensitive source information.
 
-```bash
-docker compose up --build
-```
-
-The included deployment assets are examples. Review storage, database, domains, HTTPS, permissions, health checks, and reverse-proxy settings before production use.
-
-## Production deployment
-
-Do not expose the Flask development server directly to the public internet.
-
-A production deployment should include:
-
-- Gunicorn or another supported WSGI server
-- Nginx or an equivalent reverse proxy
-- HTTPS
-- Strong environment-managed secrets
-- Secure cookies
-- Migration-managed database changes
-- Durable upload and report storage
-- Centralized logs
-- Monitoring and alerts
-- Backup and restore procedures
-- Request controls or rate limiting
-
-Read [Deployment Guide](docs/DEPLOYMENT.md).
-
-## Security notes
-
-Sentrix uses layered protections including:
-
-- Password hashing
-- CSRF-protected forms
-- Signed password-reset tokens
-- Generic reset responses to reduce account enumeration
-- Authenticated routes
-- Owner-scoped project and report access
-- Secure archive extraction
-- Upload limits
-- Environment-based secrets
-- Security response headers
-- Production cookie and HSTS options
-- Escaping of project-derived report content
-
-Static-analysis output requires human review. A clean scan does not prove a project is vulnerability-free, and a scanner finding does not automatically prove exploitability.
-
-Read [SECURITY.md](SECURITY.md) before reporting a vulnerability.
-
-## Generated and sensitive data
-
-The following should not be committed:
-
-- `.env`
-- Local databases
-- Uploaded projects
-- Generated reports
-- Corrected files
-- Logs
-- Caches
-- Virtual environments
-- Credentials and secret keys
-
-Reports may contain project names, source locations, evidence, code excerpts, and security findings. Treat them as sensitive when analyzing private projects.
+See [SECURITY.md](SECURITY.md) for the project security policy.
 
 ---
 
-## Documentation index
+## For Developers
 
-### Beginner and user documentation
+The downloadable Windows ZIP is intended for customers and normal users.
 
-- [Complete Beginner Localhost Guide](docs/BEGINNER_LOCALHOST_GUIDE.md)
-- [Installation Guide](docs/INSTALLATION.md)
-- [User Guide](docs/USER_GUIDE.md)
-- [Troubleshooting Guide](docs/TROUBLESHOOTING.md)
-- [Frequently Asked Questions](docs/FAQ.md)
+Developers who want to inspect or contribute to the source can use this repository directly. The application is built with Python, Flask, SQLAlchemy, Pylint, Bandit, Radon, Black, Bootstrap, and related tooling.
 
-### Technical and operational documentation
+Developer documentation is available under [`docs/`](docs/).
 
-- [Architecture](docs/ARCHITECTURE.md)
-- [Developer Guide](docs/DEVELOPER_GUIDE.md)
-- [Administrator Guide](docs/ADMIN_GUIDE.md)
-- [Deployment Guide](docs/DEPLOYMENT.md)
-- [Security Guide](docs/SECURITY.md)
-- [API and Route Guide](docs/API.md)
-- [Release Checklist](docs/RELEASE_CHECKLIST.md)
-
-### Project documents
+Useful project documents:
 
 - [Release Notes](RELEASE_NOTES.md)
 - [Changelog](CHANGELOG.md)
-- [Roadmap](ROADMAP.md)
 - [Security Policy](SECURITY.md)
 - [Contributing](CONTRIBUTING.md)
-- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Roadmap](ROADMAP.md)
+
+Automated validation is handled through GitHub Actions in `.github/workflows/`.
 
 ---
 
-## Common first-run fixes
+## HR-Presents
 
-### `No module named flask`
-
-Activate the virtual environment, then run:
-
-```bash
-pip install -r requirements.txt
-```
-
-### Port 5000 is already being used
-
-Linux/macOS:
-
-```bash
-lsof -ti :5000 | xargs -r kill -9
-python app.py
-```
-
-Windows:
-
-```powershell
-netstat -ano | findstr :5000
-taskkill /PID YOUR_PID /F
-python app.py
-```
-
-### PowerShell blocks activation
-
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.\venv\Scripts\Activate.ps1
-```
-
-### The browser shows an old version
-
-1. Confirm the branch with `git branch --show-current`.
-2. Pull the permanent branch.
-3. Restart `python app.py`.
-4. Hard-refresh the browser with `Ctrl + Shift + R`.
-
-For more solutions, read [Troubleshooting Guide](docs/TROUBLESHOOTING.md).
-
----
-
-## Branding
-
-The permanent identity is:
-
-```text
-Sentrix
-Presented by HR-Presents
-```
-
-The Electric Wing SVG in `static/images/` is the primary scalable brand asset.
-
-## Developers
-
-### Ruveeha Ashfaq
-
-- GitHub: `ruveeha33`
-- LinkedIn: `ruveeha-ashfaq-632b15378`
+**Sentrix** is developed and presented by **HR-Presents**.
 
 ### Haziq Afzal
 
-- GitHub: `HaziqBinAfzal`
-- LinkedIn: `haziq-afzal-010b6636a`
+- GitHub: [HaziqBinAfzal](https://github.com/HaziqBinAfzal)
+- LinkedIn: [haziq-afzal-010b6636a](https://www.linkedin.com/in/haziq-afzal-010b6636a/)
 
-## Contributing
+### Ruveeha Ashfaq
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md). Changes should preserve:
+- GitHub: [ruveeha33](https://github.com/ruveeha33)
+- LinkedIn: [ruveeha-ashfaq-632b15378](https://www.linkedin.com/in/ruveeha-ashfaq-632b15378/)
 
-- Sentrix branding
-- Existing website structure and functionality
-- User ownership boundaries
-- Secure extraction controls
-- Environment-based configuration
-- Migration compatibility
-- Automated tests
-- Light and dark mode readability
-- The finalized professional report structure
+---
 
-## License
+## Official Release
 
-No license should be assumed unless a license file is explicitly added. All rights remain with the repository owners and HR-Presents unless stated otherwise.
+The official customer download is always published through GitHub Releases:
 
-## Current source of truth
+### **[Download the Latest Sentrix Release](https://github.com/HaziqBinAfzal/HR-Presents-Sentrix/releases/latest)**
 
-```text
-production/sentrix-permanent
-```
-
-This branch contains the finalized working Sentrix application and its maintained documentation.
+If this repository is transferred to another official HR-Presents GitHub account, GitHub repository redirects should continue directing existing repository links to the transferred repository.
