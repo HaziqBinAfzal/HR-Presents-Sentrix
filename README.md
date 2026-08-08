@@ -9,66 +9,100 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/HR-Presents/HR-Presents-Sentrix/releases/latest"><strong>⬇ Download Latest Sentrix for Windows</strong></a>
+  <strong>✅ Sentrix v1.0.0 FINAL — Official Windows Customer Release</strong>
+</p>
+
+<p align="center">
+  <a href="https://github.com/HR-Presents/HR-Presents-Sentrix/releases/latest"><strong>⬇ Download Sentrix v1.0.0 for Windows</strong></a>
 </p>
 
 ---
 
-## Download Sentrix
+## Final Windows Release
 
-**Normal users should download the compiled Windows customer edition from Releases. You do not need to clone this repository, install Python, or have GitHub installed.**
+**Sentrix v1.0.0 is the final official Windows customer release.** Normal users should download the compiled package from GitHub Releases. You do not need to clone this repository, install Python, install Git, or have GitHub installed.
 
-### Step 1 — Open the latest release
+### Official download
 
-**[Latest Sentrix Release](https://github.com/HR-Presents/HR-Presents-Sentrix/releases/latest)**
+Open the official release:
 
-### Step 2 — Download the customer ZIP
+**[Sentrix v1.0.0 — Compiled Windows Customer Edition](https://github.com/HR-Presents/HR-Presents-Sentrix/releases/tag/v1.0.0)**
 
-Under **Assets**, download:
+Under **Assets**, download exactly:
 
 ```text
 Sentrix-v1.0.0-Windows.zip
 ```
 
-Do **not** download GitHub's automatically generated `Source code (zip)` or `Source code (tar.gz)` files for normal customer use.
+Do **not** download GitHub's automatically generated `Source code (zip)` or `Source code (tar.gz)` archives for normal customer use.
 
-### Step 3 — Extract the ZIP
+### Start Sentrix
 
-Right-click the downloaded ZIP, choose **Extract All...**, and extract it to a normal folder such as:
-
-```text
-Desktop\Sentrix
-```
-
-Do not run Sentrix directly from inside the ZIP preview.
-
-### Step 4 — Start Sentrix
-
-Open the extracted folder and double-click:
+1. Download `Sentrix-v1.0.0-Windows.zip`.
+2. Right-click it and choose **Extract All...**.
+3. Open the extracted `Sentrix-v1.0.0-Windows` folder.
+4. Double-click:
 
 ```text
 Start Sentrix.bat
 ```
 
-The customer edition contains a compiled `Sentrix.exe` and its required runtime dependencies. **A separate Python installation is not required.**
-
-A Sentrix console window will open, then your browser should automatically open:
+5. Keep the Sentrix console window open while using the application.
+6. Your browser should open automatically at:
 
 ```text
 http://127.0.0.1:5000
 ```
 
-Keep the Sentrix console window open while using the application.
+The package contains the compiled application at:
 
-### Step 5 — Use Sentrix
+```text
+Runtime\Sentrix.exe
+```
 
-1. Register or sign in.
-2. Open **Upload**.
-3. Select a Python `.py` file or supported ZIP project.
-4. Start the analysis.
-5. Review code-quality, security, complexity, and formatting results.
-6. Open or download the generated report.
-7. Use **History** to return to previous analyses.
+A separate Python installation is **not required**.
+
+---
+
+## Official Package Layout
+
+```text
+Sentrix-v1.0.0-Windows/
+├── Start Sentrix.bat
+├── README.txt
+├── LICENSE.txt
+└── Runtime/
+    ├── Sentrix.exe
+    ├── static/
+    │   └── Sentrix Electric Wing branding assets
+    └── compiled/runtime dependencies
+```
+
+The official customer package is compiled with Nuitka and intentionally excludes readable Sentrix project source files and development files such as project `.py` source, tests, `.git`, `.github`, and `requirements.txt`.
+
+---
+
+## Verify the Final Download
+
+The official release also provides:
+
+```text
+Sentrix-v1.0.0-Windows.sha256.txt
+```
+
+Official final ZIP SHA-256:
+
+```text
+224d3c7cc161f5fce787931fc20aaaaacb9776be865e65769728ea09dd1ed4b0
+```
+
+Verify it in Windows PowerShell with:
+
+```powershell
+Get-FileHash .\Sentrix-v1.0.0-Windows.zip -Algorithm SHA256
+```
+
+The result must match the official checksum above.
 
 ---
 
@@ -95,30 +129,10 @@ Sentrix is a local Python project analysis platform developed by **HR-Presents**
 - Complexity analysis
 - Formatting analysis
 - User accounts and protected analysis history
-- Downloadable reports
+- Downloadable professional reports
 - Local operation at `127.0.0.1`
 - Compiled Windows customer distribution
 - Pylint, Bandit, Black, and Radon functionality bundled with the compiled application
-
----
-
-## Customer Edition
-
-The official Windows customer package is built with Nuitka and distributed as:
-
-```text
-Sentrix-v1.0.0-Windows/
-├── Start Sentrix.bat
-├── README.txt
-├── LICENSE.txt
-└── Runtime/
-    ├── Sentrix.exe
-    └── compiled/runtime dependencies
-```
-
-The release workflow explicitly rejects readable Sentrix Python source and development files from the customer package. Files such as project `.py` source, `requirements.txt`, tests, `.git`, and `.github` are not intended to be included in the customer ZIP.
-
-Compilation prevents customers from simply opening the distributed application as normal Python source. Like other compiled software, it should not be treated as absolute protection against expert reverse engineering.
 
 ---
 
@@ -142,37 +156,13 @@ You do **not** need:
 
 ## Where Sentrix Stores User Data
 
-Sentrix stores runtime/user data separately from the application package at:
+Sentrix stores runtime and user data separately from the application package at:
 
 ```text
 %LOCALAPPDATA%\Sentrix
 ```
 
-Treat uploaded source projects and generated reports as sensitive if they contain private code or security findings.
-
----
-
-## Verify Your Download
-
-The official v1.0.0 release includes:
-
-```text
-Sentrix-v1.0.0-Windows.sha256.txt
-```
-
-You can verify the ZIP in Windows PowerShell with:
-
-```powershell
-Get-FileHash .\Sentrix-v1.0.0-Windows.zip -Algorithm SHA256
-```
-
-Official v1.0.0 customer ZIP SHA-256:
-
-```text
-224d3c7cc161f5fce787931fc20aaaaacb9776be865e65769728ea09dd1ed4b0
-```
-
-Compare the calculated value with the checksum file published beside the release asset.
+Treat uploaded projects and generated reports as sensitive if they contain private code or security findings.
 
 ---
 
@@ -180,15 +170,15 @@ Compare the calculated value with the checksum file published beside the release
 
 ### Windows warns about the downloaded file
 
-Because Sentrix is distributed as a downloaded application package, Windows or your browser may display a security prompt for an unfamiliar download. Only run Sentrix if you downloaded it from the official **HR-Presents Sentrix GitHub Releases** page.
+Windows or your browser may display a security prompt for an unfamiliar downloaded application. Only run Sentrix if you downloaded it from the official **HR-Presents Sentrix GitHub Release**.
 
 ### `Start Sentrix.bat` does not start
 
-Make sure you extracted the ZIP completely first. Do not launch it while browsing the ZIP archive itself.
+Make sure you extracted the ZIP completely first. Do not run Sentrix from inside the ZIP preview.
 
 ### Port 5000 is already in use
 
-Close any older Sentrix console window and start Sentrix again. If another application is using port 5000, close that application first.
+Close any older Sentrix console window and start Sentrix again. If another program is using port 5000, close it first.
 
 ### Browser does not open automatically
 
@@ -200,7 +190,7 @@ http://127.0.0.1:5000
 
 ### Sentrix closes immediately
 
-Run `Start Sentrix.bat` again and read the console message. When reporting a problem, include the exact error text or a screenshot.
+Run `Start Sentrix.bat` again and read the console message. Include the exact error text or a screenshot when reporting a problem.
 
 ---
 
@@ -218,7 +208,13 @@ See [SECURITY.md](SECURITY.md) for the project security policy.
 
 ## For Developers
 
-The downloadable Windows ZIP is intended for customers and normal users. Developers who want to inspect or contribute to the source can use this repository directly.
+The downloadable Windows ZIP is the **customer edition**. Developers who want the full source code and project documentation should use this repository directly.
+
+The official source-of-truth branch for Sentrix v1.0.0 and future development is:
+
+```text
+main
+```
 
 Developer documentation is available under [`docs/`](docs/).
 
@@ -250,10 +246,8 @@ Automated validation and the compiled Windows release are handled through GitHub
 
 ---
 
-## Official Release
+## Official Final Release
 
-The official customer download is published through **HR-Presents** GitHub Releases:
+### **[Download Sentrix v1.0.0 for Windows](https://github.com/HR-Presents/HR-Presents-Sentrix/releases/tag/v1.0.0)**
 
-### **[Download the Latest Sentrix Release](https://github.com/HR-Presents/HR-Presents-Sentrix/releases/latest)**
-
-For Windows customers, choose **`Sentrix-v1.0.0-Windows.zip`** under **Assets**. Do not use GitHub's automatically generated source-code archives as the customer package.
+For Windows customers, choose **`Sentrix-v1.0.0-Windows.zip`** under **Assets**. This is the final compiled customer package.
