@@ -75,7 +75,6 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           Remove-Item -Recurse -Force build -ErrorAction SilentlyContinue
-
           python -m nuitka `
             --mode=standalone `
             --assume-yes-for-downloads `
@@ -98,10 +97,7 @@ jobs:
             --include-data-dir=static=static `
             app.py
           if ($LASTEXITCODE -ne 0) { throw 'Nuitka compilation failed.' }
-
-          if (-not (Test-Path 'build\app.dist\Sentrix.exe')) {
-            throw 'Compiled Sentrix.exe was not produced.'
-          }
+          if (-not (Test-Path 'build\app.dist\Sentrix.exe')) { throw 'Compiled Sentrix.exe was not produced.' }
 
       - name: Test packaged analyzers inside compiled EXE
         shell: powershell
@@ -110,7 +106,6 @@ jobs:
           $selfTestData = Join-Path $env:RUNNER_TEMP 'sentrix-packaged-analyzer-selftest'
           Remove-Item -Recurse -Force $selfTestData -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Force -Path $selfTestData | Out-Null
-
           $env:SENTRIX_DATA_DIR = $selfTestData
           $env:SENTRIX_PACKAGED_SELFTEST = '1'
           & 'build\app.dist\Sentrix.exe'
@@ -125,39 +120,34 @@ jobs:
           $webTestData = Join-Path $env:RUNNER_TEMP 'sentrix-packaged-web-selftest'
           Remove-Item -Recurse -Force $webTestData -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Force -Path $webTestData | Out-Null
-
           $env:SENTRIX_DATA_DIR = $webTestData
           $env:SENTRIX_PACKAGED_SELFTEST = '0'
           $process = Start-Process -FilePath (Resolve-Path 'build\app.dist\Sentrix.exe') -PassThru -WindowStyle Hidden
-
           try {
             $ready = $false
             for ($attempt = 0; $attempt -lt 30; $attempt++) {
               Start-Sleep -Seconds 1
-              if ($process.HasExited) {
-                throw "Compiled Sentrix exited before becoming ready. Exit code: $($process.ExitCode)"
-              }
+              if ($process.HasExited) { throw "Compiled Sentrix exited before becoming ready. Exit code: $($process.ExitCode)" }
               try {
                 $response = Invoke-WebRequest -Uri 'http://127.0.0.1:5000/' -UseBasicParsing -TimeoutSec 3
-                if ($response.StatusCode -eq 200) {
-                  $ready = $true
-                  break
-                }
-              } catch {
-                # Server may still be starting.
-              }
+                if ($response.StatusCode -eq 200) { $ready = $true; break }
+              } catch { }
             }
             if (-not $ready) { throw 'Compiled Sentrix did not serve HTTP 200 on the home page.' }
-
-            $loginResponse = Invoke-WebRequest -Uri 'http://127.0.0.1:5000/login' -UseBasicParsing -MaximumRedirection 0 -SkipHttpErrorCheck -TimeoutSec 5
-            if ($loginResponse.StatusCode -notin 200, 302) {
-              throw "Compiled login route returned HTTP $($loginResponse.StatusCode)."
+            try {
+              $loginResponse = Invoke-WebRequest -Uri 'http://127.0.0.1:5000/login' -UseBasicParsing -MaximumRedirection 0 -TimeoutSec 5
+              $loginStatus = [int]$loginResponse.StatusCode
+            } catch [System.Net.WebException] {
+              if ($_.Exception.Response) {
+                $loginStatus = [int]$_.Exception.Response.StatusCode
+              } else {
+                throw
+              }
             }
+            if ($loginStatus -notin 200, 302) { throw "Compiled login route returned HTTP $loginStatus." }
           }
           finally {
-            if ($process -and -not $process.HasExited) {
-              Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
-            }
+            if ($process -and -not $process.HasExited) { Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue }
           }
 
       - name: Assemble customer package
@@ -168,15 +158,12 @@ jobs:
           $runtimeRoot = Join-Path $packageRoot 'Runtime'
           Remove-Item -Recurse -Force release -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Force -Path $runtimeRoot | Out-Null
-
           Copy-Item -Path 'build\app.dist\*' -Destination $runtimeRoot -Recurse -Force
-
           @'
           @echo off
           setlocal
           title Sentrix
           cd /d "%~dp0"
-
           if not exist "%LOCALAPPDATA%\Sentrix" mkdir "%LOCALAPPDATA%\Sentrix"
           set "SENTRIX_DATA_DIR=%LOCALAPPDATA%\Sentrix"
           set "APP_ENV=development"
@@ -184,21 +171,17 @@ jobs:
           set "FLASK_DEBUG=0"
           set "HOST=127.0.0.1"
           set "PORT=5000"
-
           echo Starting Sentrix...
           echo Your data is stored in: %SENTRIX_DATA_DIR%
           echo Keep this window open while using Sentrix.
           echo.
-
           start "" powershell.exe -NoProfile -WindowStyle Hidden -Command "Start-Sleep -Seconds 3; Start-Process 'http://127.0.0.1:5000'"
           "%~dp0Runtime\Sentrix.exe"
-
           echo.
           echo Sentrix has stopped.
           pause
           endlocal
           '@ | Set-Content (Join-Path $packageRoot 'Start Sentrix.bat') -Encoding ASCII
-
           @'
           SENTRIX v1.0.0 - WINDOWS CUSTOMER EDITION
           Presented by HR-Presents
@@ -221,7 +204,6 @@ jobs:
           Do not run Sentrix directly from inside the ZIP. Extract All first.
           The Runtime folder contains the compiled application and its required runtime files.
           '@ | Set-Content (Join-Path $packageRoot 'README.txt') -Encoding UTF8
-
           @'
           Sentrix is commercial software presented by HR-Presents.
           Copyright (c) 2026 HR-Presents. All rights reserved.
@@ -235,45 +217,15 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $packageRoot = Resolve-Path 'release\Sentrix-v1.0.0-Windows'
-
-          $forbiddenExtensions = Get-ChildItem -Path $packageRoot -Recurse -File | Where-Object {
-            $_.Extension -in '.py', '.pyw', '.pyi'
-          }
-          if ($forbiddenExtensions) {
-            $paths = ($forbiddenExtensions | ForEach-Object { $_.FullName }) -join "`n"
-            throw "Customer package contains readable Python source/stubs:`n$paths"
-          }
-
-          $forbiddenNames = @(
-            'requirements.txt',
-            'pyproject.toml',
-            'setup.py',
-            'setup.cfg',
-            'tox.ini'
-          )
-          $forbiddenFiles = Get-ChildItem -Path $packageRoot -Recurse -File | Where-Object {
-            $_.Name -in $forbiddenNames
-          }
-          if ($forbiddenFiles) {
-            $paths = ($forbiddenFiles | ForEach-Object { $_.FullName }) -join "`n"
-            throw "Customer package contains development files:`n$paths"
-          }
-
-          $forbiddenDirs = Get-ChildItem -Path $packageRoot -Recurse -Directory | Where-Object {
-            $_.Name -in '.git', '.github', 'tests', '__pycache__'
-          }
-          if ($forbiddenDirs) {
-            $paths = ($forbiddenDirs | ForEach-Object { $_.FullName }) -join "`n"
-            throw "Customer package contains forbidden development directories:`n$paths"
-          }
-
-          if (-not (Test-Path (Join-Path $packageRoot 'Runtime\Sentrix.exe'))) {
-            throw 'Customer package is missing Runtime\Sentrix.exe.'
-          }
-          if (-not (Test-Path (Join-Path $packageRoot 'Start Sentrix.bat'))) {
-            throw 'Customer package is missing Start Sentrix.bat.'
-          }
-
+          $forbiddenExtensions = Get-ChildItem -Path $packageRoot -Recurse -File | Where-Object { $_.Extension -in '.py', '.pyw', '.pyi' }
+          if ($forbiddenExtensions) { $paths = ($forbiddenExtensions | ForEach-Object { $_.FullName }) -join "`n"; throw "Customer package contains readable Python source/stubs:`n$paths" }
+          $forbiddenNames = @('requirements.txt','pyproject.toml','setup.py','setup.cfg','tox.ini')
+          $forbiddenFiles = Get-ChildItem -Path $packageRoot -Recurse -File | Where-Object { $_.Name -in $forbiddenNames }
+          if ($forbiddenFiles) { $paths = ($forbiddenFiles | ForEach-Object { $_.FullName }) -join "`n"; throw "Customer package contains development files:`n$paths" }
+          $forbiddenDirs = Get-ChildItem -Path $packageRoot -Recurse -Directory | Where-Object { $_.Name -in '.git', '.github', 'tests', '__pycache__' }
+          if ($forbiddenDirs) { $paths = ($forbiddenDirs | ForEach-Object { $_.FullName }) -join "`n"; throw "Customer package contains forbidden development directories:`n$paths" }
+          if (-not (Test-Path (Join-Path $packageRoot 'Runtime\Sentrix.exe'))) { throw 'Customer package is missing Runtime\Sentrix.exe.' }
+          if (-not (Test-Path (Join-Path $packageRoot 'Start Sentrix.bat'))) { throw 'Customer package is missing Start Sentrix.bat.' }
           Write-Host 'Customer package validation passed: compiled executable present and readable Python source absent.'
 
       - name: Create customer ZIP and checksum
@@ -282,7 +234,6 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $zip = 'release\Sentrix-v1.0.0-Windows.zip'
           Compress-Archive -Path 'release\Sentrix-v1.0.0-Windows' -DestinationPath $zip -CompressionLevel Optimal -Force
-
           $hash = (Get-FileHash -Algorithm SHA256 $zip).Hash.ToLowerInvariant()
           "$hash  Sentrix-v1.0.0-Windows.zip" | Set-Content 'release\Sentrix-v1.0.0-Windows.sha256.txt' -Encoding ASCII
           Write-Host "Sentrix customer ZIP SHA256: $hash"
@@ -303,7 +254,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference = 'Stop'
-
           @'
           # Sentrix v1.0.0 - Compiled Windows Customer Edition
 
@@ -327,7 +277,6 @@ jobs:
 
           Presented by **HR-Presents**.
           '@ | Set-Content 'release\RELEASE_BODY.md' -Encoding UTF8
-
           gh release delete v1.0.0 --cleanup-tag -y 2>$null
           gh release create v1.0.0 `
             'release/Sentrix-v1.0.0-Windows.zip' `
@@ -336,6 +285,5 @@ jobs:
             --title 'Sentrix v1.0.0 - Compiled Windows' `
             --notes-file 'release\RELEASE_BODY.md' `
             --latest
-
           if ($LASTEXITCODE -ne 0) { throw 'Could not publish the compiled Sentrix v1.0.0 release.' }
           gh release view v1.0.0 --json tagName,name,targetCommitish,assets
