@@ -41,17 +41,27 @@ jobs:
             $artifactUrl -o artifact.zip
           if ($LASTEXITCODE -ne 0 -or -not (Test-Path artifact.zip)) { throw 'Could not download the validated portable artifact.' }
 
-          Expand-Archive -LiteralPath artifact.zip -DestinationPath artifact -Force
-          $sourceZip = Get-ChildItem artifact -Recurse -File -Filter 'Sentrix-v1-Windows-Portable.zip' | Select-Object -First 1
-          if (-not $sourceZip) { throw 'Validated portable ZIP was not found inside the Actions artifact.' }
-          Copy-Item -LiteralPath $sourceZip.FullName -Destination 'release\Sentrix-v1-Windows-Portable.zip' -Force
+          @'
+          from pathlib import Path
+          from zipfile import ZipFile
 
-          $verify = Join-Path $PWD 'verify-portable'
-          Remove-Item $verify -Recurse -Force -ErrorAction SilentlyContinue
-          Expand-Archive -LiteralPath 'release\Sentrix-v1-Windows-Portable.zip' -DestinationPath $verify -Force
-          foreach ($required in @('Start Sentrix.bat','App\app.py','Runtime\Python\python.exe')) {
-            if (-not (Test-Path (Join-Path $verify $required))) { throw "Portable package is missing $required" }
-          }
+          outer = Path('artifact.zip')
+          destination = Path('release/Sentrix-v1-Windows-Portable.zip')
+          with ZipFile(outer) as archive:
+              matches = [name for name in archive.namelist() if name.endswith('Sentrix-v1-Windows-Portable.zip')]
+              if not matches:
+                  raise SystemExit('Validated portable ZIP was not found inside the Actions artifact.')
+              destination.write_bytes(archive.read(matches[0]))
+
+          required = {'Start Sentrix.bat', 'App/app.py', 'Runtime/Python/python.exe'}
+          with ZipFile(destination) as package:
+              names = set(package.namelist())
+          missing = sorted(required - names)
+          if missing:
+              raise SystemExit(f'Portable package is missing required files: {missing}')
+          print('Portable ZIP structure validated without full extraction.')
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { throw 'Portable ZIP structure validation failed.' }
 
           $hash = (Get-FileHash -Algorithm SHA256 'release\Sentrix-v1-Windows-Portable.zip').Hash.ToLowerInvariant()
           "$hash  Sentrix-v1-Windows-Portable.zip" | Set-Content 'release\Sentrix-v1-Windows-Portable.sha256.txt' -Encoding ASCII
