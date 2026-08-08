@@ -4,192 +4,122 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - agent/sentrix-portable-latest
+      - main
     paths:
-      - 'app.py'
-      - 'analyzer/**'
-      - 'helpers/**'
-      - 'templates/**'
-      - 'static/**'
-      - 'migrations/**'
-      - 'requirements.txt'
-      - 'config.py'
-      - 'database.py'
-      - 'extensions.py'
-      - 'forms.py'
-      - 'models.py'
-      - 'settings_models.py'
       - '.github/workflows/windows-portable-release.yml'
-
-concurrency:
-  group: sentrix-windows-portable-release
-  cancel-in-progress: true
 
 permissions:
   contents: write
+  actions: read
+
+concurrency:
+  group: sentrix-v1-portable-release
+  cancel-in-progress: true
 
 jobs:
-  build:
+  publish:
     runs-on: windows-latest
-
     steps:
-      - name: Checkout Sentrix
+      - name: Checkout current main
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Sync production website UI
-        shell: powershell
-        run: |
-          $ErrorActionPreference = 'Stop'
-          git fetch origin production/sentrix-permanent
-          git checkout origin/production/sentrix-permanent -- templates static
-          $productionSha = (git rev-parse origin/production/sentrix-permanent).Trim()
-          $sentrixSha = (git rev-parse HEAD).Trim()
-          "PRODUCTION_UI_SHA=$productionSha" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          "SENTRIX_SHA=$sentrixSha" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-
-      - name: Set up Python 3.13
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-          cache: 'pip'
-
-      - name: Install Sentrix dependencies
-        shell: powershell
-        run: |
-          $ErrorActionPreference = 'Stop'
-          python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
-          python -m pip check
-          if ($LASTEXITCODE -ne 0) { throw 'Installed Python dependencies are inconsistent.' }
-
-      - name: Verify analyzers
-        shell: powershell
-        run: |
-          $ErrorActionPreference = 'Stop'
-          @'
-          from pathlib import Path
-          from tempfile import TemporaryDirectory
-          from analyzer.lint import run_pylint
-          from analyzer.security import run_bandit
-          from analyzer.formatter import run_black
-          from analyzer.complexity import run_radon
-
-          with TemporaryDirectory() as temp_dir:
-              root = Path(temp_dir)
-              sample = root / "sample.py"
-              sample.write_text('def add(a, b):\n    return a + b\n', encoding='utf-8')
-              pylint_result = run_pylint(str(sample))
-              assert 'error' not in pylint_result, pylint_result
-              assert 0 <= float(pylint_result['score']) <= 10, pylint_result
-              assert 'error' not in run_bandit(str(root)), run_bandit(str(root))
-              assert 'error' not in run_black(str(sample)), run_black(str(sample))
-              assert isinstance(run_radon(str(sample)), list)
-          print('Analyzer smoke test passed.')
-          '@ | python -
-          if ($LASTEXITCODE -ne 0) { throw 'Analyzer smoke test failed.' }
-
-      - name: Assemble portable Windows package
-        shell: powershell
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $release = Join-Path $PWD 'release'
-          $stage = Join-Path $release 'Sentrix-v1-Windows-Portable'
-          $appDir = Join-Path $stage 'App'
-          $runtimeDir = Join-Path $stage 'Runtime\Python'
-
-          Remove-Item $release -Recurse -Force -ErrorAction SilentlyContinue
-          New-Item -ItemType Directory -Force -Path $appDir | Out-Null
-          New-Item -ItemType Directory -Force -Path $runtimeDir | Out-Null
-
-          robocopy $PWD $appDir /E /R:1 /W:1 `
-            /XD .git .github release build build-assets venv .venv __pycache__ tests installer portable `
-            /XF *.pyc .env
-          if ($LASTEXITCODE -ge 8) { throw "Application copy failed with robocopy exit code $LASTEXITCODE." }
-
-          $pythonRoot = (& python -c "import sys; print(sys.base_prefix)").Trim()
-          if (-not (Test-Path (Join-Path $pythonRoot 'python.exe'))) { throw "Python runtime not found at $pythonRoot" }
-          robocopy $pythonRoot $runtimeDir /E /R:1 /W:1 /XD __pycache__ /XF *.pyc
-          if ($LASTEXITCODE -ge 8) { throw "Python runtime copy failed with robocopy exit code $LASTEXITCODE." }
-
-          @'
-          @echo off
-          setlocal
-          cd /d "%~dp0"
-          set "SENTRIX_APP=%~dp0App"
-          set "SENTRIX_PYTHON=%~dp0Runtime\Python\python.exe"
-          set "SENTRIX_DATA_DIR=%LOCALAPPDATA%\Sentrix"
-          set "HOST=127.0.0.1"
-          set "PORT=5000"
-          set "APP_ENV=development"
-          set "FLASK_DEBUG=0"
-          set "PYTHONNOUSERSITE=1"
-          if not exist "%SENTRIX_DATA_DIR%" mkdir "%SENTRIX_DATA_DIR%"
-          if not exist "%SENTRIX_PYTHON%" (echo ERROR: Bundled Python runtime is missing.& pause& exit /b 1)
-          powershell.exe -NoProfile -Command "$c=Get-NetTCPConnection -LocalPort 5000 -State Listen -ErrorAction SilentlyContinue; if($c){exit 1}else{exit 0}"
-          if errorlevel 1 (echo ERROR: Port 5000 is already in use.& pause& exit /b 1)
-          start "Sentrix" /D "%SENTRIX_APP%" "%SENTRIX_PYTHON%" "%SENTRIX_APP%\app.py"
-          powershell.exe -NoProfile -Command "$ok=$false; for($i=0;$i -lt 60;$i++){try{Invoke-WebRequest -UseBasicParsing -Uri 'http://127.0.0.1:5000' -TimeoutSec 1 ^| Out-Null; $ok=$true; break}catch{Start-Sleep -Seconds 1}}; if($ok){Start-Process 'http://127.0.0.1:5000'; exit 0}else{exit 1}"
-          if errorlevel 1 (echo Sentrix did not become ready.& pause& exit /b 1)
-          exit /b 0
-          '@ | Set-Content (Join-Path $stage 'Start Sentrix.bat') -Encoding ASCII
-
-          @"
-          SENTRIX v1 - PORTABLE WINDOWS EDITION
-          =====================================
-          Extract the ZIP completely, then double-click Start Sentrix.bat.
-          Python and all required dependencies are bundled.
-          No separate Python installation is required.
-          Sentrix runs locally at http://127.0.0.1:5000.
-
-          Product source: $env:SENTRIX_SHA
-          Production UI source: $env:PRODUCTION_UI_SHA
-          "@ | Set-Content (Join-Path $stage 'README.txt') -Encoding UTF8
-
-          if (-not (Test-Path (Join-Path $appDir 'app.py'))) { throw 'Portable package is missing App\app.py.' }
-          if (-not (Test-Path (Join-Path $runtimeDir 'python.exe'))) { throw 'Portable package is missing Runtime\Python\python.exe.' }
-
-          Push-Location $appDir
-          try {
-            & (Join-Path $runtimeDir 'python.exe') -c "import flask, pylint, bandit, black, radon; from analyzer.lint import run_pylint; print('Portable runtime imports passed')"
-            if ($LASTEXITCODE -ne 0) { throw 'Bundled runtime import test failed.' }
-          } finally { Pop-Location }
-
-          $zip = Join-Path $release 'Sentrix-v1-Windows-Portable.zip'
-          Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $zip -CompressionLevel Fastest
-          if (-not (Test-Path $zip)) { throw 'Portable ZIP was not created.' }
-          $hash = (Get-FileHash -Algorithm SHA256 $zip).Hash.ToLowerInvariant()
-          "$hash  Sentrix-v1-Windows-Portable.zip" | Set-Content (Join-Path $release 'Sentrix-v1-Windows-Portable.sha256.txt') -Encoding ASCII
-
-      - name: Publish canonical v1.0.0 release assets
+      - name: Reuse validated portable ZIP
         shell: powershell
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference = 'Stop'
-          foreach ($asset in @(
-            'Sentrix-Setup-v1.0.0.exe',
-            'Sentrix-Setup-v1.0.0.sha256.txt',
-            'Sentrix-v1-Windows-Portable.zip',
-            'Sentrix-v1-Windows-Portable.sha256.txt'
-          )) {
-            gh release delete-asset v1.0.0 $asset -y 2>$null
+          New-Item -ItemType Directory -Force -Path release,artifact | Out-Null
+
+          $artifactUrl = "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts/9018108246/zip"
+          curl.exe -L --fail `
+            -H "Authorization: Bearer $env:GH_TOKEN" `
+            -H "Accept: application/vnd.github+json" `
+            -H "X-GitHub-Api-Version: 2022-11-28" `
+            $artifactUrl -o artifact.zip
+          if ($LASTEXITCODE -ne 0 -or -not (Test-Path artifact.zip)) { throw 'Could not download the validated portable artifact.' }
+
+          Expand-Archive -LiteralPath artifact.zip -DestinationPath artifact -Force
+          $sourceZip = Get-ChildItem artifact -Recurse -File -Filter 'Sentrix-v1-Windows-Portable.zip' | Select-Object -First 1
+          if (-not $sourceZip) { throw 'Validated portable ZIP was not found inside the Actions artifact.' }
+          Copy-Item -LiteralPath $sourceZip.FullName -Destination 'release\Sentrix-v1-Windows-Portable.zip' -Force
+
+          $verify = Join-Path $PWD 'verify-portable'
+          Remove-Item $verify -Recurse -Force -ErrorAction SilentlyContinue
+          Expand-Archive -LiteralPath 'release\Sentrix-v1-Windows-Portable.zip' -DestinationPath $verify -Force
+          foreach ($required in @('Start Sentrix.bat','App\app.py','Runtime\Python\python.exe')) {
+            if (-not (Test-Path (Join-Path $verify $required))) { throw "Portable package is missing $required" }
           }
-          gh release upload v1.0.0 `
+
+          $hash = (Get-FileHash -Algorithm SHA256 'release\Sentrix-v1-Windows-Portable.zip').Hash.ToLowerInvariant()
+          "$hash  Sentrix-v1-Windows-Portable.zip" | Set-Content 'release\Sentrix-v1-Windows-Portable.sha256.txt' -Encoding ASCII
+          Write-Host "Validated portable ZIP SHA256: $hash"
+
+      - name: Create clean current v1.0.0 release
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          @'
+          # Sentrix v1.0.0 - Portable Windows
+
+          Sentrix is a local Windows application by **HR-Presents** for Python code quality, security, complexity analysis, and professional reports.
+
+          ## Download
+
+          Under **Assets**, download **`Sentrix-v1-Windows-Portable.zip`**.
+
+          Do not use GitHub's automatically generated **Source code (zip)** or **Source code (tar.gz)** unless you specifically want the source code.
+
+          ## Start Sentrix
+
+          1. Download `Sentrix-v1-Windows-Portable.zip`.
+          2. Right-click the ZIP and choose **Extract All**.
+          3. Open the extracted folder.
+          4. Double-click **`Start Sentrix.bat`**.
+          5. Keep the Sentrix console window open while using the application.
+          6. Sentrix opens locally at `http://127.0.0.1:5000`.
+
+          **Python 3.13 and the required dependencies are bundled. No separate Python installation is required.**
+
+          ## What Sentrix includes
+
+          - Python file and project ZIP analysis
+          - Pylint code-quality analysis
+          - Bandit security scanning
+          - Black formatting checks
+          - Radon complexity analysis
+          - Project scoring and findings
+          - Analysis history
+          - Professional downloadable reports
+          - Local user accounts and protected project data
+
+          ## Privacy
+
+          Sentrix runs locally on the user's Windows computer. Application data is stored under `%LOCALAPPDATA%\Sentrix`.
+
+          ## Verify the download
+
+          `Sentrix-v1-Windows-Portable.sha256.txt` is included as a release asset for checksum verification.
+
+          **Presented by HR-Presents.**
+          '@ | Set-Content 'release\RELEASE_BODY.md' -Encoding UTF8
+
+          gh release delete v1.0.0 --cleanup-tag -y
+          if ($LASTEXITCODE -ne 0) { throw 'Could not remove the stale v1.0.0 release/tag.' }
+
+          gh release create v1.0.0 `
             'release/Sentrix-v1-Windows-Portable.zip' `
             'release/Sentrix-v1-Windows-Portable.sha256.txt' `
-            --clobber
-          gh release edit v1.0.0 `
+            --target "$env:GITHUB_SHA" `
             --title 'Sentrix v1.0.0 - Portable Windows' `
-            --notes "Sentrix v1.0.0 for Windows is distributed as the current portable ZIP. Extract it completely and double-click Start Sentrix.bat. Python 3.13 and the required dependencies are bundled; no separate Python installation is required. The package was validated with Pylint, Bandit, Black and Radon before publication. Source commit: $env:SENTRIX_SHA. Production UI commit: $env:PRODUCTION_UI_SHA."
+            --notes-file 'release/RELEASE_BODY.md' `
+            --latest
+          if ($LASTEXITCODE -ne 0) { throw 'Could not create the clean portable v1.0.0 release.' }
 
-      - name: Upload Actions copy
-        uses: actions/upload-artifact@v4
-        with:
-          name: Sentrix-v1-Windows-Portable
-          path: |
-            release/Sentrix-v1-Windows-Portable.zip
-            release/Sentrix-v1-Windows-Portable.sha256.txt
-          if-no-files-found: error
-          retention-days: 30
+          gh release view v1.0.0 --json tagName,name,isLatest,targetCommitish,assets
+          if ($LASTEXITCODE -ne 0) { throw 'Published release verification failed.' }
