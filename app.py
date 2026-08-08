@@ -20,6 +20,72 @@ login_manager.login_view = "main.login"
 login_manager.login_message_category = "warning"
 
 
+def _run_packaged_analyzer_selftest():
+    """Exercise analyzers from the packaged executable before a build may ship."""
+    from pathlib import Path
+    from tempfile import TemporaryDirectory
+
+    from analyzer.complexity import run_radon
+    from analyzer.formatter import run_black
+    from analyzer.lint import run_pylint
+    from analyzer.security import run_bandit
+    from analyzer.syntax import check_syntax
+
+    with TemporaryDirectory() as temp_dir:
+        root = Path(temp_dir)
+
+        clean_file = root / "clean_sample.py"
+        clean_file.write_text(
+            '"""Sentrix packaged analyzer smoke test."""\n\n'
+            "def add(left, right):\n"
+            '    """Return two values added together."""\n'
+            "    return left + right\n",
+            encoding="utf-8",
+        )
+        syntax_result = check_syntax(str(clean_file))
+        if syntax_result.get("valid") is not True:
+            raise RuntimeError(f"Packaged syntax analyzer failed: {syntax_result}")
+
+        pylint_result = run_pylint(str(clean_file))
+        if pylint_result.get("error"):
+            raise RuntimeError(f"Packaged Pylint failed: {pylint_result}")
+        pylint_score = float(pylint_result.get("score"))
+        if not 0.0 <= pylint_score <= 10.0:
+            raise RuntimeError(f"Packaged Pylint returned invalid score: {pylint_result}")
+
+        poor_file = root / "poor_sample.py"
+        poor_file.write_text(
+            "import os\n\n"
+            "def BAD_NAME(x):\n"
+            "    unused = 1\n"
+            "    return x\n",
+            encoding="utf-8",
+        )
+        poor_pylint = run_pylint(str(poor_file))
+        if poor_pylint.get("error") or not poor_pylint.get("issues"):
+            raise RuntimeError(
+                f"Packaged Pylint did not report expected findings: {poor_pylint}"
+            )
+
+        black_result = run_black(str(clean_file))
+        if black_result.get("error") or black_result.get("status") not in {
+            "Passed",
+            "Needs Formatting",
+        }:
+            raise RuntimeError(f"Packaged Black failed: {black_result}")
+
+        if not isinstance(run_radon(str(clean_file)), list):
+            raise RuntimeError("Packaged Radon returned an invalid result.")
+
+        bandit_result = run_bandit(str(root))
+        if bandit_result.get("error") or not isinstance(
+            bandit_result.get("issues"), list
+        ):
+            raise RuntimeError(f"Packaged Bandit failed: {bandit_result}")
+
+    print("Sentrix packaged analyzer self-test passed.")
+
+
 def _apply_security_headers(app: Flask, response):
     """Attach baseline browser security controls to every response."""
     if not app.config.get("SECURITY_HEADERS_ENABLED", True):
@@ -122,6 +188,11 @@ def create_app(config_class=Config):
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(User, int(user_id))
+
+
+if __name__ == "__main__" and os.getenv("SENTRIX_PACKAGED_SELFTEST", "0") == "1":
+    _run_packaged_analyzer_selftest()
+    raise SystemExit(0)
 
 
 app = create_app()
