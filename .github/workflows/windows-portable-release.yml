@@ -131,5 +131,5 @@ jobs:
             --latest
           if ($LASTEXITCODE -ne 0) { throw 'Could not create the clean portable v1.0.0 release.' }
 
-          gh release view v1.0.0 --json tagName,name,isLatest,targetCommitish,assets
+          gh release view v1.0.0 --json tagName,name,targetCommitish,assets
           if ($LASTEXITCODE -ne 0) { throw 'Published release verification failed.' }
