@@ -2,14 +2,15 @@ import importlib
 import os
 
 from pylint import checkers as pylint_checkers
+from pylint import reporters as pylint_reporters
 from pylint.lint import Run
 from pylint.reporters import BaseReporter
 
 
-# Pylint 3.3.x discovers its built-in checkers by listing the physical
-# ``pylint/checkers`` directory. Nuitka standalone builds may compile those
-# modules without materialising that source directory, so packaged Sentrix
-# needs a deterministic registration fallback.
+# Pylint 3.3.x discovers built-in plugins by listing physical package
+# directories. Nuitka standalone builds can compile those modules without
+# materialising the directories, so packaged Sentrix needs deterministic
+# fallbacks that do not depend on filesystem discovery.
 _PACKAGED_CHECKER_MODULES = (
     "pylint.checkers.async",
     "pylint.checkers.bad_chained_comparison",
@@ -65,7 +66,6 @@ class CollectingReporter(BaseReporter):
         )
 
     def _display(self, layout):
-        # Reports are disabled for Sentrix; this satisfies BaseReporter.
         return None
 
 
@@ -94,13 +94,18 @@ def _register_packaged_checkers(linter):
         )
 
 
-def _needs_packaged_checker_fallback():
-    """Return True when Pylint's physical checker directory is unavailable."""
+def _package_directory_missing(module):
+    """Return True when a compiled package has no physical directory."""
     try:
-        checker_dir = pylint_checkers.__path__[0]
+        package_dir = module.__path__[0]
     except (AttributeError, IndexError, TypeError):
         return True
-    return not os.path.isdir(checker_dir)
+    return not os.path.isdir(package_dir)
+
+
+def _skip_packaged_reporter_discovery(_linter):
+    """Skip default reporter discovery; Sentrix supplies its reporter directly."""
+    return None
 
 
 def _score_from_stats(stats):
@@ -127,7 +132,6 @@ def _score_from_stats(stats):
     warning = _count("warning")
     refactor = _count("refactor")
     convention = _count("convention")
-
     total_messages = fatal + error + warning + refactor + convention
 
     if statements > 0:
@@ -139,7 +143,6 @@ def _score_from_stats(stats):
 
     if total_messages == 0:
         return 10.0
-
     return 0.0
 
 
@@ -162,11 +165,19 @@ def _format_output(issues):
 def run_pylint(file_path):
     """Run Pylint in-process so packaged Windows builds need no external CLI."""
     reporter = CollectingReporter()
-    original_initialize = pylint_checkers.initialize
+    original_checker_initialize = pylint_checkers.initialize
+    original_reporter_initialize = pylint_reporters.initialize
 
     try:
-        if _needs_packaged_checker_fallback():
+        if _package_directory_missing(pylint_checkers):
             pylint_checkers.initialize = _register_packaged_checkers
+
+        # Pylint also scans pylint/reporters with os.listdir(). In a Nuitka
+        # standalone executable that directory may not exist even though the
+        # reporter modules are compiled. Sentrix passes CollectingReporter
+        # explicitly, so loading Pylint's default reporters is unnecessary.
+        if _package_directory_missing(pylint_reporters):
+            pylint_reporters.initialize = _skip_packaged_reporter_discovery
 
         run = Run(
             [file_path, "--score=y", "--reports=n"],
@@ -194,4 +205,5 @@ def run_pylint(file_path):
             "error": str(error),
         }
     finally:
-        pylint_checkers.initialize = original_initialize
+        pylint_checkers.initialize = original_checker_initialize
+        pylint_reporters.initialize = original_reporter_initialize
