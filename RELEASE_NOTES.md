@@ -1,34 +1,74 @@
-# Sentrix v1.0.0-RC1 Release Notes
+# Sentrix v1.0.0 — Final Release Notes
 
-**Release candidate date:** August 6, 2026  
+**Final release date:** August 8, 2026  
 **Product:** Sentrix by HR-Presents  
-**Permanent branch:** `production/sentrix-permanent`
+**Official source branch:** `main`  
+**Official release tag:** `v1.0.0`
 
-## Release overview
+## Release status
 
-Sentrix v1.0.0-RC1 is the consolidated production-oriented release candidate for the HR-Presents Python project analysis platform. It combines authenticated project analysis, secure archive handling, database-backed history, professional security reporting, project-specific standards interpretation, deployment assets, automated tests, and a finalized light/dark user interface.
+Sentrix v1.0.0 is the **final official Windows customer release** for this version.
 
-The permanent application identity is **Sentrix — Presented by HR-Presents**, using the Electric Wing brand asset across the navigation, footer, favicon, metadata, documentation, and generated reports.
+The official customer download is:
+
+```text
+Sentrix-v1.0.0-Windows.zip
+```
+
+Download it from the GitHub Release page:
+
+https://github.com/HR-Presents/HR-Presents-Sentrix/releases/tag/v1.0.0
+
+The customer package contains a compiled Windows executable at:
+
+```text
+Runtime\Sentrix.exe
+```
+
+Customers do not need a separate Python installation, Git, Docker, Visual Studio, or GitHub access to run the packaged application.
+
+## Final package identity
+
+The finalized application identity is **Sentrix — Presented by HR-Presents**, using the Sentrix Electric Wing branding throughout the application and packaged static assets.
+
+Official final customer ZIP SHA-256:
+
+```text
+224d3c7cc161f5fce787931fc20aaaaacb9776be865e65769728ea09dd1ed4b0
+```
+
+The release also includes `Sentrix-v1.0.0-Windows.sha256.txt` for independent verification.
+
+## Customer startup
+
+1. Download `Sentrix-v1.0.0-Windows.zip` from the official release.
+2. Extract the ZIP completely.
+3. Open the extracted `Sentrix-v1.0.0-Windows` folder.
+4. Double-click `Start Sentrix.bat`.
+5. Keep the Sentrix console window open while using the application.
+6. Sentrix opens locally at `http://127.0.0.1:5000`.
+
+User data is stored separately under:
+
+```text
+%LOCALAPPDATA%\Sentrix
+```
 
 ## Included product areas
 
 - Registration, login, logout, sessions, password hashing, profiles, and settings
 - Signed expiring password-reset links with SMTP delivery
-- Immediate sign-in after registration; mandatory email verification is not used
 - Python file and ZIP-project upload
 - Secure ZIP extraction and resource controls
-- Syntax, Pylint, Bandit, Radon, formatting, and structural analysis
-- Optional operator-configured AI-assisted recommendations
+- Syntax, Pylint, Bandit, Radon, Black, formatting, and structural analysis
 - Dashboard, project history, analysis history, and reviews
 - Owner-scoped results and report access
-- Self-contained branded HTML reports
+- Professional branded HTML reports
 - Project-specific standards and security-control interpretation
 - Persistent light and dark appearance modes
-- Docker, Docker Compose, Gunicorn, Nginx, and GitHub Actions support
+- Compiled source-free Windows customer distribution
 
 ## Professional reporting
-
-The finalized report structure remains visually consistent while containing deeper technical and educational analysis.
 
 Reports may include:
 
@@ -42,26 +82,11 @@ Reports may include:
 - Secure implementation and remediation guidance
 - Prevention and verification steps
 - Standards and compliance interpretation
-- Top ten security-control analysis
+- Security-control analysis
 
 Standards guidance may reference OWASP Top 10, OWASP ASVS, CWE Top 25, MITRE CAPEC and ATT&CK where applicable, NIST SSDF, NIST CSF, NIST SP 800-53, CIS, SANS, CERT, PCI DSS, ISO/IEC 27001, ISO/IEC 27002, SOC 2, GDPR, and HIPAA.
 
 Mappings are evidence-aware. When retained scanner output does not establish a project-specific relationship or location, Sentrix reports insufficient evidence instead of creating unsupported claims. Standards mapping is guidance and does not constitute certification or legal advice.
-
-## Security controls represented
-
-The reporting engine covers these principal control areas:
-
-1. Secure authentication
-2. Authorization and access control
-3. Input validation
-4. Output encoding
-5. Cryptography
-6. Secrets management
-7. Logging and monitoring
-8. Secure configuration management
-9. Dependency and supply-chain security
-10. Secure error handling
 
 ## Security protections
 
@@ -77,100 +102,46 @@ The reporting engine covers these principal control areas:
 
 Static analysis is an aid to secure development and does not prove that software is vulnerability-free. Findings require developer review and risk validation.
 
-## User interface
+## Windows customer package
 
-The current interface includes:
-
-- Finalized Sentrix navigation and branding
-- Home, About, Contact, Dashboard, Upload, History, Profile, Settings, authentication, and results pages
-- Professional Reports overview on the home page
-- Persistent light/dark mode toggle
-- Dark-mode readability across headings, paragraphs, cards, forms, tables, dropdowns, accordions, results, report summaries, and badges
-- Responsive Bootstrap-based layouts
-
-## Repository and deployment
-
-The release includes:
-
-- Environment template
-- Versioned database migrations
-- Automated unit tests
-- Secure extraction tests
-- Report enrichment and project-mapping tests
-- GitHub Actions workflow
-- Dockerfile
-- Docker Compose configuration
-- Gunicorn configuration
-- Nginx deployment example
-- Security, contribution, roadmap, release, and operational documentation
-
-## Validation commands
-
-```bash
-python -m compileall -q app.py analyzer helpers forms.py models.py config.py tests
-python -m unittest discover -s tests -v
-```
-
-Focused report validation:
-
-```bash
-python -m unittest tests.test_report_content_enrichment -v
-python -m unittest tests.test_report_project_mapping -v
-```
-
-Focused extraction validation:
-
-```bash
-python -m unittest tests.test_extractor_security -v
-```
-
-## Local startup
-
-```bash
-python app.py
-```
-
-Default local address:
+The official compiled package is built with Nuitka and structured as:
 
 ```text
-http://127.0.0.1:5000
+Sentrix-v1.0.0-Windows/
+├── Start Sentrix.bat
+├── README.txt
+├── LICENSE.txt
+└── Runtime/
+    ├── Sentrix.exe
+    └── compiled/runtime dependencies
 ```
 
-## Production requirements
+The customer distribution intentionally excludes readable Sentrix project source files and development files such as project `.py` source, tests, `.git`, `.github`, and `requirements.txt`.
 
-Before production deployment:
+## Validation
 
-- Set a strong stable `SECRET_KEY`
-- Configure the production database and migrations
-- Configure HTTPS
-- Enable secure cookies and appropriate security headers
-- Review SMTP settings
-- Review upload and extraction limits
-- Use a production WSGI server
-- Configure reverse proxy limits and timeouts
-- Use durable protected storage for uploads and reports
-- Configure logging, monitoring, backups, retention, and restore procedures
-- Test authorization and cross-user access controls
-- Run the complete automated test suite
+The final compiled Windows workflow performs source validation, unit tests, Nuitka compilation, packaged analyzer self-tests, compiled web-startup checks, customer-package validation, ZIP creation, SHA-256 generation, workflow-artifact upload, and GitHub Release publishing.
 
-## Database upgrade guidance
+## Developer source
 
-Existing populated databases must be backed up and inspected before applying migration changes. Test upgrades against a disposable copy first. Do not stamp a legacy database unless its current schema and migration state are understood.
+The full source code, documentation, build workflows, tests, templates, static assets, analyzer modules, and development configuration remain available in this repository.
 
-## Known limitations
-
-- Optional AI recommendations depend on operator configuration and provider availability.
-- Static scanners can produce false positives and false negatives.
-- Compliance references are technical mappings, not certifications.
-- SQLite is appropriate for local development and smaller single-instance deployments but may not suit horizontally scaled production use.
-- Deployment examples must be adapted to the target domain, operating system, storage, database, certificates, and security requirements.
-
-## Source of truth
-
-The latest finalized and consolidated application is maintained on:
+The official source-of-truth branch is now:
 
 ```text
-production/sentrix-permanent
+main
 ```
 
-Use this branch when installing, validating, deploying, or continuing Sentrix development.
+Older RC1 and `production/sentrix-permanent` references are historical and are not the final v1.0.0 source-of-truth location.
+
+## Final release
+
+Sentrix v1.0.0 is published as a stable, non-prerelease GitHub Release under:
+
+```text
+v1.0.0
+```
+
+For customers, use only **`Sentrix-v1.0.0-Windows.zip`** from the release Assets section. GitHub's automatically generated source archives are intended for source access, not as the Windows customer application.
+
+Presented by **HR-Presents**.
