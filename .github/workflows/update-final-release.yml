@@ -1,0 +1,76 @@
+name: Finalize Sentrix v1.0.0 Release Page
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/update-final-release.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  finalize-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Finalize existing v1.0.0 release metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat > /tmp/release-notes.md <<'EOF'
+          # Sentrix v1.0.0 FINAL — Official Windows Customer Release
+
+          **This is the final official Sentrix v1.0.0 Windows customer release by HR-Presents.**
+
+          ## Download
+
+          Under **Assets**, download exactly:
+
+          **`Sentrix-v1.0.0-Windows.zip`**
+
+          Do **not** use GitHub's automatically generated `Source code (zip)` or `Source code (tar.gz)` archives as the customer application.
+
+          ## What is included
+
+          - Compiled Windows application with `Runtime\Sentrix.exe`
+          - Sentrix Electric Wing branding/assets
+          - Bundled runtime and required dependencies
+          - Bundled Pylint, Bandit, Black, and Radon functionality
+          - No separate Python installation required
+          - No Git installation required
+          - No GitHub access required to run the downloaded application
+          - Customer data stored separately under `%LOCALAPPDATA%\Sentrix`
+
+          ## Start Sentrix
+
+          1. Download `Sentrix-v1.0.0-Windows.zip`.
+          2. Right-click the ZIP and choose **Extract All...**.
+          3. Open the extracted `Sentrix-v1.0.0-Windows` folder.
+          4. Double-click **`Start Sentrix.bat`**.
+          5. Keep the Sentrix console window open while using the application.
+          6. Sentrix opens locally at `http://127.0.0.1:5000`.
+
+          ## Official package verification
+
+          SHA-256 for the final Windows customer ZIP:
+
+          `224d3c7cc161f5fce787931fc20aaaaacb9776be865e65769728ea09dd1ed4b0`
+
+          A matching `Sentrix-v1.0.0-Windows.sha256.txt` file is included under Assets.
+
+          ## Release status
+
+          - Version: **v1.0.0**
+          - Status: **FINAL / Stable**
+          - Platform: **Windows 10/11 64-bit**
+          - Source of truth for ongoing development: **`main`**
+
+          Presented by **HR-Presents**.
+          EOF
+
+          gh release edit v1.0.0 \
+            --repo HR-Presents/HR-Presents-Sentrix \
+            --title 'Sentrix v1.0.0 FINAL - Official Windows Customer Release' \
+            --notes-file /tmp/release-notes.md \
+            --latest
