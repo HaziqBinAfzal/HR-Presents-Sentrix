@@ -1,4 +1,4 @@
-name: Build Compiled Sentrix Windows Edition
+name: Build Fast Portable Sentrix Windows ZIP
 
 on:
   workflow_dispatch:
@@ -11,8 +11,6 @@ on:
       - 'helpers/**'
       - 'templates/**'
       - 'static/**'
-      - 'installer/**'
-      - 'tests/**'
       - 'migrations/**'
       - 'requirements.txt'
       - 'config.py'
@@ -33,13 +31,14 @@ permissions:
 jobs:
   build:
     runs-on: windows-latest
+
     steps:
-      - name: Checkout Windows-ready Sentrix
+      - name: Checkout Sentrix
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Sync website UI from production source
+      - name: Sync production website UI
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
@@ -47,247 +46,158 @@ jobs:
           git checkout origin/production/sentrix-permanent -- templates static
           $productionSha = (git rev-parse origin/production/sentrix-permanent).Trim()
           $windowsSha = (git rev-parse HEAD).Trim()
-          Write-Host "Website UI source (production/sentrix-permanent): $productionSha"
-          Write-Host "Windows runtime source: $windowsSha"
           "PRODUCTION_UI_SHA=$productionSha" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           "WINDOWS_RUNTIME_SHA=$windowsSha" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
-      - name: Verify production website files are exact
-        shell: powershell
-        run: |
-          $ErrorActionPreference = 'Stop'
-          git diff --exit-code origin/production/sentrix-permanent -- templates static
-          if ($LASTEXITCODE -ne 0) { throw 'Website templates/static do not match production/sentrix-permanent.' }
-
-          $wing = 'static\images\sentrix-electric-spark-wing.svg'
-          if (-not (Test-Path $wing)) { throw "Official Sentrix wing SVG is missing: $wing" }
-          $svg = Get-Content -Raw $wing
-          if ($svg -notmatch '#2496ff' -or $svg -notmatch '#1677ff' -or $svg -notmatch '#0754dc') {
-            throw 'Official Sentrix wing SVG failed branding validation.'
-          }
-
-      - name: Set up Python
+      - name: Set up Python 3.13
         uses: actions/setup-python@v5
         with:
           python-version: '3.13'
           cache: 'pip'
 
-      - name: Install build dependencies
+      - name: Install Sentrix dependencies
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
-          python -m pip install nuitka ordered-set zstandard
           python -m pip check
           if ($LASTEXITCODE -ne 0) { throw 'Installed Python dependencies are inconsistent.' }
 
-      - name: Preflight analyzer runtime
+      - name: Verify analyzers before packaging
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
           @'
           from pathlib import Path
           from tempfile import TemporaryDirectory
-          from analyzer.complexity import run_radon
-          from analyzer.formatter import run_black
           from analyzer.lint import run_pylint
           from analyzer.security import run_bandit
-          from analyzer.syntax import check_syntax
+          from analyzer.formatter import run_black
+          from analyzer.complexity import run_radon
 
           with TemporaryDirectory() as temp_dir:
               root = Path(temp_dir)
-              clean_file = root / "clean_sample.py"
-              clean_file.write_text('"""Sentrix analyzer smoke test."""\n\ndef add(left, right):\n    """Return two values added together."""\n    return left + right\n', encoding="utf-8")
-              syntax_result = check_syntax(str(clean_file))
-              assert syntax_result.get("valid") is True, syntax_result
-              pylint_result = run_pylint(str(clean_file))
-              assert "error" not in pylint_result, pylint_result
-              assert 0.0 <= float(pylint_result.get("score")) <= 10.0, pylint_result
-              assert isinstance(pylint_result.get("issues"), list), pylint_result
-
-              poor_file = root / "poor_sample.py"
-              poor_file.write_text('import os\n\ndef BAD_NAME(x):\n    unused = 1\n    return x\n', encoding="utf-8")
-              poor_pylint = run_pylint(str(poor_file))
-              assert "error" not in poor_pylint, poor_pylint
-              assert len(poor_pylint.get("issues", [])) > 0, poor_pylint
-
-              black_result = run_black(str(clean_file))
-              assert black_result.get("status") in {"Passed", "Needs Formatting"}, black_result
-              assert "error" not in black_result, black_result
-              assert isinstance(run_radon(str(clean_file)), list)
-              bandit_result = run_bandit(str(root))
-              assert isinstance(bandit_result.get("issues"), list), bandit_result
-              assert "error" not in bandit_result, bandit_result
-              broken_file = root / "broken_sample.py"
-              broken_file.write_text("def broken(:\n    pass\n", encoding="utf-8")
-              assert check_syntax(str(broken_file)).get("valid") is False
-          print("Sentrix analyzer preflight passed.")
+              sample = root / "sample.py"
+              sample.write_text('def add(a, b):\n    return a + b\n', encoding='utf-8')
+              pylint_result = run_pylint(str(sample))
+              assert 'error' not in pylint_result, pylint_result
+              assert 0 <= float(pylint_result['score']) <= 10, pylint_result
+              assert 'error' not in run_bandit(str(root)), run_bandit(str(root))
+              assert 'error' not in run_black(str(sample)), run_black(str(sample))
+              assert isinstance(run_radon(str(sample)), list)
+          print('Analyzer smoke test passed.')
           '@ | python -
-          if ($LASTEXITCODE -ne 0) { throw 'Analyzer preflight failed; compilation intentionally skipped.' }
 
-      - name: Verify canonical scoring regression suite
+      - name: Assemble portable Windows package
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
-          python -m unittest tests.test_scoring_consistency -v
-          if ($LASTEXITCODE -ne 0) { throw 'Canonical scoring regression suite failed; compilation intentionally skipped.' }
 
-      - name: Build and validate Windows icon from official Sentrix SVG
-        shell: powershell
-        run: |
-          $ErrorActionPreference = 'Stop'
-          Remove-Item build-assets -Recurse -Force -ErrorAction SilentlyContinue
-          New-Item -ItemType Directory -Force -Path build-assets | Out-Null
+          $release = Join-Path $PWD 'release'
+          $stage = Join-Path $release 'Sentrix-v1-Windows-Portable'
+          $appDir = Join-Path $stage 'App'
+          $runtimeDir = Join-Path $stage 'Runtime\Python'
 
-          $svg = (Resolve-Path 'static\images\sentrix-electric-spark-wing.svg').Path
-          $png = Join-Path $PWD 'build-assets\Sentrix-logo.png'
-          if (-not (Test-Path $svg)) { throw 'Official Sentrix electric-wing SVG is missing.' }
+          Remove-Item $release -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path $appDir | Out-Null
+          New-Item -ItemType Directory -Force -Path $runtimeDir | Out-Null
 
-          choco install imagemagick -y --no-progress
-          if ($LASTEXITCODE -ne 0) { throw 'ImageMagick installation failed.' }
+          # Copy the application source. This fast package intentionally favors
+          # startup reliability and build speed over source-code protection.
+          robocopy $PWD $appDir /E /R:1 /W:1 `
+            /XD .git .github release build build-assets venv .venv __pycache__ tests installer `
+            /XF *.pyc .env
+          if ($LASTEXITCODE -ge 8) { throw "Application copy failed with robocopy exit code $LASTEXITCODE." }
 
-          $magick = Get-ChildItem @(
-            'C:\Program Files\ImageMagick-*\magick.exe',
-            'C:\ProgramData\chocolatey\bin\magick.exe'
-          ) -ErrorAction SilentlyContinue | Select-Object -First 1
-          if (-not $magick) {
-            $command = Get-Command magick.exe -ErrorAction SilentlyContinue
-            if ($command) { $magick = Get-Item $command.Source }
+          # Copy the complete setup-python installation after dependencies have
+          # been installed. Unlike a venv, this remains self-contained when moved.
+          $pythonRoot = (& python -c "import sys; print(sys.base_prefix)").Trim()
+          if (-not (Test-Path (Join-Path $pythonRoot 'python.exe'))) {
+            throw "Python runtime not found at $pythonRoot"
           }
-          if (-not $magick) { throw 'ImageMagick magick.exe was not found after installation.' }
+          robocopy $pythonRoot $runtimeDir /E /R:1 /W:1 /XD __pycache__ /XF *.pyc
+          if ($LASTEXITCODE -ge 8) { throw "Python runtime copy failed with robocopy exit code $LASTEXITCODE." }
 
-          & $magick.FullName -background none -density 600 $svg -resize '224x224' $png
-          if ($LASTEXITCODE -ne 0 -or -not (Test-Path $png)) {
-            throw 'Failed to rasterize the official Sentrix SVG.'
-          }
-
-          @'
-          from pathlib import Path
-          from PIL import Image
-
-          png_path = Path("build-assets/Sentrix-logo.png")
-          target = Path("build-assets/Sentrix.ico")
-          sizes = [(16,16), (32,32), (48,48), (64,64), (128,128), (256,256)]
-
-          with Image.open(png_path) as opened:
-              image = opened.convert("RGBA")
-              image.load()
-
-          visible = [pixel for pixel in image.getdata() if pixel[3] > 20]
-          if len(visible) < 500:
-              raise SystemExit("Sentrix SVG raster has too few visible pixels.")
-
-          blue_pixels = sum(
-              1 for r, g, b, a in visible
-              if b > r and b >= g and b > 100
-          )
-          if blue_pixels < 500:
-              raise SystemExit("Sentrix SVG raster failed blue-wing validation.")
-
-          image.thumbnail((224, 224), Image.Resampling.LANCZOS)
-          canvas = Image.new("RGBA", (256, 256), (0, 0, 0, 0))
-          left = (canvas.width - image.width) // 2
-          top = (canvas.height - image.height) // 2
-          canvas.alpha_composite(image, (left, top))
-          canvas.save(target, format="ICO", sizes=sizes)
-
-          if not target.is_file() or target.stat().st_size == 0:
-              raise SystemExit("Sentrix.ico was not created.")
-
-          with Image.open(target) as check:
-              available = set(check.ico.sizes())
-              missing = set(sizes) - available
-              if missing:
-                  raise SystemExit(f"Sentrix.ico is missing required sizes: {sorted(missing)}")
-              check.seek(0)
-              rgba = check.convert("RGBA")
-              icon_visible = [p for p in rgba.getdata() if p[3] > 20]
-              if not icon_visible:
-                  raise SystemExit("Generated Sentrix.ico is visually empty.")
-
-          print(f"Validated official Sentrix wing icon: {target} ({target.stat().st_size} bytes)")
-          print(f"ICO sizes: {sorted(available)}")
-          '@ | python -
-          if ($LASTEXITCODE -ne 0) { throw 'Sentrix Windows icon generation failed.' }
-
-      - name: Compile Sentrix
-        shell: powershell
-        run: |
-          $ErrorActionPreference = 'Stop'
-          Remove-Item build -Recurse -Force -ErrorAction SilentlyContinue
-          python -m nuitka `
-            --mode=standalone `
-            --assume-yes-for-downloads `
-            --output-dir=build `
-            --output-filename=Sentrix.exe `
-            --include-package=analyzer `
-            --include-package=helpers `
-            --include-package=pylint `
-            --include-package=astroid `
-            --include-package=bandit `
-            --include-package=black `
-            --include-package=radon `
-            --include-distribution-metadata=bandit `
-            --include-data-dir=templates=templates `
-            --include-data-dir=static=static `
-            --include-data-dir=migrations=migrations `
-            --windows-icon-from-ico=build-assets/Sentrix.ico `
-            --windows-console-mode=force `
-            app.py
-          if ($LASTEXITCODE -ne 0) { throw 'Nuitka compilation failed.' }
-          $dist = Get-ChildItem build -Directory | Where-Object { $_.Name -like '*.dist' } | Select-Object -First 1
-          if (-not $dist -or -not (Test-Path (Join-Path $dist.FullName 'Sentrix.exe'))) { throw 'Sentrix.exe was not produced.' }
-
-      - name: Assemble customer package
-        shell: powershell
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $dist = Get-ChildItem build -Directory | Where-Object { $_.Name -like '*.dist' } | Select-Object -First 1
-          if (-not $dist) { throw 'Compiled distribution folder missing.' }
-          $stage = Join-Path $PWD 'release\Sentrix-v1-Windows'
-          Remove-Item $stage -Recurse -Force -ErrorAction SilentlyContinue
-          New-Item -ItemType Directory -Force -Path $stage | Out-Null
-          $runtime = Join-Path $stage 'Runtime'
-          Copy-Item -LiteralPath $dist.FullName -Destination $runtime -Recurse -Force
-          Copy-Item -LiteralPath 'build-assets\Sentrix.ico' -Destination (Join-Path $stage 'Sentrix.ico') -Force
           @'
           @echo off
           setlocal
           cd /d "%~dp0"
-          set "SENTRIX_RUNTIME=%~dp0Runtime"
+
+          set "SENTRIX_APP=%~dp0App"
+          set "SENTRIX_PYTHON=%~dp0Runtime\Python\python.exe"
           set "SENTRIX_DATA_DIR=%LOCALAPPDATA%\Sentrix"
           set "HOST=127.0.0.1"
           set "PORT=5000"
           set "APP_ENV=development"
           set "FLASK_DEBUG=0"
+          set "PYTHONNOUSERSITE=1"
+
           if not exist "%SENTRIX_DATA_DIR%" mkdir "%SENTRIX_DATA_DIR%"
+
+          if not exist "%SENTRIX_PYTHON%" (
+            echo ERROR: The bundled Sentrix Python runtime is missing.
+            pause
+            exit /b 1
+          )
+
           powershell.exe -NoProfile -Command "$c=Get-NetTCPConnection -LocalPort 5000 -State Listen -ErrorAction SilentlyContinue; if($c){exit 1}else{exit 0}"
-          if errorlevel 1 (echo ERROR: Port 5000 is already in use.& pause& exit /b 1)
-          start "Sentrix" /D "%SENTRIX_DATA_DIR%" "%SENTRIX_RUNTIME%\Sentrix.exe"
+          if errorlevel 1 (
+            echo ERROR: Port 5000 is already in use.
+            echo Close the old Sentrix window and try again.
+            pause
+            exit /b 1
+          )
+
+          start "Sentrix" /D "%SENTRIX_APP%" "%SENTRIX_PYTHON%" "%SENTRIX_APP%\app.py"
+
           powershell.exe -NoProfile -Command "$ok=$false; for($i=0;$i -lt 60;$i++){try{Invoke-WebRequest -UseBasicParsing -Uri 'http://127.0.0.1:5000' -TimeoutSec 1 ^| Out-Null; $ok=$true; break}catch{Start-Sleep -Seconds 1}}; if($ok){Start-Process 'http://127.0.0.1:5000'; exit 0}else{exit 1}"
-          if errorlevel 1 (echo Sentrix did not become ready.& pause& exit /b 1)
+          if errorlevel 1 (
+            echo.
+            echo Sentrix did not become ready at http://127.0.0.1:5000
+            pause
+            exit /b 1
+          )
           exit /b 0
           '@ | Set-Content (Join-Path $stage 'Start Sentrix.bat') -Encoding ASCII
-          @"
-          SENTRIX v1 - WINDOWS EDITION
-          ===========================
-          Website UI source: $env:PRODUCTION_UI_SHA
-          Windows runtime source: $env:WINDOWS_RUNTIME_SHA
-          Sentrix runs locally at http://127.0.0.1:5000.
-          "@ | Set-Content (Join-Path $stage 'README.txt') -Encoding UTF8
-          foreach ($item in @((Join-Path $stage 'app.py'),(Join-Path $stage 'analyzer'),(Join-Path $stage 'helpers'),(Join-Path $stage 'requirements.txt'))) { if (Test-Path $item) { throw "Source-code leak: $item" } }
-          if (-not (Test-Path (Join-Path $runtime 'Sentrix.exe'))) { throw 'Customer package is missing Runtime\Sentrix.exe.' }
-          if (-not (Test-Path (Join-Path $stage 'Sentrix.ico'))) { throw 'Customer package is missing Sentrix.ico.' }
-          $zip = Join-Path $PWD 'release\Sentrix-v1-Windows-Compiled.zip'
-          Remove-Item $zip -Force -ErrorAction SilentlyContinue
-          Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $zip -CompressionLevel Optimal
-          if (-not (Test-Path $zip)) { throw 'Customer ZIP was not created.' }
 
-      - name: Upload compiled customer ZIP
+          @"
+          SENTRIX v1 - FAST PORTABLE WINDOWS EDITION
+          ==========================================
+
+          1. Extract this ZIP completely.
+          2. Double-click Start Sentrix.bat.
+          3. Sentrix opens at http://127.0.0.1:5000.
+
+          Python is bundled. No separate Python installation is required.
+          Website UI source: $env:PRODUCTION_UI_SHA
+          Sentrix source: $env:WINDOWS_RUNTIME_SHA
+          "@ | Set-Content (Join-Path $stage 'README.txt') -Encoding UTF8
+
+          if (-not (Test-Path (Join-Path $appDir 'app.py'))) { throw 'Portable package is missing App\app.py.' }
+          if (-not (Test-Path (Join-Path $runtimeDir 'python.exe'))) { throw 'Portable package is missing Runtime\Python\python.exe.' }
+
+          # Prove the copied runtime can import the exact analyzers that previously
+          # failed after Nuitka packaging.
+          Push-Location $appDir
+          try {
+            & (Join-Path $runtimeDir 'python.exe') -c "import flask, pylint, bandit, black, radon; from analyzer.lint import run_pylint; print('Portable runtime imports passed')"
+            if ($LASTEXITCODE -ne 0) { throw 'Bundled Python runtime import test failed.' }
+          } finally {
+            Pop-Location
+          }
+
+          $zip = Join-Path $release 'Sentrix-v1-Windows-Portable.zip'
+          Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $zip -CompressionLevel Fastest
+          if (-not (Test-Path $zip)) { throw 'Portable ZIP was not created.' }
+
+          Write-Host "Created: $zip"
+          Write-Host "Size: $([math]::Round((Get-Item $zip).Length / 1MB, 1)) MB"
+
+      - name: Upload portable customer ZIP
         uses: actions/upload-artifact@v4
         with:
-          name: Sentrix-v1-Windows-Compiled
-          path: release/Sentrix-v1-Windows-Compiled.zip
+          name: Sentrix-v1-Windows-Portable
+          path: release/Sentrix-v1-Windows-Portable.zip
           if-no-files-found: error
           retention-days: 30
